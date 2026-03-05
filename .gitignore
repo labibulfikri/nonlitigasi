@@ -1,0 +1,7 @@
+/assets/berkas_lampiran/*
+/assets/berkas_nonlit/*
+/assets/template/*
+/assets/template2/*
+
+vendor/
+node_modules/
