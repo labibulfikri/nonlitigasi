@@ -10,12 +10,82 @@ class M_nonlit extends CI_Model
     }
 
 
+    //     function make_query()
+    // {
+    //     $table = "nonlits";
+
+    //     // Select column ditambah progres terakhir dari join subquery
+    //     $select_column = "
+    //         nonlits.id, 
+    //         permohonan_nonlit, 
+    //         tgl_nonlit, 
+    //         penyimpanan_rak, 
+    //         users.username, 
+    //         team_nonlit, 
+    //         status, 
+    //         keterangan, 
+    //         bidang, 
+    //         pic, 
+    //         alamat, 
+    //         register_baru,
+    //         luas,
+    //         updated_at,
+    //         det.kesimpulan,
+    //         det.tgl_rapat as tgl_update_progres";
+
+    //     $this->db->select($select_column);
+    //     $this->db->from($table);
+    //     $this->db->join('users', 'users.id = nonlits.updated_by', 'left');
+
+    //     // Join Subquery untuk mengambil detail paling akhir berdasarkan tgl_rapat
+    //     $this->db->join('(
+    //         SELECT id_nonlit, kesimpulan, tgl_rapat
+    //         FROM nonlit_det
+    //         WHERE id IN (
+    //             SELECT MAX(id) 
+    //             FROM nonlit_det 
+    //             GROUP BY id_nonlit
+    //         )
+    //     ) det', 'nonlits.id = det.id_nonlit', 'left');
+
+    //     // Filter dari Pencarian Filter Atas (Jika ada)
+    //     if ($this->input->post('tahun') && $this->input->post('tahun') != 'all') {
+    //         $this->db->where('YEAR(tgl_nonlit)', $this->input->post('tahun'));
+    //     }
+    //     if ($this->input->post('status')) {
+    //         $this->db->where('status', $this->input->post('status'));
+    //     }
+    //     if ($this->input->post('pic')) {
+    //         $this->db->where('pic', $this->input->post('pic'));
+    //     }
+
+    //     // Logic Search Bawaan Datatable
+    //     $i = 0;
+    //     $column_search = array('team_nonlit', 'permohonan_nonlit', 'status', 'pic', 'det.progres_terakhir');
+
+    //     foreach ($column_search as $item) {
+    //         if (@$_POST['search']['value']) {
+    //             if ($i === 0) {
+    //                 $this->db->group_start();
+    //                 $this->db->like($item, $_POST['search']['value']);
+    //             } else {
+    //                 $this->db->or_like($item, $_POST['search']['value']);
+    //             }
+    //             if (count($column_search) - 1 == $i)
+    //                 $this->db->group_end();
+    //         }
+    //         $i++;
+    //     }
+
+    //     // Order Default
+    //     $this->db->order_by('nonlits.id', 'desc');
+    // }
     function make_query()
-{
-    $table = "nonlits";
-    
-    // Select column ditambah progres terakhir dari join subquery
-    $select_column = "
+    {
+        $table = "nonlits";
+
+        // Select column
+        $select_column = "
         nonlits.id, 
         permohonan_nonlit, 
         tgl_nonlit, 
@@ -33,12 +103,11 @@ class M_nonlit extends CI_Model
         det.kesimpulan,
         det.tgl_rapat as tgl_update_progres";
 
-    $this->db->select($select_column);
-    $this->db->from($table);
-    $this->db->join('users', 'users.id = nonlits.updated_by', 'left');
-    
-    // Join Subquery untuk mengambil detail paling akhir berdasarkan tgl_rapat
-    $this->db->join('(
+        $this->db->select($select_column);
+        $this->db->from($table);
+        $this->db->join('users', 'users.id = nonlits.updated_by', 'left');
+
+        $this->db->join('(
         SELECT id_nonlit, kesimpulan, tgl_rapat
         FROM nonlit_det
         WHERE id IN (
@@ -48,38 +117,40 @@ class M_nonlit extends CI_Model
         )
     ) det', 'nonlits.id = det.id_nonlit', 'left');
 
-    // Filter dari Pencarian Filter Atas (Jika ada)
-    if ($this->input->post('tahun') && $this->input->post('tahun') != 'all') {
-        $this->db->where('YEAR(tgl_nonlit)', $this->input->post('tahun'));
-    }
-    if ($this->input->post('status')) {
-        $this->db->where('status', $this->input->post('status'));
-    }
-    if ($this->input->post('pic')) {
-        $this->db->where('pic', $this->input->post('pic'));
-    }
-
-    // Logic Search Bawaan Datatable
-    $i = 0;
-    $column_search = array('team_nonlit', 'permohonan_nonlit', 'status', 'pic', 'det.progres_terakhir');
-    
-    foreach ($column_search as $item) {
-        if (@$_POST['search']['value']) {
-            if ($i === 0) {
-                $this->db->group_start();
-                $this->db->like($item, $_POST['search']['value']);
-            } else {
-                $this->db->or_like($item, $_POST['search']['value']);
-            }
-            if (count($column_search) - 1 == $i)
-                $this->db->group_end();
+        // Filter dari Pencarian Filter Atas
+        if ($this->input->post('tahun') && $this->input->post('tahun') != 'all') {
+            $this->db->where('YEAR(tgl_nonlit)', $this->input->post('tahun'));
         }
-        $i++;
-    }
+        if ($this->input->post('status')) {
+            $this->db->where('status', $this->input->post('status'));
+        }
+        if ($this->input->post('pic')) {
+            $this->db->where('pic', $this->input->post('pic'));
+        }
 
-    // Order Default
-    $this->db->order_by('nonlits.id', 'desc');
-}
+        // --- PERBAIKAN DI SINI ---
+        $i = 0;
+        // Ganti 'det.progres_terakhir' menjadi 'det.kesimpulan' agar sesuai dengan alias join
+        $column_search = array('team_nonlit', 'permohonan_nonlit', 'status', 'pic', 'det.kesimpulan', 'register_baru');
+
+        foreach ($column_search as $item) {
+            if (isset($_POST['search']['value']) && $_POST['search']['value']) {
+                if ($i === 0) {
+                    $this->db->group_start();
+                    $this->db->like($item, $_POST['search']['value']);
+                } else {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+
+                if (count($column_search) - 1 == $i) {
+                    $this->db->group_end();
+                }
+            }
+            $i++;
+        }
+
+        $this->db->order_by('nonlits.id', 'desc');
+    }
 
     function make_datatables()
     {
