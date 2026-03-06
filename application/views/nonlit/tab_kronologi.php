@@ -29,20 +29,20 @@
                         <i class="mdi mdi-plus text-xl text-white"></i>
                     </button>
                 </div>
-                
+
                 <div class="card-body p-4 max-h-[600px] overflow-y-auto">
                     <?= crsf_ajax() ?>
                     <ul class="menu menu-vertical gap-3" id="menu_berkas">
                         <?php foreach ($lampiran as $key) { ?>
                             <li>
-                                <a onclick="setActiveMenuKronologi(this)" id="<?= $key->id ?>" 
-                                   class="flex items-center gap-4 p-4 border border-base-200 hover:bg-primary hover:text-white transition-all rounded-2xl group shadow-sm">
-                                    <div class="bg-primary/10 group-hover:bg-white/20 p-3 rounded-xl">
+                                <a onclick="setActiveMenuKronologi(this)" id="<?= $key->id ?>"
+                                    class="flex items-center gap-4 p-4 border border-base-200 hover:bg-primary hover:text-white transition-all rounded-2xl group shadow-sm">
+                                    <div class="bg-primary group-hover:bg-white/20 p-3 rounded-xl">
                                         <i class="mdi mdi-file-document-outline text-2xl"></i>
                                     </div>
                                     <div class="flex-1 overflow-hidden">
-                                        <span class="font-bold uppercase text-xs block truncate"><?= $key->judul_berkas ?></span>
-                                        <span class="text-[10px] opacity-60">ID Berkas: #<?= $key->id ?></span>
+                                        <span class="font-bold text-black uppercase text-xs block truncate"><?= $key->judul_berkas ?></span>
+                                        <span class="text-black opacity-60">ID Berkas: #<?= $key->id ?></span>
                                     </div>
                                 </a>
                             </li>
@@ -76,7 +76,7 @@
             </div>
             <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form>
         </div>
-        
+
         <form action="<?= base_url('nonlit/upload_berkas_lampiran'); ?>" method="post" enctype="multipart/form-data" class="p-8">
             <?= crsf() ?>
             <input type="hidden" name="id_nonlit" value="<?= $id ?>">
@@ -103,7 +103,7 @@
 </dialog>
 <dialog id="modal_edit_lampiran" class="modal">
     <div class="modal-box max-w-4xl p-0 rounded-3xl border-none shadow-2xl bg-base-100">
-        
+
         <div class="bg-primary p-6 text-white flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="bg-white/20 p-2 rounded-lg">
@@ -118,10 +118,10 @@
                 <button class="btn btn-sm btn-circle btn-ghost text-white">✕</button>
             </form>
         </div>
-        
+
         <form action="<?= base_url('nonlit/update_berkas_lampiran') ?>" method="POST" enctype="multipart/form-data" class="p-8">
             <?= crsf() ?>
-            
+
             <input type="hidden" name="id_nonlit" id="edit_id_nonlit_berkas">
             <input type="hidden" name="id" id="edit_id_det_berkas">
             <input type="hidden" name="old_image" id="edit_lampiran_old">
@@ -132,9 +132,9 @@
                         <label class="label">
                             <span class="label-text font-bold uppercase text-xs text-slate-500">Judul Berkas</span>
                         </label>
-                        <input type="text" name="judul_berkas" id="edit_judul_berkas" 
-                               class="input input-bordered bg-base-200 rounded-xl focus:ring-2 focus:ring-primary w-full font-semibold" 
-                               placeholder="Contoh: Surat Perjanjian Kerjasama" required>
+                        <input type="text" name="judul_berkas" id="edit_judul_berkas"
+                            class="input input-bordered bg-base-200 rounded-xl focus:ring-2 focus:ring-primary w-full font-semibold"
+                            placeholder="Contoh: Surat Perjanjian Kerjasama" required>
                     </div>
 
                     <div class="form-control mt-4">
@@ -142,8 +142,8 @@
                             <span class="label-text font-bold uppercase text-xs text-slate-500">Ganti Berkas (PDF/Gambar)</span>
                         </label>
                         <div class="group relative">
-                            <input type="file" name="new_image" 
-                                   class="file-input file-input-bordered file-input-primary w-full rounded-xl transition-all" />
+                            <input type="file" name="new_image"
+                                class="file-input file-input-bordered file-input-primary w-full rounded-xl transition-all" />
                         </div>
                         <label class="label">
                             <span class="label-text-alt text-error italic font-medium">*Kosongkan jika tidak ingin mengganti file</span>
@@ -171,52 +171,53 @@
             </div>
 
             <div class="modal-action mt-10 flex gap-3 border-t pt-6 border-base-200">
-                <button type="button" onclick="document.getElementById('modal_edit_lampiran').close()" 
-                        class="btn btn-ghost flex-1 rounded-xl uppercase font-bold text-slate-500">Batal</button>
-                <button type="submit" 
-                        class="btn btn-primary flex-[2] text-white shadow-lg shadow-blue-200 rounded-xl uppercase font-bold tracking-wider">
-                        <i class="mdi mdi-check-all mr-2"></i> Simpan Perubahan
+                <button type="button" onclick="document.getElementById('modal_edit_lampiran').close()"
+                    class="btn btn-ghost flex-1 rounded-xl uppercase font-bold text-slate-500">Batal</button>
+                <button type="submit"
+                    class="btn btn-primary flex-[2] text-white shadow-lg shadow-blue-200 rounded-xl uppercase font-bold tracking-wider">
+                    <i class="mdi mdi-check-all mr-2"></i> Simpan Perubahan
                 </button>
             </div>
         </form>
     </div>
 </dialog>
-<script>function setActiveMenuKronologi(element) {
-    const activeEl = $(element);
-    const id = activeEl.attr('id');
-    const token = $('#token').val();
-    
-    // Ambil Nama Token & Hash secara dinamis dari CI
-    const csrfName = '<?= $this->security->get_csrf_token_name(); ?>';
-    const csrfHash = $('#token').val(); 
+<script>
+    function setActiveMenuKronologi(element) {
+        const activeEl = $(element);
+        const id = activeEl.attr('id');
+        const token = $('#token').val();
 
-    // UI Feedback: Set Active State di Sidebar
-    $('#menu_berkas a').removeClass('bg-primary text-white shadow-xl translate-x-2').addClass('bg-base-100 text-slate-700');
-    activeEl.addClass('bg-primary text-white shadow-xl translate-x-2').removeClass('bg-base-100 text-slate-700');
+        // Ambil Nama Token & Hash secara dinamis dari CI
+        const csrfName = '<?= $this->security->get_csrf_token_name(); ?>';
+        const csrfHash = $('#token').val();
 
-    // Tampilkan Loading secara instan tanpa fadeOut lama-lama
-    $('#content_lampiran').html(`
+        // UI Feedback: Set Active State di Sidebar
+        $('#menu_berkas a').removeClass('bg-primary text-white shadow-xl translate-x-2').addClass('bg-base-100 text-slate-700');
+        activeEl.addClass('bg-primary text-white shadow-xl translate-x-2').removeClass('bg-base-100 text-slate-700');
+
+        // Tampilkan Loading secara instan tanpa fadeOut lama-lama
+        $('#content_lampiran').html(`
         <div class="flex flex-col items-center justify-center p-20 w-full text-center animate-pulse">
             <span class="loading loading-ring loading-lg text-primary scale-150"></span>
             <h3 class="mt-6 font-black uppercase italic text-slate-400 tracking-widest">Menyiapkan Dokumen...</h3>
         </div>
     `);
 
-    // AJAX Request
-    $.ajax({
-        url: '<?= base_url('nonlit/get_content_berkas'); ?>',
-        type: 'POST',
-        data: { 
-            id: id, 
-            token: token // Mengirimkan token dengan key yang benar
-        },
-        success: function(response) {
-            // Sembunyikan dulu lalu munculkan dengan data baru
-            $('#content_lampiran').hide().html(response).fadeIn(400);
-        },
-        error: function(xhr) {
-            console.error(xhr.responseText); // Cek error di console F12
-            $('#content_lampiran').html(`
+        // AJAX Request
+        $.ajax({
+            url: '<?= base_url('nonlit/get_content_berkas'); ?>',
+            type: 'POST',
+            data: {
+                id: id,
+                token: token // Mengirimkan token dengan key yang benar
+            },
+            success: function(response) {
+                // Sembunyikan dulu lalu munculkan dengan data baru
+                $('#content_lampiran').hide().html(response).fadeIn(400);
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText); // Cek error di console F12
+                $('#content_lampiran').html(`
                 <div class="p-10 text-center">
                     <div class="alert alert-error shadow-lg max-w-sm mx-auto">
                         <i class="mdi mdi-alert-circle"></i>
@@ -224,9 +225,9 @@
                     </div>
                 </div>
             `);
-        }
-    });
-}
+            }
+        });
+    }
 </script>
 
 <!-- <script>
@@ -257,36 +258,36 @@
     });
 </script> -->
 
- <script>
+<script>
     $(document).on('click', '#btnEditLampiran', function() {
-    // 1. Ambil data dari tombol yang diklik
-    const id_nonlit     = $(this).data("idnonlit");
-    const id            = $(this).data("id");
-    const judul_berkas  = $(this).data("judul_berkas");
-    const nama_berkas   = $(this).data("nama_berkas");
+        // 1. Ambil data dari tombol yang diklik
+        const id_nonlit = $(this).data("idnonlit");
+        const id = $(this).data("id");
+        const judul_berkas = $(this).data("judul_berkas");
+        const nama_berkas = $(this).data("nama_berkas");
 
-    // 2. Masukkan ke input form modal
-    $('#edit_id_nonlit_berkas').val(id_nonlit);
-    $('#edit_id_det_berkas').val(id);
-    $('#edit_judul_berkas').val(judul_berkas);
-    $('#edit_lampiran_old').val(nama_berkas);
+        // 2. Masukkan ke input form modal
+        $('#edit_id_nonlit_berkas').val(id_nonlit);
+        $('#edit_id_det_berkas').val(id);
+        $('#edit_judul_berkas').val(judul_berkas);
+        $('#edit_lampiran_old').val(nama_berkas);
 
-    // 3. Logika Pratinjau Iframe
-    const iframe = $('#edit_lampiran');
-    const noPreview = $('#no_preview_lampiran');
+        // 3. Logika Pratinjau Iframe
+        const iframe = $('#edit_lampiran');
+        const noPreview = $('#no_preview_lampiran');
 
-    if (nama_berkas) {
-        iframe.attr('src', "<?= base_url('assets/berkas_lampiran/') ?>" + nama_berkas).show();
-        noPreview.hide();
-    } else {
-        iframe.hide();
-        noPreview.show();
-    }
+        if (nama_berkas) {
+            iframe.attr('src', "<?= base_url('assets/berkas_lampiran/') ?>" + nama_berkas).show();
+            noPreview.hide();
+        } else {
+            iframe.hide();
+            noPreview.show();
+        }
 
-    // 4. Buka Modal DaisyUI
-    document.getElementById('modal_edit_lampiran').showModal();
-});
- </script>
+        // 4. Buka Modal DaisyUI
+        document.getElementById('modal_edit_lampiran').showModal();
+    });
+</script>
 <script>
     $(document).on('click', '#btnCloseDetLampiran', function() {
 

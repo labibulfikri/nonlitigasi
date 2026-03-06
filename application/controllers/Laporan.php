@@ -35,87 +35,92 @@ class Laporan extends CI_Controller
         }
     }
 
-    function fetch_nonlit()
+    public function fetch_nonlit()
     {
-        cek_csrf();
+        // Cek CSRF (Pastikan fungsi ini ada di Base_Controller atau helper Anda)
+        // cek_csrf(); 
 
+        // Ambil data POST dari DataTables
         $status = $this->input->post('status', true);
         $pic = $this->input->post('pic', true);
         $bidang = $this->input->post('bidang', true);
         $team = $this->input->post('team', true);
         $tahun = $this->input->post('tahun', true);
-
-        if ($pic == "all") {
-            $pic = "";
-        }
-        if ($status == "all") {
-            $status = "";
-        }
-        if ($bidang == "all") {
-            $bidang = "";
-        }
-        if ($team == "all") {
-            $team = "";
-        }
-        if ($tahun) {
-            $tahun = "";
-        }
         $permohonan_nonlit = $this->input->post('permohonan_nonlit', true);
 
-        $fetch_data = $this->m_laporan->make_datatables($status, $bidang, $pic, $team,  $tahun, $permohonan_nonlit);
+        // Normalisasi Filter: Jika "all", kosongkan string untuk query SQL
+        $status = ($status == "all") ? "" : $status;
+        $pic    = ($pic == "all")    ? "" : $pic;
+        $bidang = ($bidang == "all") ? "" : $bidang;
+        $team   = ($team == "all")   ? "" : $team;
+        $tahun  = ($tahun == "all")  ? "" : $tahun;
+
+        // Panggil Model untuk ambil data
+        $fetch_data = $this->m_laporan->make_datatables($status, $bidang, $pic, $team, $tahun, $permohonan_nonlit);
 
         $data = array();
-        $no = $_POST['start'];
-        foreach ($fetch_data as $row) {
+        $no = $this->input->post('start');
 
+        foreach ($fetch_data as $row) {
             $no++;
             $sub_array = array();
-            $sub_array['no'] = $no;
-            $sub_array['permohonan_nonlit'] = "<strong> Permohonan Nonlit : </strong> <p>$row->permohonan_nonlit </p><br/> <strong> Nomor Register : </strong> $row->register_baru <br/> <strong> Team: </strong> <p> $row->team_nonlit</p>";
-            $sub_array['register_baru'] = $row->register_baru;
-            $sub_array['keterangan'] = substr($row->keterangan, 0, 100) . '...';
-            $sub_array['tgl_nonlit'] = date('d-m-Y', strtotime($row->tgl_nonlit));
-            $sub_array['bidang'] = $row->bidang;
-            $sub_array['pic'] = $row->pic;
-            $sub_array['updated_by'] = "terakhir diupdate <strong>" . $row->updated_at . "</strong> - Oleh :" .  $row->username;
-            $sub_array['updated_at'] = $row->updated_at;
-            $sub_array['status'] = $row->status;
-            $sub_array['team_nonlit'] = $row->team_nonlit;
-            $sub_array['id'] = "<a href='" . base_url('nonlit/detail/' . $row->id) . "' class='btn btn-primary btn-sm'> Detail </a>";
-            // $sub_array[] = '';
 
+            $sub_array['no'] = $no;
+
+            // Kolom Permohonan dengan desain teks bertingkat
+            $sub_array['permohonan_nonlit'] = "
+            <div class='flex flex-col'>
+                <span class='font-bold text-slate-800 leading-tight'>$row->permohonan_nonlit</span>
+                <span class='text-[10px] text-slate-400 mt-1 uppercase'>ID: $row->register_baru</span>
+            </div>
+        ";
+
+            $sub_array['pic'] = $row->pic;
+            $sub_array['tgl_nonlit'] = date('d-m-Y', strtotime($row->tgl_nonlit));
+            $sub_array['bidang'] = "<span class='badge badge-ghost badge-sm font-bold'>$row->bidang</span>";
+            $sub_array['status'] = $row->status;
+            $sub_array['team'] = $row->team_nonlit;
+
+            // Tombol Aksi
+            $sub_array['action'] = "
+            <div class='flex justify-end'>
+                <a href='" . base_url('nonlit/detail/' . $row->id) . "' class='btn btn-primary btn-xs rounded-lg px-4 shadow-sm'>
+                    Detail
+                </a>
+            </div>
+        ";
 
             $data[] = $sub_array;
         }
-        // <a class='btn btn-sm btn-primary' href=' " . base_url('peta/map_by_id/' . $row->id) . " '>Edit Peta GIS</a>
-        // <a class='btn btn-sm btn-primary' href='https://sigis.surabaya.go.id/popup/simbada/show-no-reg/$row->register_baru' target='_blank' rel='noopener noreferrer' > peta</a>
 
         $output = array(
-            "draw"                      =>     intval($_POST["draw"]),
-            "recordsTotal"              =>     $this->m_laporan->get_all_data($status, $bidang, $pic, $team,  $tahun, $permohonan_nonlit),
-            "recordsFiltered"           =>     $this->m_laporan->get_filtered_data($status, $bidang, $pic, $team, $tahun, $permohonan_nonlit),
-            "data"                      =>     $data,
+            "draw"            => intval($this->input->post("draw")),
+            "recordsTotal"    => $this->m_laporan->get_all_data($status, $bidang, $pic, $team, $tahun, $permohonan_nonlit),
+            "recordsFiltered" => $this->m_laporan->get_filtered_data($status, $bidang, $pic, $team, $tahun, $permohonan_nonlit),
+            "data"            => $data,
         );
+
         echo json_encode($output);
     }
 
 
-    public function export_excel() {
-    $tahun    = $this->input->get('tahun');
-    $status   = $this->input->get('status');
-    $team     = $this->input->get('team');
-    $pic      = $this->input->get('pic');
+    public function export_excel()
+    {
+        $tahun    = $this->input->get('tahun');
+        $status   = $this->input->get('status');
+        $team     = $this->input->get('team');
+        $pic      = $this->input->get('pic');
 
-    // Query untuk mengambil data nonlit dan progres terakhirnya
-    $this->db->select('
+        // Query untuk mengambil data nonlit dan progres terakhirnya
+        $this->db->select('
         n.*, 
         d.kesimpulan, 
         d.tgl_rapat as tgl_progres_terakhir
     ');
-    $this->db->from('nonlits n');
-    
-    // Join dengan subquery untuk mengambil detail paling akhir berdasarkan tgl_rapat
-    $this->db->join('(
+        $this->db->from('nonlits n');
+
+        // Join dengan subquery untuk mengambil detail paling akhir berdasarkan tgl_rapat
+        $this->db->join('(
         SELECT id_nonlit, kesimpulan, tgl_rapat
         FROM nonlit_det
         WHERE id IN (
@@ -125,24 +130,24 @@ class Laporan extends CI_Controller
         )
     ) d', 'n.id = d.id_nonlit', 'left');
 
-    if($tahun && $tahun != 'all') $this->db->where('YEAR(n.tgl_nonlit)', $tahun);
-    if($status) $this->db->where('n.status', $status);
-    if($team)   $this->db->where('n.team_nonlit', $team);
-    if($pic)    $this->db->where('n.pic', $pic);
+        if ($tahun && $tahun != 'all') $this->db->where('YEAR(n.tgl_nonlit)', $tahun);
+        if ($status) $this->db->where('n.status', $status);
+        if ($team)   $this->db->where('n.team_nonlit', $team);
+        if ($pic)    $this->db->where('n.pic', $pic);
 
-    $query = $this->db->get();
-    
-    if (!$query) {
-        die("Database Error: " . $this->db->error()['message']);
+        $query = $this->db->get();
+
+        if (!$query) {
+            die("Database Error: " . $this->db->error()['message']);
+        }
+
+        $data_laporan = $query->result_array();
+
+        // Header Excel
+        $filename = "Laporan_NonLitigasi_" . date('Ymd_His') . ".xls";
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+
+        $this->load->view('laporan/excel_template', ['data' => $data_laporan]);
     }
-
-    $data_laporan = $query->result_array();
-
-    // Header Excel
-    $filename = "Laporan_NonLitigasi_" . date('Ymd_His') . ".xls";
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=\"$filename\"");
-    
-    $this->load->view('laporan/excel_template', ['data' => $data_laporan]);
-}
 }

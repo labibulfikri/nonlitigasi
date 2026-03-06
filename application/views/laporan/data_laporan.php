@@ -10,14 +10,14 @@
                 <span class="text-indigo-600">Laporan</span>
             </div>
         </div>
-        
+
         <div class="flex gap-3">
             <button type="button" id="btn-export-excel" class="btn btn-white bg-white border-slate-200 rounded-2xl shadow-sm hover:bg-slate-50 normal-case font-bold">
-    <i class="fa-solid fa-file-excel text-emerald-500 mr-2"></i> Export Excel
-</button>
-            <button class="btn btn-primary rounded-2xl shadow-lg shadow-indigo-100 border-none normal-case font-bold px-6">
-                <i class="fa-solid fa-plus mr-2"></i> Tambah Data
+                <i class="fa-solid fa-file-excel text-emerald-500 mr-2"></i> Export Excel
             </button>
+            <!-- <button class="btn btn-primary rounded-2xl shadow-lg shadow-indigo-100 border-none normal-case font-bold px-6">
+                <i class="fa-solid fa-plus mr-2"></i> Tambah Data
+            </button> -->
         </div>
     </div>
 
@@ -80,111 +80,165 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
-        <div class="overflow-x-auto">
-            <table class="table w-full laporan_nonlit">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6">
+            <table class="laporan_nonlit table w-full border-separate border-spacing-y-2">
                 <thead>
-                    <tr class="border-b border-slate-100 text-slate-400 uppercase text-[11px] tracking-[0.2em] font-black">
-                        <th class="bg-white pb-6">No</th>
-                        <th class="bg-white pb-6">Permohonan Non-Litigasi</th>
-                        <th class="bg-white pb-6">Penanggung Jawab</th>
-                        <th class="bg-white pb-6">Tgl Masuk</th>
-                        <th class="bg-white pb-6">Bidang</th>
-                        <th class="bg-white pb-6">Status</th>
-                        <!-- <th class="bg-white pb-6 text-right">Opsi</th> -->
+                    <tr class="text-slate-500 text-[11px] uppercase tracking-widest border-none">
+                        <th class="bg-slate-50/50 py-4 pl-6 rounded-l-xl">No</th>
+                        <th class="bg-slate-50/50 py-4">Informasi Perkara</th>
+                        <th class="bg-slate-50/50 py-4">PIC / Jaksa</th>
+                        <th class="bg-slate-50/50 py-4">Tanggal</th>
+                        <th class="bg-slate-50/50 py-4">Bidang</th>
+                        <th class="bg-slate-50/50 py-4">Status</th>
+                        <th class="bg-slate-50/50 py-4 pr-6 rounded-r-xl text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="text-slate-600 font-bold text-sm">
-                    </tbody>
+                <tbody class="text-sm">
+                </tbody>
             </table>
         </div>
     </div>
 </div>
-
 <script>
-$(document).ready(function() {
-    var token = $('#token').val()
-    fill_datatable();
+    $(document).ready(function() {
+        // Ambil Token CSRF CodeIgniter
+        const csrfToken = "<?php echo $this->security->get_csrf_hash(); ?>";
 
-    function fill_datatable(tahun = '', status = '', team = '', bidang = '', permohonan = '', pic = '') {
-        $('.laporan_nonlit').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "destroy": true,
-            "dom": '<"flex justify-between items-center mb-6"l><"relative"tr><"flex justify-between items-center mt-8"ip>',
-            "ajax": {
-                url: "<?php echo base_url('laporan/fetch_nonlit'); ?>",
-                type: "POST",
-                data: { token:token,tahun, status, team, bidang, permohonan_nonlit: permohonan, pic },
-            },
-            "columns": [
-                { "data": "no", "className": "text-slate-400 font-medium" },
-                { 
-                    "data": "permohonan_nonlit",
-                    "render": (data) => `<div class="font-bold text-slate-800 line-clamp-2 min-w-[200px]">${data}</div>`
+        // Inisialisasi Pertama
+        fill_datatable();
+
+        function fill_datatable(tahun = '', status = '', team = '', bidang = '', permohonan = '', pic = '') {
+            $('.laporan_nonlit').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "destroy": true, // Sangat penting agar filter bisa reload
+                "responsive": true,
+                "pageLength": 10,
+                "order": [],
+                "ajax": {
+                    "url": "<?php echo base_url('laporan/fetch_nonlit'); ?>",
+                    "type": "POST",
+                    "data": {
+                        "<?php echo $this->security->get_csrf_token_name(); ?>": csrfToken, // CSRF Protection
+                        "tahun": tahun,
+                        "status": status,
+                        "team": team,
+                        "bidang": bidang,
+                        "permohonan_nonlit": permohonan,
+                        "pic": pic
+                    },
                 },
-                { 
-                    "data": "pic",
-                    "render": function(data) {
-                        if(!data) return `<span class="text-slate-300 italic">N/A</span>`;
-                        let ini = data.substring(0,2).toUpperCase();
-                        return `<div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-[10px] font-black">${ini}</div>
-                                    <span class="whitespace-nowrap">${data}</span>
-                                </div>`;
+                "columns": [{
+                        "data": "no",
+                        "className": "pl-6 font-medium text-slate-400 w-12"
+                    },
+                    {
+                        "data": "permohonan_nonlit"
+                    },
+                    {
+                        "data": "pic",
+                        "render": function(data) {
+                            if (!data) return `<span class='text-slate-300 italic'>-</span>`;
+                            let initials = data.substring(0, 2).toUpperCase();
+                            return `
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold">${initials}</div>
+                                <span class="font-semibold text-slate-600">${data}</span>
+                            </div>`;
+                        }
+                    },
+                    {
+                        "data": "tgl_nonlit",
+                        "className": "text-slate-500"
+                    },
+                    {
+                        "data": "bidang"
+                    },
+                    {
+                        "data": "status",
+                        "render": function(data) {
+                            let colorClass = data.toLowerCase() === 'selesai' ? 'bg-emerald-500' : 'bg-amber-500';
+                            return `<span class="badge ${colorClass} border-none text-white text-[10px] font-bold px-3 py-2">${data.toUpperCase()}</span>`;
+                        }
+                    },
+                    {
+                        "data": "action",
+                        "orderable": false
+                    }
+                ],
+                "language": {
+                    "processing": "<span class='loading loading-spinner loading-md text-primary'></span>",
+                    "lengthMenu": "_MENU_ per halaman",
+                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    "paginate": {
+                        "previous": "<i class='mdi mdi-arrow-left'></i>",
+                        "next": "<i class='mdi mdi-arrow-right'></i>"
                     }
                 },
-                { "data": "tgl_nonlit", "className": "whitespace-nowrap opacity-60" },
-                { "data": "bidang", "className": "text-center uppercase" },
-                { 
-                    "data": "status",
-                    "render": function(data) {
-                        let style = data.toLowerCase() === 'selesai' ? 'badge-success' : 'badge-warning';
-                        return `<div class="badge ${style} badge-sm border-none font-black text-[10px] text-white py-3 px-4">${data.toUpperCase()}</div>`;
-                    }
-                },
-                // { 
-                //     "data": "id",
-                //     "className": "text-right",
-                //     "render": (data) => `
-                //         <div class="flex justify-end gap-2">
-                //             <button class="btn btn-square btn-ghost btn-sm hover:bg-slate-100 text-slate-400 hover:text-indigo-600 transition-all rounded-xl"><i class="fa-solid fa-eye text-xs"></i></button>
-                //             <button class="btn btn-square btn-ghost btn-sm hover:bg-slate-100 text-slate-400 hover:text-emerald-600 transition-all rounded-xl"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
-                //         </div>`
-                // }
-            ]
+                "dom": '<"flex flex-col md:flex-row justify-between items-center mb-6"l><"relative"tr><"flex flex-col md:flex-row justify-between items-center mt-8"ip>',
+            });
+        }
+
+        // Listener Tombol Filter
+        $('#filter').click(function(e) {
+            e.preventDefault();
+            fill_datatable(
+                $("#nonlit_filter_bytahun").val(),
+                $("#status").val(),
+                $("#team_nonlit").val(),
+                $("#bidang").val(),
+                $("#permohonan_nonlit").val(),
+                $("#pic").val()
+            );
         });
-    }
-
-    $('#filter').click(function() {
-        fill_datatable(
-            $("#nonlit_filter_bytahun").val(),
-            $("#status").val(),
-            $("#team_nonlit").val(),
-            $("#bidang").val(),
-            $("#permohonan_nonlit").val(),
-            $("#pic").val()
-        );
     });
-});
 </script>
 
 <script>
     $('#btn-export-excel').click(function() {
-    // Ambil nilai filter saat ini
-    const tahun  = $("#nonlit_filter_bytahun").val();
-    const status = $("#status").val();
-    const team   = $("#team_nonlit").val();
-    const pic    = $("#pic").val();
+        // Ambil nilai filter saat ini
+        const tahun = $("#nonlit_filter_bytahun").val();
+        const status = $("#status").val();
+        const team = $("#team_nonlit").val();
+        const pic = $("#pic").val();
 
-    // Bangun URL export dengan parameter filter
-    const exportUrl = "<?= base_url('laporan/export_excel') ?>?" + 
-                      "tahun=" + tahun + 
-                      "&status=" + status + 
-                      "&team=" + team + 
-                      "&pic=" + pic;
+        // Bangun URL export dengan parameter filter
+        const exportUrl = "<?= base_url('laporan/export_excel') ?>?" +
+            "tahun=" + tahun +
+            "&status=" + status +
+            "&team=" + team +
+            "&pic=" + pic;
 
-    // Arahkan browser untuk download berkas
-    window.location.href = exportUrl;
-});
+        // Arahkan browser untuk download berkas
+        window.location.href = exportUrl;
+    });
 </script>
+
+<style>
+    /* Styling DataTables agar menyatu dengan DaisyUI */
+    .dataTables_wrapper .dataTables_length select {
+        @apply select select-bordered select-sm rounded-xl px-8;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        @apply btn btn-sm btn-ghost rounded-lg mx-1 !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        @apply btn-primary text-white border-none shadow-md shadow-primary/20 !important;
+    }
+
+    table.dataTable.no-footer {
+        border-bottom: none !important;
+    }
+
+    /* Baris Tabel Modern */
+    .laporan_nonlit tbody tr {
+        @apply hover:bg-slate-50 transition-colors cursor-default;
+    }
+
+    .laporan_nonlit td {
+        @apply py-4 border-b border-slate-50 !important;
+    }
+</style>
