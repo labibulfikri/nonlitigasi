@@ -99,16 +99,29 @@ class M_peta extends CI_Model
         // exit();
     }
 
+    // public function update_geojson($geojson, $id)
+    // {
+    //     $geojson_data = json_encode($geojson);
+
+    //     // Query untuk memperbarui data di database
+    //     $query = $this->db->where('id', $id); // Gunakan kolom ID yang sesuai
+    //     $query = $this->db->update('nonlits', ['kordinat' => $geojson_data]);
+    //     // $a = $this->db->last_query($query);
+    //     // print_r($a);
+    //     // exit();
+    // }
     public function update_geojson($geojson, $id)
     {
-        $geojson_data = json_encode($geojson);
+        $this->db->set('kordinat', $geojson); // Asumsi nama kolom Anda adalah 'kordinat'
+        $this->db->where('id', $id); // Asumsi nama primary key Anda adalah 'id'
+        return $this->db->update('nonlits'); // Ganti dengan nama tabel Anda
+    }
 
-        // Query untuk memperbarui data di database
-        $query = $this->db->where('id', $id); // Gunakan kolom ID yang sesuai
-        $query = $this->db->update('nonlits', ['kordinat' => $geojson_data]);
-        // $a = $this->db->last_query($query);
-        // print_r($a);
-        // exit();
+    public function clear_geojson($id)
+    {
+        $this->db->set('kordinat', NULL);
+        $this->db->where('id', $id);
+        return $this->db->update('nonlits');
     }
     public function search_suggestions($search)
     {

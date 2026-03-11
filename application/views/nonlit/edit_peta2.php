@@ -1,505 +1,216 @@
- <style>
-     html,
-     body {
-         height: 100%;
-         margin: 0;
-     }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-     #map {
-         width: 100%;
-         height: 400px;
-     }
- </style>
 
- <br />
- <br />
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
- <div class="container">
-     <div class="row">
-         <h1> UPDATE PETA </h1>
-         <div class="col-md-8">
-             <div class="card">
-                 <div class="card-header">
-                     <h5 class="card-title"> Peta </h5>
-                 </div>
-                 <div class="card-body">
+<div class="p-6 bg-base-200 min-h-screen">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800 uppercase tracking-tight">Update Area Peta</h1>
+            <p class="text-slate-500 text-xs font-medium">Visualisasi data aset dan permohonan nonlitigasi Kota Surabaya</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="<?= base_url('nonlit') ?>" class="btn btn-sm btn-ghost bg-white border-slate-200 shadow-sm rounded-lg normal-case">
+                <i class="mdi mdi-arrow-left"></i> Kembali
+            </a>
+            <div id="status-polygon" class="badge badge-primary py-4 px-4 font-bold uppercase text-[10px]">
+                Mengecek Data...
+            </div>
+        </div>
+    </div>
 
-                     <div id='map2' style="width: 100%; height: 800px"></div>
-                     <input type="text" value="<?php echo $id ?>" id="id_nonlits" hidden>
-                 </div>
-             </div>
-         </div>
-         <div class="col-md-4">
-             <div class="card">
-                 <div class="card-header">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8">
+            <div class="card bg-base-100 shadow-xl border border-base-300 rounded-2xl overflow-hidden">
+                <div class="card-body p-0">
+                    <div id="map2" class="w-full h-[750px] z-10"></div>
+                    <input type="hidden" value="<?php echo $id ?>" id="id_nonlits">
+                </div>
 
-                     <h5 class="card-title">Detail</h5>
-                 </div>
-                 <div class="card-body">
-                     <?php $this->load->view($tab) ?>
+                <div class="bg-slate-50 p-3 flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase border-t border-base-300">
+                    <div class="flex items-center gap-1"><i class="mdi mdi-mouse"></i> Klik 'Finish' untuk mengakhiri gambar</div>
+                    <div class="flex items-center gap-1 text-primary"><i class="mdi mdi-check-circle"></i> Dialog simpan akan muncul otomatis</div>
+                </div>
+            </div>
+        </div>
 
-                 </div>
-             </div>
-         </div>
+        <div class="lg:col-span-4 space-y-4">
+            <div class="card bg-base-100 shadow-xl border border-base-300 rounded-2xl">
+                <div class="card-body p-5">
+                    <h3 class="text-sm font-black text-slate-800 mb-4 flex items-center gap-2 uppercase tracking-tighter border-b pb-2">
+                        <i class="mdi mdi-information-outline text-primary text-lg"></i> Detail Informasi
+                    </h3>
+                    <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                        <?php $this->load->view($tab) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-     </div>
- </div>
- <br />
- <br />
- <br />
- <!-- <script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inisialisasi peta
-        var map = L.map('map2').setView([-7.273228079811691, 112.721261602061], 13);
+        const id_nonlits = document.getElementById('id_nonlits').value;
+        const geojsonData = <?php echo $polygon; ?>;
+        const statusEl = document.getElementById('status-polygon');
 
-        // Tambahkan layer peta dasar
-        let streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-        let satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-            maxZoom: 30,
+        // 1. Inisialisasi Peta
+        var map = L.map('map2').setView([-7.273, 112.721], 13);
+
+        let streets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
         }).addTo(map);
 
-        let basemapControl = {
-            "Streets": streets,
-            "Satellite": satellite
-        };
-        L.control.layers(basemapControl).addTo(map);
+        let satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        });
 
-        // Inisialisasi grup fitur
+        L.control.layers({
+            "Jalan": streets,
+            "Satelit": satellite
+        }, null, {
+            position: 'topright'
+        }).addTo(map);
+
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
 
-        // Inisialisasi kontrol menggambar
+        // 2. Load Data Existing
+        if (geojsonData && geojsonData.geometry && geojsonData.geometry.coordinates.length > 0) {
+            L.geoJSON(geojsonData, {
+                onEachFeature: function(feature, layer) {
+                    drawnItems.addLayer(layer);
+                }
+            });
+            map.fitBounds(drawnItems.getBounds());
+            statusEl.innerHTML = "AREA TERSEDIA";
+        } else {
+            statusEl.innerHTML = "KOORDINAT KOSONG";
+            statusEl.classList.replace('badge-primary', 'badge-ghost');
+        }
+
+        // 3. Toolbar Konfigurasi
         var drawControl = new L.Control.Draw({
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    shapeOptions: {
+                        color: '#3b82f6'
+                    }
+                },
+                polyline: false,
+                rectangle: false,
+                circle: false,
+                circlemarker: false,
+                marker: true
+            },
             edit: {
-                featureGroup: drawnItems // Pastikan grup fitur yang bisa diedit
+                featureGroup: drawnItems,
+                remove: true
             }
         });
         map.addControl(drawControl);
 
-        // Mendapatkan data GeoJSON dari PHP
-        var geojsonData = <?php echo $polygon; ?>;
-
-        // Debug data GeoJSON
-        console.log('GeoJSON Data:', geojsonData);
-
-        // Cek apakah data GeoJSON valid
-        if (geojsonData && geojsonData.geometry && geojsonData.geometry.coordinates) {
-            // Membuat layer GeoJSON dan menambahkannya ke peta
-            var geojsonLayer = L.geoJSON(geojsonData, {
-                onEachFeature: function(feature, layer) {
-                    drawnItems.addLayer(layer); // Tambahkan layer ke grup fitur yang bisa diedit
+        // 4. Fungsi Simpan yang Diperbaiki
+        function saveToServer(data, endpoint, confirmText) {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: confirmText,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Proses',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    confirmButton: 'btn btn-primary',
+                    cancelButton: 'btn btn-ghost'
                 }
-            }).addTo(map);
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Memproses...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-            // Mendapatkan batas dari layer GeoJSON
-            var bounds = geojsonLayer.getBounds();
-            if (bounds.isValid()) {
-                map.fitBounds(bounds);
-            } else {
-                console.error('Invalid bounds:', bounds);
-            }
-        } else {
-            console.error('Invalid GeoJSON data:', geojsonData);
+                    fetch(`<?php echo base_url() ?>peta/${endpoint}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                geojson: data,
+                                id: id_nonlits
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(res => {
+                            if (res.status === 'success') {
+                                Swal.fire('Berhasil!', 'Data telah diperbarui.', 'success').then(() => location.reload());
+                            } else {
+                                Swal.fire('Gagal!', res.message || 'Terjadi kesalahan.', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            Swal.fire('Error!', 'Gagal menghubungi server.', 'error');
+                        });
+                } else {
+                    // Jika batal, reload agar tampilan peta kembali ke kondisi database terakhir
+                    location.reload();
+                }
+            });
         }
 
-        // Event listeners untuk menggambar
-        map.on(L.Draw.Event.CREATED, function(event) {
-            var layer = event.layer;
+        // --- PERBAIKAN EVENT LISTENERS ---
+
+        // A. SAAT SELESAI MENGGAMBAR BARU
+        map.on(L.Draw.Event.CREATED, function(e) {
+            var layer = e.layer;
             drawnItems.addLayer(layer);
-            // Simpan data jika diperlukan
+            // Mengirim objek GeoJSON tunggal
+            saveToServer(layer.toGeoJSON(), 'save_new_data', 'Simpan area baru ini?');
         });
 
-        map.on(L.Draw.Event.EDITED, function(event) {
-            var layers = event.layers;
+        // B. SAAT SELESAI EDIT (MENGGESER TITIK)
+        map.on(L.Draw.Event.EDITED, function(e) {
+            var layers = e.layers;
             layers.eachLayer(function(layer) {
-                // Simpan data jika diperlukan
-
-                var geojson = layer.toGeoJSON();
-                var id_nonlits = document.getElementById('id_nonlits').value;
-
-
-                updatedGeoJSON.push(geojson);
-            });
-            fetch('<?php echo base_url() ?>peta/update_peta', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        geojson: updatedGeoJSON
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-        });
-
-        map.on(L.Draw.Event.DELETED, function(event) {
-            var layers = event.layers;
-            layers.eachLayer(function(layer) {
-                // Hapus data jika diperlukan
-                console.log('Deleted Layer:', layer);
+                // PENTING: Mengirim koordinat terbaru setelah digeser
+                saveToServer(layer.toGeoJSON(), 'save_edited_data', 'Simpan perubahan koordinat ini?');
             });
         });
+
+        // C. SAAT MENGHAPUS AREA
+        map.on(L.Draw.Event.DELETED, function(e) {
+            // Jika semua layer dihapus, kirim data kosong/null ke server
+            if (drawnItems.getLayers().length === 0) {
+                saveToServer(null, 'delete_data', 'Hapus permanen koordinat dari database?');
+            }
+        });
+
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 500);
     });
-</script> -->
- <!-- <script>
-     //  document.addEventListener('DOMContentLoaded', function() {
-     //      // Inisialisasi peta
-     //      var map = L.map('map2').setView([-7.273228079811691, 112.721261602061], 13);
+</script>
 
-     //      // Tambahkan layer peta dasar
-     //      let streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-     //      let satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-     //          maxZoom: 30,
-     //          subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-     //      }).addTo(map);
+<style>
+    .leaflet-draw-toolbar a {
+        background-color: white !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
 
-     //      let basemapControl = {
-     //          "Streets": streets,
-     //          "Satellite": satellite,
-     //      };
-     //      L.control.layers(basemapControl).addTo(map);
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
 
-     //      // Mendapatkan data GeoJSON dari PHP
-     //      var geojsonData = <?php echo $polygon; ?>;
-
-     //      // Cek apakah data GeoJSON valid
-     //      if (geojsonData && geojsonData.geometry && geojsonData.geometry.coordinates) {
-     //          var geojsonLayer = L.geoJSON(geojsonData).addTo(map);
-
-     //          var bounds = geojsonLayer.getBounds();
-     //          if (bounds.isValid()) {
-     //              map.fitBounds(bounds);
-     //          } else {
-     //              console.error('Invalid bounds:', bounds);
-     //          }
-     //      } else {
-     //          console.error('Invalid GeoJSON data:', geojsonData);
-     //      }
-
-     //      // Tambahkan kontrol edit ke peta
-     //      var drawControl = new L.Control.Draw({
-     //          edit: {
-     //              featureGroup: geojsonLayer
-     //          }
-     //      }).addTo(map);
-
-     //      map.on(L.Draw.Event.EDITED, function(event) {
-     //          var layers = event.layers;
-     //          var updatedGeoJSON = [];
-     //          var id_nonlits = document.getElementById('id_nonlits').value; // Ambil nilai dari input
-
-     //          layers.eachLayer(function(layer) {
-     //              var geojson = layer.toGeoJSON();
-     //              updatedGeoJSON.push(geojson);
-     //          });
-
-     //          // Konfirmasi sebelum mengupdate data
-     //          Swal.fire({
-     //              title: 'Konfirmasi',
-     //              text: 'Apakah Anda yakin ingin memperbarui data ini?',
-     //              icon: 'warning',
-     //              showCancelButton: true,
-     //              confirmButtonText: 'Ya, perbarui',
-     //              cancelButtonText: 'Batal'
-     //          }).then((result) => {
-     //              if (result.isConfirmed) {
-     //                  // Kirim data GeoJSON yang diubah ke server
-     //                  fetch('<?php echo base_url() ?>peta/save_edited_data', {
-     //                          method: 'POST',
-     //                          headers: {
-     //                              'Content-Type': 'application/json'
-     //                          },
-     //                          body: JSON.stringify({
-     //                              geojson: updatedGeoJSON,
-     //                              id: id_nonlits
-     //                          })
-     //                      })
-     //                      .then(response => response.json())
-     //                      .then(data => {
-     //                          if (data.status === 'success') {
-     //                              Swal.fire({
-     //                                  title: 'Sukses!',
-     //                                  text: 'Data berhasil diperbarui.',
-     //                                  icon: 'success',
-     //                                  confirmButtonText: 'OK'
-     //                              });
-     //                          } else {
-     //                              Swal.fire({
-     //                                  title: 'Error!',
-     //                                  text: 'Terjadi kesalahan saat memperbarui data.',
-     //                                  icon: 'error',
-     //                                  confirmButtonText: 'OK'
-     //                              });
-     //                          }
-     //                      })
-     //                      .catch((error) => {
-     //                          console.error('Error:', error);
-     //                          Swal.fire({
-     //                              title: 'Error!',
-     //                              text: 'Terjadi kesalahan saat memperbarui data.',
-     //                              icon: 'error',
-     //                              confirmButtonText: 'OK'
-     //                          });
-     //                      });
-     //              }
-     //          });
-     //      });
-     //  });
-//  </script> -->
-
- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-
- <script>
-     document.addEventListener('DOMContentLoaded', function() {
-         // Inisialisasi peta
-         var map = L.map('map2').setView([-7.273228079811691, 112.721261602061], 13);
-
-         // Tambahkan layer peta dasar
-         let streets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-             maxZoom: 20,
-             subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-         }).addTo(map);;
-         //  let satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-         let satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
-             maxZoom: 20,
-             subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-         });
-
-
-         let basemapControl = {
-             "Streets": streets,
-             "Satellite": satellite,
-         };
-         L.control.layers(basemapControl).addTo(map);
-
-         // Mendapatkan data GeoJSON dari PHP
-         var geojsonData = <?php echo $polygon; ?>;
-
-         // Tambahkan grup layer untuk pengeditan
-         var drawnItems = new L.FeatureGroup();
-         map.addLayer(drawnItems);
-
-         // Cek apakah data GeoJSON valid
-         if (geojsonData && geojsonData.geometry && geojsonData.geometry.coordinates) {
-             var geojsonLayer = L.geoJSON(geojsonData).addTo(drawnItems);
-
-             var bounds = geojsonLayer.getBounds();
-             if (bounds.isValid()) {
-                 map.fitBounds(bounds);
-             } else {
-                 console.error('Invalid bounds:', bounds);
-             }
-         } else {
-             // Tampilkan alert jika tidak ada data poligon
-             Swal.fire({
-                 title: 'Tidak ada poligon!',
-                 text: 'Data poligon tidak ditemukan. Anda dapat menggambar poligon baru pada peta.',
-                 icon: 'info',
-                 confirmButtonText: 'OK'
-             });
-
-             // Aktifkan mode menggambar poligon baru
-             var drawControl = new L.Control.Draw({
-                 draw: {
-                     polygon: true, // Izinkan menggambar poligon baru
-                     polyline: false,
-                     rectangle: false,
-                     circle: false,
-                     circlemarker: false,
-                     marker: false
-                 },
-                 edit: {
-                     featureGroup: drawnItems, // Grup layer untuk pengeditan
-                     edit: true
-                 }
-             }).addTo(map);
-
-             // Event ketika poligon baru dibuat
-             map.on(L.Draw.Event.CREATED, function(event) {
-                 var layer = event.layer;
-                 drawnItems.addLayer(layer);
-                 var id_nonlits = document.getElementById('id_nonlits').value; // Ambil nilai dari input
-
-                 var drawnGeoJSON = layer.toGeoJSON();
-                 console.log('Poligon baru:', JSON.stringify(drawnGeoJSON));
-
-                 // Kirim data ke server jika diperlukan
-                 fetch('<?php echo base_url() ?>peta/save_new_data', {
-                         method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json'
-                         },
-                         body: JSON.stringify({
-                             geojson: drawnGeoJSON,
-                             id: id_nonlits
-                         })
-                     })
-                     .then(response => response.json())
-                     .then(data => {
-                         if (data.status === 'success') {
-                             Swal.fire({
-                                 title: 'Sukses!',
-                                 text: 'Poligon baru berhasil disimpan.',
-                                 icon: 'success',
-                                 confirmButtonText: 'OK'
-                             });
-                         } else {
-                             Swal.fire({
-                                 title: 'Error!',
-                                 text: 'Terjadi kesalahan saat menyimpan poligon baru.',
-                                 icon: 'error',
-                                 confirmButtonText: 'OK'
-                             });
-                         }
-                     })
-                     .catch(error => {
-                         console.error('Error:', error);
-                         Swal.fire({
-                             title: 'Error!',
-                             text: 'Terjadi kesalahan saat menyimpan poligon baru.',
-                             icon: 'error',
-                             confirmButtonText: 'OK'
-                         });
-                     });
-             });
-         }
-
-         //  Tambahkan kontrol edit untuk poligon yang ada
-         var drawControl = new L.Control.Draw({
-             edit: {
-                 featureGroup: geojsonLayer
-             }
-         }).addTo(map);
-
-         map.on(L.Draw.Event.EDITED, function(event) {
-             var layers = event.layers;
-             var updatedGeoJSON = [];
-             var id_nonlits = document.getElementById('id_nonlits').value; // Ambil nilai dari input
-
-             layers.eachLayer(function(layer) {
-                 var geojson = layer.toGeoJSON();
-                 updatedGeoJSON.push(geojson);
-             });
-
-             // Konfirmasi sebelum mengupdate data
-             Swal.fire({
-                 title: 'Konfirmasi',
-                 text: 'Apakah Anda yakin ingin memperbarui data ini?',
-                 icon: 'warning',
-                 showCancelButton: true,
-                 confirmButtonText: 'Ya, perbarui',
-                 cancelButtonText: 'Batal'
-             }).then((result) => {
-                 if (result.isConfirmed) {
-                     // Kirim data GeoJSON yang diubah ke server
-                     fetch('<?php echo base_url() ?>peta/save_edited_data', {
-                             method: 'POST',
-                             headers: {
-                                 'Content-Type': 'application/json'
-                             },
-                             body: JSON.stringify({
-                                 geojson: updatedGeoJSON,
-                                 id: id_nonlits
-                             })
-                         })
-                         .then(response => response.json())
-                         .then(data => {
-                             if (data.status === 'success') {
-                                 Swal.fire({
-                                     title: 'Sukses!',
-                                     text: 'Data berhasil diperbarui.',
-                                     icon: 'success',
-                                     confirmButtonText: 'OK'
-                                 });
-                             } else {
-                                 Swal.fire({
-                                     title: 'Error!',
-                                     text: 'Terjadi kesalahan saat memperbarui data.',
-                                     icon: 'error',
-                                     confirmButtonText: 'OK'
-                                 });
-                             }
-                         })
-                         .catch((error) => {
-                             console.error('Error:', error);
-                             Swal.fire({
-                                 title: 'Error!',
-                                 text: 'Terjadi kesalahan saat memperbarui data.',
-                                 icon: 'error',
-                                 confirmButtonText: 'OK'
-                             });
-                         });
-                 }
-             });
-         });
-         map.on(L.Draw.Event.DELETED, function(event) {
-             var layers = event.layers;
-             var deletedGeoJSON = [];
-             var id_nonlits = document.getElementById('id_nonlits').value; // Ambil nilai dari input
-
-
-             layers.eachLayer(function(layer) {
-                 var geojson = layer.toGeoJSON();
-                 deletedGeoJSON.push(geojson);
-             });
-
-             // Konfirmasi sebelum menghapus data
-             Swal.fire({
-                 title: 'Konfirmasi',
-                 text: 'Apakah Anda yakin ingin menghapus data ini?',
-                 icon: 'warning',
-                 showCancelButton: true,
-                 confirmButtonText: 'Ya, hapus',
-                 cancelButtonText: 'Batal'
-             }).then((result) => {
-                 if (result.isConfirmed) {
-                     // Kirim data GeoJSON yang dihapus ke server
-                     fetch('<?php echo base_url() ?>peta/delete_data', {
-                             method: 'POST',
-                             headers: {
-                                 'Content-Type': 'application/json'
-                             },
-                             body: JSON.stringify({
-                                 geojson: deletedGeoJSON,
-                                 id: id_nonlits
-                             })
-                         })
-                         .then(response => response.json())
-                         .then(data => {
-                             if (data.status === 'success') {
-                                 Swal.fire({
-                                     title: 'Sukses!',
-                                     text: 'Data berhasil dihapus.',
-                                     icon: 'success',
-                                     confirmButtonText: 'OK'
-                                 });
-                             } else {
-                                 Swal.fire({
-                                     title: 'Error!',
-                                     text: 'Terjadi kesalahan saat menghapus data.',
-                                     icon: 'error',
-                                     confirmButtonText: 'OK'
-                                 });
-                             }
-                         })
-                         .catch((error) => {
-                             console.error('Error:', error);
-                             Swal.fire({
-                                 title: 'Error!',
-                                 text: 'Terjadi kesalahan saat menghapus data.',
-                                 icon: 'error',
-                                 confirmButtonText: 'OK'
-                             });
-                         });
-                 }
-             });
-         });
-     });
- </script>
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+</style>

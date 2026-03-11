@@ -38,8 +38,8 @@ class Peta extends CI_Controller
         $data = array(
 
             'masterpage' => 'layout/layout2',
-            'navbar2' => 'layout/navbar2',
-            'navbar_bawah' => 'layout/navbar_bawah2',
+            // 'navbar2' => 'layout/navbar2',
+            // 'navbar_bawah' => 'layout/navbar_bawah2',
             'list' => $decoded_data,
             'polygons' => json_encode($polygons),
             'content' => 'nonlit/peta_all',
@@ -74,11 +74,11 @@ class Peta extends CI_Controller
             'list' => $list,
             'polygon' => json_encode($list[0]['kordinat']),
             'masterpage' => 'layout/layout2',
-            'navbar2' => 'layout/navbar2',
-            'navbar_bawah' => 'layout/navbar_bawah2',
+            // 'navbar2' => 'layout/navbar2',
+            // 'navbar_bawah' => 'layout/navbar_bawah2',
             'content' => 'nonlit/edit_peta',
             'footer' => 'layout/footer',
-            'tab' => 'layout/tab_detail',
+            'tab' => 'nonlit/tab_detail',
             'title' => 'Daftar Nonlitigasi'
 
 
@@ -119,11 +119,11 @@ class Peta extends CI_Controller
             'list' => $decoded_data,
             'polygon' => json_encode($polygon),
             'masterpage' => 'layout/layout2',
-            'navbar2' => 'layout/navbar2',
-            'navbar_bawah' => 'layout/navbar_bawah2',
+            // 'navbar2' => 'layout/navbar2',
+            // 'navbar_bawah' => 'layout/navbar_bawah2',
             'content' => 'nonlit/edit_peta2',
             'footer' => 'layout/footer',
-            'tab' => 'layout/tab_detail',
+            'tab' => 'nonlit/tab_detail',
             'title' => 'Daftar Nonlitigasi'
         );
         $this->load->view($data['masterpage'], $data);
@@ -169,69 +169,116 @@ class Peta extends CI_Controller
         }
     }
 
-    public function save_edited_data()
-    {
-        // Mengambil data JSON yang dikirimkan
-        $data = file_get_contents('php://input');
-        $decoded_data = json_decode($data, true);
+    // public function save_edited_data()
+    // {
+    //     // Mengambil data JSON yang dikirimkan
+    //     $data = file_get_contents('php://input');
+    //     $decoded_data = json_decode($data, true);
 
-        if (json_last_error() === JSON_ERROR_NONE) {
-            $id = $decoded_data['id']; // Ambil ID dari data yang dikirim
-            $geojsons = $decoded_data['geojson'];
-            // var_dump($geojsons);
-            // exit();
-            foreach ($geojsons as $geojson) {
-                $this->m_peta->update_geojson($geojson, $id);
-            }
+    //     if (json_last_error() === JSON_ERROR_NONE) {
+    //         $id = $decoded_data['id']; // Ambil ID dari data yang dikirim
+    //         $geojsons = $decoded_data['geojson'];
+    //         // var_dump($geojsons);
+    //         // exit();
+    //         foreach ($geojsons as $geojson) {
+    //             $this->m_peta->update_geojson($geojson, $id);
+    //         }
 
-            echo json_encode(['status' => 'success']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
-        }
-    }
+    //         echo json_encode(['status' => 'success']);
+    //     } else {
+    //         echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
+    //     }
+    // }
 
+    // public function save_new_data()
+    // {
+    //     $input = file_get_contents('php://input');
+    //     $data = json_decode($input, true);
+
+    //     // Debug data GeoJSON
+    //     if (!$data) {
+    //         echo json_encode(['status' => 'error', 'message' => 'Invalid JSON data']);
+    //         return;
+    //     }
+
+    //     // Proses penyimpanan data ke database
+    //     $result = $this->m_peta->insert_geojson($data['geojson'], $data['id']);
+
+    //     if ($result) {
+    //         echo json_encode(['status' => 'success']);
+    //     } else {
+    //         echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan data']);
+    //     }
+    // }
+    // public function delete_data()
+    // {
+    //     // Ambil data POST yang dikirim dari frontend
+    //     $input = file_get_contents('php://input');
+    //     $data = json_decode($input, true);
+
+    //     if (json_last_error() === JSON_ERROR_NONE) {
+    //         $id = $data['id']; // Ambil ID dari data yang dikirim
+
+
+    //         $geojsons = $data['geojson'];
+
+    //         foreach ($geojsons as $geojson) {
+    //             $this->m_peta->delete_geojson($geojson, $id);
+    //         }
+
+    //         echo json_encode(['status' => 'success']);
+    //     } else {
+    //         echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
+    //     }
+    // }
     public function save_new_data()
     {
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
 
-        // Debug data GeoJSON
-        if (!$data) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid JSON data']);
+        if (!$data || !isset($data['id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Data tidak lengkap']);
             return;
         }
 
-        // Proses penyimpanan data ke database
-        $result = $this->m_peta->insert_geojson($data['geojson'], $data['id']);
+        // Pastikan data GeoJSON dikonversi kembali ke string JSON sebelum masuk ke database
+        $geojson_string = json_encode($data['geojson']);
+
+        // Gunakan fungsi update karena ID sudah ada di database
+        $result = $this->m_peta->update_geojson($geojson_string, $data['id']);
 
         if ($result) {
             echo json_encode(['status' => 'success']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Gagal menyimpan data']);
+            echo json_encode(['status' => 'error', 'message' => 'Gagal memperbarui database']);
         }
     }
+
+    // Gunakan fungsi yang sama untuk edit karena logic-nya identik
+    public function save_edited_data()
+    {
+        $this->save_new_data();
+    }
+
     public function delete_data()
     {
-        // Ambil data POST yang dikirim dari frontend
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
 
-        if (json_last_error() === JSON_ERROR_NONE) {
-            $id = $data['id']; // Ambil ID dari data yang dikirim
+        if (isset($data['id'])) {
+            // Logika hapus koordinat: Set kolom geojson menjadi NULL atau string kosong
+            // Kita tidak perlu foreach karena kita menghapus berdasarkan ID baris
+            $result = $this->m_peta->clear_geojson($data['id']);
 
-
-            $geojsons = $data['geojson'];
-
-            foreach ($geojsons as $geojson) {
-                $this->m_peta->delete_geojson($geojson, $id);
+            if ($result) {
+                echo json_encode(['status' => 'success']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Gagal menghapus koordinat']);
             }
-
-            echo json_encode(['status' => 'success']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
+            echo json_encode(['status' => 'error', 'message' => 'ID tidak ditemukan']);
         }
     }
-
 
     function search2()
     {
