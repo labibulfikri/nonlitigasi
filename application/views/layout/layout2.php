@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css" />
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -172,6 +175,12 @@
                         <a href="<?= base_url('laporan') ?>" class="py-3.5 <?= $this->uri->segment(1) == 'laporan' ? 'active-menu' : '' ?>">
                             <i class="mdi mdi-chart-box-outline text-xl"></i>
                             <span class="sidebar-text font-bold text-sm ml-2">Laporan Statistik</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('pic') ?>" class="py-3.5 <?= $this->uri->segment(1) == 'pic' ? 'active-menu' : '' ?>">
+                            <i class="mdi mdi-chart-box-outline text-xl"></i>
+                            <span class="sidebar-text font-bold text-sm ml-2">Manajemen PIC</span>
                         </a>
                     </li>
                 </ul>

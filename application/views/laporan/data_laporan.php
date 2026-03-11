@@ -49,7 +49,12 @@
                 <select id="pic" class="select select-bordered w-full rounded-xl bg-slate-50 border-none font-bold text-sm">
                     <option value="">Semua PIC</option>
                     <option value="cavita">CAVITA</option>
+                    <option value="qowi">Qowi</option>
+                    <option value="elia">ELIA</option>
                     <option value="rendy">RENDY BAMBANG</option>
+                    <option value="andi">ANDI MARDIYANTO</option>
+                    <option value="iqbal">IQBAL</option>
+                    <option value="denis"> DENNIS </option>
                 </select>
             </div>
 

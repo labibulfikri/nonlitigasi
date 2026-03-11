@@ -12,6 +12,7 @@ class Nonlit extends CI_Controller
         $this->load->model('m_nonlit');
         $this->load->model('m_home');
         $this->load->model('m_peta');
+        $this->load->model('m_pic');
         $this->load->library('session');
         $this->load->library('form_validation');
         $this->load->helper('security');
@@ -24,11 +25,15 @@ class Nonlit extends CI_Controller
 
             redirect('auth/logout');
         } else {
+            //list pic
+            $data_pic = $this->m_pic->get_all_pic();
+
             $data = array(
                 'masterpage' => 'layout/layout2',
                 // 'navbar2' => 'layout/navbar2',
                 // 'navbar_bawah' => 'layout/navbar_bawah2',
                 'content' => 'nonlit/data_nonlit',
+                'list_pic' => $data_pic,
                 // 'footer' => 'layout/footer',
                 'title' => 'Daftar Nonlitigasi'
             );
@@ -36,51 +41,65 @@ class Nonlit extends CI_Controller
         }
     }
 
+    public function get_data_by_id($id)
+    {
+        $this->db->select('nonlits.*, master_pic.id as id_master_pic, master_pic.nama_pic');
+        $this->db->from('nonlits');
+        // Join ke master_pic berdasarkan id_pic yang tersimpan di nonlits
+        $this->db->join('master_pic', 'master_pic.id = nonlits.id_pic', 'left');
+        $this->db->where('nonlits.id', $id);
+
+        $query = $this->db->get();
+        $data = $query->row();
+
+        echo json_encode($data);
+    }
+
 
     function fetch_nonlit()
     {
         // 1. Cek Keamanan
-    cek_csrf();
+        cek_csrf();
 
-    // 2. Ambil data dari model (tetap gunakan fungsi yang sudah ada)
-    $fetch_data = $this->m_nonlit->make_datatables();
+        // 2. Ambil data dari model (tetap gunakan fungsi yang sudah ada)
+        $fetch_data = $this->m_nonlit->make_datatables();
 
-    $data = array();
-    $no = $_POST['start'] ?? 0;
+        $data = array();
+        $no = $_POST['start'] ?? 0;
 
-    foreach ($fetch_data as $row) {
-        $no++;
-        $sub_array = array();
-        
-        // Kirim data mentah (gunakan strip_tags agar tidak ada <strong> atau <p>)
-        $sub_array['no']                = $no;
-        $sub_array['id']                = $row->id; 
-        $sub_array['register_baru']     = $row->register_baru;
-        $sub_array['alamat']     = $row->alamat;
-        $sub_array['kesimpulan']     = $row->kesimpulan;
-        $sub_array['tgl_nonlit'] = date('d-m-Y', strtotime($row->tgl_nonlit)); // Untuk tampilan di Card
-    $sub_array['tgl_nonlit_raw'] = date('Y-m-d', strtotime($row->tgl_nonlit)); // UNTUK INPUT MODAL
-        $sub_array['bidang']            = $row->bidang;
-        $sub_array['luas']            = $row->luas;
-        $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit)); // Paksa Uppercase biar tegas
-$sub_array['pic'] = $row->pic ?: 'N/A';
-$sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
-        $sub_array['status']            = strtolower($row->status);
-        $sub_array['team_nonlit']       = $row->team_nonlit;
-        $sub_array['keterangan']        = strip_tags($row->keterangan ?? '');
+        foreach ($fetch_data as $row) {
+            $no++;
+            $sub_array = array();
 
-        $data[] = $sub_array;
-    }
+            // Kirim data mentah (gunakan strip_tags agar tidak ada <strong> atau <p>)
+            $sub_array['no']                = $no;
+            $sub_array['id']                = $row->id;
+            $sub_array['register_baru']     = $row->register_baru;
+            $sub_array['alamat']     = $row->alamat;
+            $sub_array['kesimpulan']     = $row->kesimpulan;
+            $sub_array['tgl_nonlit'] = date('d-m-Y', strtotime($row->tgl_nonlit)); // Untuk tampilan di Card
+            $sub_array['tgl_nonlit_raw'] = date('Y-m-d', strtotime($row->tgl_nonlit)); // UNTUK INPUT MODAL
+            $sub_array['bidang']            = $row->bidang;
+            $sub_array['luas']            = $row->luas;
+            $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit)); // Paksa Uppercase biar tegas
+            $sub_array['pic'] = $row->pic ?: 'N/A';
+            $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
+            $sub_array['status']            = strtolower($row->status);
+            $sub_array['team_nonlit']       = $row->team_nonlit;
+            $sub_array['keterangan']        = strip_tags($row->keterangan ?? '');
 
-    $output = array(
-        "draw"            => intval($_POST["draw"]),
-        "recordsTotal"    => $this->m_nonlit->get_all_data(),
-        "recordsFiltered" => $this->m_nonlit->get_filtered_data(),
-        "data"            => $data,
-    );
+            $data[] = $sub_array;
+        }
 
-    header('Content-Type: application/json');
-    echo json_encode($output);
+        $output = array(
+            "draw"            => intval($_POST["draw"]),
+            "recordsTotal"    => $this->m_nonlit->get_all_data(),
+            "recordsFiltered" => $this->m_nonlit->get_filtered_data(),
+            "data"            => $data,
+        );
+
+        header('Content-Type: application/json');
+        echo json_encode($output);
     }
 
 
@@ -121,6 +140,7 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
                 'luas' => $this->input->post('luas', TRUE),
                 'alamat' => $this->input->post('alamat', TRUE),
                 'pic' => $this->input->post('pic', TRUE),
+                'id_pic' => $this->input->post('id_pic', TRUE),
                 'penyimpanan_rak' => $this->input->post('penyimpanan_rak', TRUE),
             );
 
@@ -137,7 +157,7 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
 
     function update_data()
     {
- 
+
         $this->form_validation->set_rules('id', 'Harus Di Isi', 'required');
         $this->form_validation->set_rules('permohonan_nonlit', 'Harus Di Isi', 'required');
         $this->form_validation->set_rules('tgl_nonlit', 'Harus Di Isi', 'required');
@@ -157,7 +177,9 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
         } else {
             cek_csrf();
 
+
             date_default_timezone_set('Asia/Jakarta'); // Untuk WIB 
+
 
             $id = $this->input->post('id', TRUE);
             $permohonan_nonlit = $this->input->post('permohonan_nonlit', TRUE);
@@ -169,6 +191,7 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
             $keterangan = $this->input->post('keterangan', TRUE);
             $luas = $this->input->post('luas', TRUE);
             $pic = $this->input->post('pic', TRUE);
+            $id_pic = $this->input->post('id_pic', TRUE);
             $alamat = $this->input->post('alamat', TRUE);
             $penyimpanan_rak = $this->input->post('penyimpanan_rak', TRUE);
             $updated_at = date('Y-m-d H:i:s');
@@ -184,6 +207,7 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
                 "status" => $status,
                 "register_baru" => $register_baru,
                 "pic" => $pic,
+                "id_pic" => $id_pic,
                 "id" => $id,
                 "alamat" => $alamat,
                 "penyimpanan_rak" => $penyimpanan_rak,
@@ -304,23 +328,23 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
     }
 
     public function get_content()
-{
-    $this->form_validation->set_rules('id', 'ID Harus Di Isi', 'required');
-    cek_csrf(); // Panggil sekali di atas untuk efisiensi
+    {
+        $this->form_validation->set_rules('id', 'ID Harus Di Isi', 'required');
+        cek_csrf(); // Panggil sekali di atas untuk efisiensi
 
-    if ($this->form_validation->run() == FALSE) {
-        echo '<div class="alert alert-error">ID tidak ditemukan.</div>';
-    } else {
-        $id = $this->input->post('id', TRUE);
-        $get_det = $this->m_nonlit->get_det($id);
+        if ($this->form_validation->run() == FALSE) {
+            echo '<div class="alert alert-error">ID tidak ditemukan.</div>';
+        } else {
+            $id = $this->input->post('id', TRUE);
+            $get_det = $this->m_nonlit->get_det($id);
 
-        if (!$get_det) {
-            echo '<div class="alert alert-warning text-sm uppercase font-bold">Data tidak ditemukan.</div>';
-            return;
-        }
+            if (!$get_det) {
+                echo '<div class="alert alert-warning text-sm uppercase font-bold">Data tidak ditemukan.</div>';
+                return;
+            }
 
-        // Mulai Generate Content dengan DaisyUI
-        $content = '
+            // Mulai Generate Content dengan DaisyUI
+            $content = '
         <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden animate-in fade-in duration-500">
             <div class="bg-base-200/50 p-4 border-b border-base-200 flex flex-wrap justify-between items-center gap-2">
                 <div class="flex items-center gap-3">
@@ -329,7 +353,7 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
                     </div>
                     <div>
                         <h3 class="font-black text-slate-700 uppercase tracking-tight">Detail Notulensi Rapat</h3>
-                        <p class="text-[10px] opacity-60 uppercase font-bold tracking-widest">ID: #'.$get_det['id'].'</p>
+                        <p class="text-[10px] opacity-60 uppercase font-bold tracking-widest">ID: #' . $get_det['id'] . '</p>
                     </div>
                 </div>
                 
@@ -383,45 +407,45 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
                         <h4 class="font-black text-slate-700 uppercase text-sm tracking-wider">Lampiran Berkas Digital</h4>
                     </div>';
 
-        if ($get_det['berkas'] == null || !$get_det['berkas']) {
-            $content .= '
+            if ($get_det['berkas'] == null || !$get_det['berkas']) {
+                $content .= '
                 <div class="flex flex-col items-center justify-center p-10 bg-base-200 rounded-3xl border-2 border-dashed border-base-300 opacity-50">
                     <i class="mdi mdi-file-hidden text-5xl mb-2"></i>
                     <p class="font-bold uppercase text-xs">Dokumen Belum Diupload</p>
                 </div>';
-        } else {
-            $content .= '
+            } else {
+                $content .= '
                 <div class="rounded-3xl overflow-hidden border border-base-300 shadow-2xl bg-base-300">
                     <iframe id="frame" class="w-full h-[600px]" allowfullscreen src="' . base_url('assets/berkas_nonlit/' . $get_det['berkas']) . '"></iframe>
                 </div>';
-        }
+            }
 
-        $content .= '
+            $content .= '
                 </div>
             </div>
         </div>';
 
-        echo $content;
-    }
-}
-    public function get_content_berkas()
-{
-    $this->form_validation->set_rules('id', 'Harus Di Isi', 'required');
-    cek_csrf();
-
-    if ($this->form_validation->run() == FALSE) {
-        echo '<div class="alert alert-error shadow-lg">ID tidak valid.</div>';
-    } else {
-        $id = $this->input->post('id', TRUE);
-        $get_det = $this->m_nonlit->get_det_berkas($id);
-
-        if (!$get_det) {
-            echo '<div class="alert alert-warning shadow-lg">Data berkas tidak ditemukan.</div>';
-            return;
+            echo $content;
         }
+    }
+    public function get_content_berkas()
+    {
+        $this->form_validation->set_rules('id', 'Harus Di Isi', 'required');
+        cek_csrf();
 
-        // Mulai membangun konten dengan DaisyUI
-        $content = '
+        if ($this->form_validation->run() == FALSE) {
+            echo '<div class="alert alert-error shadow-lg">ID tidak valid.</div>';
+        } else {
+            $id = $this->input->post('id', TRUE);
+            $get_det = $this->m_nonlit->get_det_berkas($id);
+
+            if (!$get_det) {
+                echo '<div class="alert alert-warning shadow-lg">Data berkas tidak ditemukan.</div>';
+                return;
+            }
+
+            // Mulai membangun konten dengan DaisyUI
+            $content = '
         <div class="card bg-base-100 shadow-xl border border-base-200 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div class="bg-base-200/50 p-4 border-b border-base-200 flex flex-wrap justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
@@ -462,15 +486,15 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
 
                 <div class="divider text-xs font-bold uppercase opacity-30">Pratinjau Dokumen</div>';
 
-        // Logika Preview File
-        if ($get_det['nama_berkas'] == null || !$get_det['nama_berkas']) {
-            $content .= '
+            // Logika Preview File
+            if ($get_det['nama_berkas'] == null || !$get_det['nama_berkas']) {
+                $content .= '
                 <div class="flex flex-col items-center justify-center p-16 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 opacity-50">
                     <i class="mdi mdi-file-hidden text-6xl text-slate-300 mb-4"></i>
                     <p class="font-black uppercase tracking-widest text-sm italic">File tidak tersedia</p>
                 </div>';
-        } else {
-            $content .= '
+            } else {
+                $content .= '
                 <div class="rounded-3xl overflow-hidden border-4 border-base-300 shadow-inner bg-base-300 relative group">
                     <div class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                         <a href="' . base_url('assets/berkas_lampiran/' . $get_det['nama_berkas']) . '" target="_blank" class="btn btn-circle btn-sm btn-primary">
@@ -480,15 +504,15 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
                     <iframe class="w-full h-[600px] bg-white" id="frame" allowfullscreen webkitallowfullscreen 
                         src="' . base_url('assets/berkas_lampiran/' . $get_det['nama_berkas']) . '"></iframe>
                 </div>';
-        }
+            }
 
-        $content .= '
+            $content .= '
             </div>
         </div>';
 
-        echo $content;
+            echo $content;
+        }
     }
-}
 
 
     public function upload_berkas2()
@@ -890,9 +914,9 @@ $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
     //Untuk menghapus foto
     function remove_nonlit()
     {
-        cek_csrf(); 
+        cek_csrf();
         $id_nonlit = $this->input->post('id_nonlit');
- 
+
         $this->db->delete('nonlits', array('id' => $id_nonlit));
 
         //}

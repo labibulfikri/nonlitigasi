@@ -53,7 +53,7 @@
              <div class="flex items-center gap-3">
                  <div class="p-2 bg-white/20 rounded-lg"><i class="mdi mdi-plus-circle text-2xl"></i></div>
                  <div>
-                     <h3 class="font-black text-lg leading-none">TAMBAH PERKARA</h3>
+                     <h3 class="font-black text-lg leading-none">TAMBAH NONLITIGASI</h3>
                      <p class="text-xs text-blue-100 mt-1 uppercase tracking-wider">Input Data Non-Litigasi Baru</p>
                  </div>
              </div>
@@ -95,17 +95,18 @@
 
                  <div class="form-control">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">PIC Perkara</span></label>
-                     <select name="pic" class="select select-bordered bg-slate-50 rounded-xl">
-                         <option disabled selected>Pilih PIC...</option>
-                         <option value="cavita">CAVITA</option>
-                         <option value="rendy">RENDY</option>
-                         <option value="widi">WIDI</option>
-                         <option value="qowi">QOWI</option>
-                         <option value="dennis">DENNIS</option>
-                         <option value="andi">ANDI</option>
-                         <option value="elia">ELIA</option>
-                         <option value="iqbal">IQBAL</option>
-                     </select>
+
+                     <div class="relative">
+                         <i class="mdi mdi-account-circle absolute left-4 top-3 text-slate-400"></i>
+                         <i class="fa fa-picture-o" aria-hidden="true"></i>
+                         <select name="id_pic" id="id_pic" class="select select-bordered w-full pl-10 bg-slate-50 rounded-xl">
+                             <option disabled selected>Pilih PIC...</option>
+                             <?php foreach ($list_pic as $pic) : ?>
+                                 <option value="<?= $pic->id ?>"><?= $pic->nama_pic ?></option>
+                             <?php endforeach; ?>
+                         </select>
+                         <input type="text" name="pic" id="pic" class="input input-bordered bg-slate-50 rounded-xl mt-2" placeholder="Nama PIC akan muncul di sini..." readonly>
+                     </div>
                  </div>
 
                  <div class="form-control">
@@ -161,7 +162,7 @@
              <div class="flex items-center gap-3">
                  <div class="p-2 bg-white/20 rounded-lg"><i class="mdi mdi-pencil-box-multiple text-2xl"></i></div>
                  <div>
-                     <h3 class="font-black text-lg leading-none uppercase">UPDATE PERKARA</h3>
+                     <h3 class="font-black text-lg leading-none uppercase">UPDATE NONLITIGASI</h3>
                      <p class="text-xs text-amber-50 mt-1 uppercase tracking-wider italic">ID Perkara: <span id="display_edit_id"></span></p>
                  </div>
              </div>
@@ -203,17 +204,17 @@
 
                  <div class="form-control">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">PIC Perkara</span></label>
-                     <select name="pic" id="edit_pic" class="select select-bordered bg-slate-50 rounded-xl">
-                         <option disabled selected>Pilih PIC...</option>
-                         <option value="cavita">CAVITA</option>
-                         <option value="rendy">RENDY</option>
-                         <option value="widi">WIDI</option>
-                         <option value="qowi">QOWI</option>
-                         <option value="dennis">DENNIS</option>
-                         <option value="andi">ANDI</option>
-                         <option value="elia">ELIA</option>
-                         <option value="iqbal">IQBAL</option>
-                     </select>
+
+                     <div class="relative">
+                         <i class="mdi mdi-account-circle absolute left-4 top-3 text-slate-400"></i>
+                         <select name="id_pic" id="edit_pic" class="select select-bordered w-full pl-10 bg-slate-50 rounded-xl">
+                             <option disabled selected>Pilih PIC...</option>
+                             <?php foreach ($list_pic as $pic) : ?>
+                                 <option value="<?= $pic->id ?>"><?= $pic->nama_pic ?></option>
+                             <?php endforeach; ?>
+                         </select>
+                         <input type="hidden" name="pic" id="edit_nama_pic" class="input input-bordered bg-slate-50 rounded-xl" readonly>
+                     </div>
                  </div>
 
                  <div class="form-control">
@@ -263,6 +264,18 @@
 
  <script>
      $(document).ready(function() {
+         $('#edit_pic').on('change', function() {
+             const namaPic = $(this).find('option:selected').text();
+             if ($(this).val()) {
+                 $('#edit_nama_pic').val(namaPic);
+             }
+         });
+         $('#id_pic').on('change', function() {
+             const namaPic = $(this).find('option:selected').text();
+             if ($(this).val()) {
+                 $('#pic').val(namaPic);
+             }
+         });
          let currentPage = 1;
          let searchQuery = "";
 
@@ -485,18 +498,29 @@
              });
          });
 
+         //  $('#edit_pic').on('change', function() {
+         //      const selectedNama = $(this).find(':selected').data('nama');
+         //      if (selectedNama) {
+         //          $('#edit_nama_pic').val(selectedNama);
+         //      }
+         //  });
+
          $('#formUpdate').on('submit', function(e) {
              e.preventDefault();
-
+             // PAKSA isi edit_nama_pic dari teks option yang terpilih jika masih kosong
+             if ($('#edit_nama_pic').val() === "") {
+                 const currentText = $('#edit_pic option:selected').text();
+                 $('#edit_nama_pic').val(currentText);
+             }
              // Tampilkan loading sebentar agar user tahu proses sedang berjalan
              const btnSubmit = $(this).find('button[type="submit"]');
              const originalText = btnSubmit.html();
              btnSubmit.prop('disabled', true).html('<span class="loading loading-spinner loading-xs"></span> Menyimpan...');
-
+             let formData = new FormData(this);
              $.ajax({
                  url: "<?= base_url('nonlit/update_data') ?>",
                  type: "POST",
-                 data: new FormData(this),
+                 data: formData,
                  processData: false,
                  contentType: false,
                  dataType: "json", // Pastikan controller mengirimkan json_encode
@@ -534,8 +558,60 @@
      });
  </script>
 
-
  <script>
+     function editData(id) {
+         $.ajax({
+             url: "<?= base_url('nonlit/get_data_by_id/') ?>" + id,
+             type: "GET",
+             dataType: "JSON",
+             success: function(item) {
+                 if (item) {
+                     // Isi field teks
+                     $('#edit_id').val(item.id);
+                     $('#display_edit_id').text(item.id);
+                     $('#edit_permohonan').val(item.permohonan_nonlit);
+                     $('#edit_team_nonlit').val(item.team_nonlit);
+                     $('#edit_bidang').val(item.bidang);
+
+                     // Ambil dari JOIN-an master_pic
+
+                     // Isi field lainnya...
+                     $('#edit_tgl_nonlit').val(item.tgl_nonlit); // Sesuaikan kolom tgl di db
+                     $('#edit_alamat').val(item.alamat);
+                     $('#edit_register_baru').val(item.register_baru);
+                     $('#edit_penyimpanan_rak').val(item.penyimpanan_rak);
+                     $('#edit_luas').val(item.luas);
+                     $('#edit_status').val(item.status);
+
+                     // --- BAGIAN PALING PENTING (SELECT) ---
+                     // Karena modal_edit sudah me-load semua list_pic di index(),
+                     // kita tinggal arahkan val() ke id_master_pic hasil JOIN
+                     $('#edit_nama_pic').val(item.nama_pic);
+                     setTimeout(() => {
+                         if (item.id_pic) {
+                             // Paksa pilih ID yang sesuai
+                             //  $('#edit_pic').val(item.id_pic).trigger('change');
+                             $('#edit_pic').val(item.id_pic.toString()).change();
+                             // Setelah trigger change, kita update nama PIC di field read-only
+                             //  const selectedOption = $(`#edit_pic option[value="${item.id_pic}"]`);
+                             //  $('#edit_nama_pic').val(selectedOption.data('nama') || '');
+                         } else {
+                             $('#edit_pic').val('').trigger('change');
+                             $('#edit_nama_pic').val('');
+                         }
+                     }, 100);
+
+                     modal_edit.showModal();
+                 }
+             },
+             error: function() {
+                 alert('Gagal mengambil data dari server');
+             }
+         });
+     }
+ </script>
+
+ <!-- <script>
      let globalData = [];
 
      function editData(id) {
@@ -550,7 +626,14 @@
              $('#edit_permohonan').val(item.permohonan_nonlit);
              $('#edit_team_nonlit').val(item.team_nonlit);
              $('#edit_bidang').val(item.bidang);
-             $('#edit_pic').val(item.pic);
+
+             $('#edit_pic option').prop('selected', false);
+             if (item.id_pic) {
+                 $(`#edit_pic option[value="${item.id_pic}"]`).prop('selected', true);
+             }
+             //  $('#edit_pic').val(item.id_pic).trigger('change'); // Pastikan opsi PIC sudah terisi dengan benar
+             //  $('#edit_pic').val(item.id_pic).trigger('change'); // Pastikan opsi PIC sudah terisi dengan benar
+
              $('#edit_tgl_nonlit').val(item.tgl_nonlit_raw); // Pastikan tgl formatnya YYYY-MM-DD
              $('#edit_register_baru').val(item.register_baru);
              $('#edit_penyimpanan_rak').val(item.penyimpanan_rak);
@@ -562,7 +645,7 @@
              modal_edit.showModal();
          }
      }
- </script>
+ </script> -->
  <script>
      function hapusData(id) {
          var token = $('#token').val()
