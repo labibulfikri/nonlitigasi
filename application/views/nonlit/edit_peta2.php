@@ -1,7 +1,3 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
 <div class="p-6 bg-base-200 min-h-screen">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>

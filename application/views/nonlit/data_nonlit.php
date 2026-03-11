@@ -385,10 +385,10 @@
                             <i class="mdi mdi-eye-outline text-xl"></i>
                         </a>
                         <a href="<?= base_url('peta/edit/') ?>${item.id}" 
-                           class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm border border-indigo-100" 
-                           title="Edit Area Peta">
-                            <i class="mdi mdi-map-marker-edit-outline text-xl"></i>
-                        </a>
+    class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm border border-indigo-100" 
+    title="Edit Area Peta">
+    <i class="mdi mdi-map-marker-path text-xl"></i> 
+</a>
                          
                         <button onclick="editData(${item.id})" 
                                 class="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm" 
