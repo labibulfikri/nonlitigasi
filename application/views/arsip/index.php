@@ -98,7 +98,13 @@
                                     </svg>
                                 </button>
 
-
+                                <?php if ($row->sumber === 'UMUM'): ?>
+                                    <button onclick="editUmum(<?= $row->id_data ?>)" class="btn btn-xs btn-warning btn-square">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                <?php endif; ?>
                                 <!-- <button class="btn btn-square btn-ghost btn-sm text-primary hover:bg-primary hover:text-white transition-all"
                                     onclick="prepUpdate('<?= $row->sumber ?>', '<?= $row->id_data ?>', '<?= $row->id_rak ?>')">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,6 +125,55 @@
     </div>
 </div>
 
+<dialog id="modal_edit_umum" class="modal">
+    <div class="modal-box w-11/12 max-w-lg rounded-2xl border-t-8 border-warning p-0 shadow-2xl">
+        <div class="p-5 border-b border-base-200 bg-slate-50 rounded-t-2xl">
+            <h3 class="font-black text-xs uppercase tracking-[0.2em] text-slate-500">Koreksi Data Berkas Umum</h3>
+        </div>
+
+        <form action="<?= base_url('arsip_umum/update_proses') ?>" method="post" class="p-6 space-y-4">
+            <input type="hidden" name="id_berkas_umum" id="edit_id">
+
+            <div class="form-control">
+                <label class="label"><span class="label-text text-[10px] font-black uppercase opacity-50">Nama Dokumen</span></label>
+                <input type="text" name="nama_berkas_umum" id="edit_nama" class="input input-bordered input-sm rounded-lg font-bold text-black uppercase" required>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text text-[10px] font-black uppercase opacity-50">Lokasi Rak</span>
+                    </label>
+                    <input type="text" name="penyimpanan_rak" id="edit_rak" list="data_rak_edit" class="input input-bordered input-sm rounded-lg font-bold text-black uppercase">
+
+                    <datalist id="data_rak_edit">
+                        <?php foreach ($saran_rak as $r): ?>
+                            <option value="<?= $r->penyimpanan_rak ?>"></option>
+                        <?php endforeach; ?>
+                    </datalist>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-[10px] font-black uppercase opacity-50">PIC Bertanggung Jawab</span></label>
+                    <select name="pic" id="edit_pic" class="select select-bordered select-sm rounded-lg font-black text-[11px] uppercase">
+                        <?php foreach ($pic_list as $p): ?>
+                            <option value="<?= $p->pic ?>"><?= $p->pic ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-control">
+                <label class="label"><span class="label-text text-[10px] font-black uppercase opacity-50">Keterangan Tambahan</span></label>
+                <textarea name="keterangan" id="edit_keterangan" class="textarea textarea-bordered rounded-lg text-xs font-medium text-slate-600" rows="3"></textarea>
+            </div>
+
+            <div class="modal-action bg-slate-50 p-4 rounded-b-2xl border-t border-base-200">
+                <button type="submit" class="btn btn-warning btn-sm px-8 rounded-lg font-black uppercase italic tracking-tighter text-white">Update Data</button>
+                <button type="button" onclick="modal_edit_umum.close()" class="btn btn-ghost btn-sm px-6 font-bold uppercase text-[10px]">Batal</button>
+            </div>
+        </form>
+    </div>
+</dialog>
 
 <dialog id="modal_detail" class="modal">
     <div class="modal-box w-11/12 max-w-3xl border-t-4 border-info">
@@ -243,7 +298,7 @@
                 <textarea name="keterangan" class="textarea textarea-bordered rounded text-xs leading-relaxed" rows="2" placeholder="Catatan mengenai isi atau kondisi fisik berkas..."></textarea>
             </div>
 
-            <div class="form-control bg-slate-50 p-4 rounded-xl border-2 border-dashed border-slate-200">
+            <!-- <div class="form-control bg-slate-50 p-4 rounded-xl border-2 border-dashed border-slate-200">
                 <label class="label pt-0">
                     <span class="label-text text-[10px] font-black uppercase opacity-40 tracking-widest flex items-center gap-2 text-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -254,7 +309,7 @@
                 </label>
                 <input type="file" name="files[]" multiple class="file-input file-input-bordered file-input-sm file-input-primary w-full rounded-lg" accept=".pdf,.jpg,.jpeg,.png">
                 <p class="text-[9px] mt-2 italic opacity-40">*Pilih satu atau beberapa file (PDF/Gambar) sekaligus.</p>
-            </div>
+            </div> -->
 
             <div class="modal-action border-t border-base-200 pt-5 mt-4">
                 <button type="submit" class="btn btn-primary btn-sm px-10 rounded-md font-black italic uppercase tracking-tighter shadow-md">
@@ -806,6 +861,8 @@
                     }
                 } else if (sumber === 'UMUM') {
                     html = `
+
+                    
                     <div class="stats border border-slate-200 w-full mb-6 rounded-2xl bg-white shadow-sm overflow-hidden">
                         <div class="stat p-5">
                             <div class="stat-title text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1 text-primary">Nama Dokumen Digital</div>
@@ -925,6 +982,31 @@
             },
             complete: function() {
                 btn.removeClass('loading').prop('disabled', false).text('Upload Sekarang');
+            }
+        });
+    }
+</script>
+
+<script>
+    function editUmum(id) {
+        $.ajax({
+            url: '<?= base_url("arsip/get_detail_json") ?>',
+            type: 'POST',
+            data: {
+                sumber: 'UMUM',
+                id_data: id
+            },
+            dataType: 'JSON',
+            success: function(res) {
+                // Isi form di modal edit dengan data dari database
+                $('#edit_id').val(res.data.id_berkas_umum);
+                $('#edit_nama').val(res.data.nama_berkas_umum);
+                $('#edit_rak').val(res.data.penyimpanan_rak);
+                $('#edit_pic').val(res.data.pic);
+                $('#edit_keterangan').val(res.data.keterangan);
+
+                // Tampilkan modal edit
+                modal_edit_umum.showModal();
             }
         });
     }

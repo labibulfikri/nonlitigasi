@@ -50,6 +50,25 @@ class Arsip_umum extends CI_Controller
         redirect('arsip');
     }
 
+    public function update_proses()
+    {
+        $id = $this->input->post('id_berkas_umum');
+
+        $data = [
+            'nama_berkas_umum' => strtoupper($this->input->post('nama_berkas_umum')),
+            'penyimpanan_rak'  => strtoupper($this->input->post('penyimpanan_rak')),
+            'pic'              => $this->input->post('pic'),
+            'keterangan'       => $this->input->post('keterangan')
+        ];
+
+        $this->db->where('id_berkas_umum', $id);
+        if ($this->db->update('berkas_umum', $data)) {
+            $this->session->set_flashdata('success', 'Data berhasil diperbarui');
+        }
+
+        redirect('arsip');
+    }
+
     public function append_file()
     {
         $this->load->library('upload');
