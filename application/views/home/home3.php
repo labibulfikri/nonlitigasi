@@ -154,7 +154,7 @@
 </div>
 
 <dialog id="modal_detail" class="modal modal-bottom sm:modal-middle backdrop-blur-md transition-all duration-500">
-    <div class="modal-box w-11/12 max-w-6xl bg-white p-0 overflow-hidden rounded-[2rem] shadow-2xl border border-white/20">
+    <div class="modal-box w-11/12 max-w-6xl bg-white p-0  rounded-[2rem] shadow-2xl border border-white/20">
         <div class="bg-gradient-to-r from-blue-700 to-indigo-900 p-8 flex justify-between items-center text-white relative">
             <div class="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
                 <i class="mdi mdi-database-search text-[150px]"></i>

@@ -412,6 +412,11 @@
                                 class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm" 
                                 title="Hapus">
                             <i class="mdi mdi-trash-can-outline text-xl"></i>
+                        </button> 
+                        <button onclick="cetak_label_nonlit('${item.penyimpanan_rak}', '${item.permohonan_nonlit}', '${item.alamat}')" 
+                                class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition-all shadow-sm" 
+                                title="Cetak Label">
+                            <i class="mdi mdi-printer-outline text-xl"></i>
                         </button>
                     </div>
                     
@@ -611,6 +616,98 @@
      }
  </script>
 
+ <script>
+     function cetak_label_nonlit(DisplayRak, DisplayPermohonan, DisplayAlamat) {
+         const printWindow = window.open('', '_blank', 'width=900,height=400');
+
+         // Fallback jika data kosong
+         const rak = (DisplayRak && DisplayRak.trim() !== "") ? DisplayRak : "-";
+         const permohonan = (DisplayPermohonan && DisplayPermohonan.trim() !== "") ? DisplayPermohonan : "-";
+         const alamat = (DisplayAlamat && DisplayAlamat.trim() !== "") ? DisplayAlamat : "-";
+
+         const htmlContent = `
+        <html>
+        <head>
+            <title>Cetak Label Non-Lit</title>
+            <style>
+                @page { size: A4; margin: 0; }
+                body {
+                    margin: 0;
+                    padding: 5mm;
+                    /* Arial Narrow lebih hemat ruang secara horizontal */
+                    font-family: 'Arial Narrow', Arial, sans-serif;
+                    text-transform: uppercase;
+                }
+                .label-strip {
+                    display: flex;
+                    align-items: stretch;
+                    border: 1.5pt solid #000;
+                    width: 100%;
+                    max-width: 19cm;
+                    height: 1cm; /* Tinggi diperkecil sedikit agar lebih proporsional */
+                    overflow: hidden;
+                }
+                .section-status {
+                    background: #000;
+                    color: #fff;
+                    font-weight: 900;
+                    font-size: 9pt; /* Ukuran Rak diperkecil */
+                    padding: 0 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 60px;
+                    border-right: 1.5pt solid #000;
+                    -webkit-print-color-adjust: exact;
+                }
+                .section-nopol {
+                    min-width: 180px;
+                    font-weight: 800;
+                    font-size: 8pt; /* Font Permohonan diperkecil */
+                    padding: 0 10px;
+                    display: flex;
+                    align-items: center;
+                    border-right: 1pt solid #000;
+                    background: #f3f4f6;
+                    -webkit-print-color-adjust: exact;
+                    white-space: nowrap;
+                }
+                .section-judul {
+                    flex: 1;
+                    font-size: 7.5pt; /* Font Alamat dibuat paling kecil agar muat panjang */
+                    font-weight: bold;
+                    padding: 0 10px;
+                    display: flex;
+                    align-items: center;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis; /* Jika tetap kepanjangan akan jadi ... */
+                }
+                @media print {
+                    body { -webkit-print-color-adjust: exact; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="label-strip">
+                <div class="section-status">RAK: ${rak}</div>
+                <div class="section-nopol">${permohonan}</div>
+                <div class="section-judul">${alamat}</div>
+            </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() { window.close(); }, 200);
+                };
+            <\/script>
+        </body>
+        </html>
+    `;
+
+         printWindow.document.write(htmlContent);
+         printWindow.document.close();
+     }
+ </script>
  <!-- <script>
      let globalData = [];
 

@@ -62,47 +62,7 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- <dialog id="modal_tambah_rapat" class="modal">
-    <div class="modal-box max-w-4xl p-0 rounded-3xl border-none">
-        <div class="bg-primary p-6 text-white flex justify-between items-center">
-            <h3 class="font-black text-xl uppercase tracking-tighter italic">Tambah Data Rapat</h3>
-            <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form>
-        </div>
-
-        <form action="<?= base_url('nonlit/upload_berkas') ?>" method="POST" enctype="multipart/form-data" class="p-8">
-            <?= crsf(); ?>
-            <input type="hidden" name="id_nonlit" value="<?= $id ?>">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-bold uppercase text-xs">Tanggal Rapat</span></label>
-                    <input type="date" name="tgl_rapat" class="input input-bordered bg-base-200 rounded-xl focus:ring-2 focus:ring-primary" required>
-                </div>
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-bold uppercase text-xs">Acara / Judul Rapat</span></label>
-                    <input type="text" name="judul_rapat" class="input input-bordered bg-base-200 rounded-xl uppercase" placeholder="Contoh: Rapat Koordinasi Aset" required>
-                </div>
-            </div>
-
-            <div class="form-control mb-6">
-                <label class="label"><span class="label-text font-bold uppercase text-xs">Kesimpulan Rapat</span></label>
-                <textarea name="kesimpulan" class="ckeditor"></textarea>
-            </div>
-
-            <div class="form-control mb-8 p-6 border-2 border-dashed border-base-300 rounded-2xl bg-primary/10">
-                <label class="label"><span class="label-text font-bold uppercase text-xs italic">Upload Berkas Pendukung (PDF/IMG)</span></label>
-                <input type="file" name="file" class="file-input file-input-bordered file-input-primary w-full rounded-xl" />
-            </div>
-
-            <div class="modal-action flex gap-2">
-                <button class="btn btn-ghost w-full rounded-xl">Batal</button>
-                <button type="submit" class="btn btn-primary flex-1 shadow-lg shadow-blue-200 rounded-xl uppercase">Simpan Notulensi</button>
-            </div>
-        </form>
-    </div>
-</dialog> -->
+</div> 
 <dialog id="modal_tambah_rapat" class="modal">
     <div class="modal-box max-w-4xl p-0 rounded-3xl border-none shadow-2xl">
         <div class="bg-primary p-6 text-primary-content flex justify-between items-center">

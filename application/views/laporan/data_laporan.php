@@ -46,7 +46,7 @@
             </div>
 
             <div class="form-control">
-                <select id="pic" class="select select-bordered w-full rounded-xl bg-slate-50 border-none font-bold text-sm">
+                <!-- <select id="pic" class="select select-bordered w-full rounded-xl bg-slate-50 border-none font-bold text-sm">
                     <option value="">Semua PIC</option>
                     <option value="cavita">CAVITA</option>
                     <option value="qowi">Qowi</option>
@@ -55,7 +55,15 @@
                     <option value="andi">ANDI MARDIYANTO</option>
                     <option value="iqbal">IQBAL</option>
                     <option value="denis"> DENNIS </option>
+                </select> -->
+
+                <select id="pic" class="select select-bordered w-full rounded-xl bg-slate-50 border-none font-bold text-sm">
+                    <option value="">Semua PIC</option>
+                    <?php foreach ($list_pic as $pic) : ?>
+                        <option value="<?= $pic->id ?>"><?= $pic->nama_pic ?></option>
+                    <?php endforeach; ?>
                 </select>
+
             </div>
 
             <div class="form-control">
@@ -124,15 +132,14 @@
                 "ajax": {
                     "url": "<?php echo base_url('laporan/fetch_nonlit'); ?>",
                     "type": "POST",
-                    "data": {
-                        "<?php echo $this->security->get_csrf_token_name(); ?>": csrfToken, // CSRF Protection
-                        "tahun": tahun,
-                        "status": status,
-                        "team": team,
-                        "bidang": bidang,
-                        "permohonan_nonlit": permohonan,
-                        "pic": pic
-                    },
+                    "data": function(d) { // Gunakan function agar data selalu fresh saat dipanggil
+                        d.<?php echo $this->security->get_csrf_token_name(); ?> = "<?php echo $this->security->get_csrf_hash(); ?>";
+                        d.tahun = $("#nonlit_filter_bytahun").val();
+                        d.status = $("#status").val();
+                        d.team = $("#team_nonlit").val();
+                        d.permohonan_nonlit = $("#permohonan_nonlit").val();
+                        d.pic = $("#pic").val(); // Ini akan mengirim ID PIC (misal: 11)
+                    }
                 },
                 "columns": [{
                         "data": "no",

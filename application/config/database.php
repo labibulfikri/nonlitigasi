@@ -73,14 +73,24 @@ defined('BASEPATH') or exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
+$db['db_perkara'] = array(
+	// 'hostname' => 'localhost',
+	// 'username' => 'root',
+	// 'password' => '',
+	'hostname' => '172.17.126.83',
+	'username' => 'bpkad',
+	'password' => 'bpkad_123',
+	'database' => 'db_perkara',
+	'dbdriver' => 'mysqli', 
+);
 $db['default'] = array(
 	'dsn'	=> '',
-	// 'hostname' => '172.17.126.83',
-	// 'username' => 'bpkad',
-	// 'password' => 'bpkad_123',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
+	'hostname' => '172.17.126.83',
+	'username' => 'bpkad',
+	'password' => 'bpkad_123',
+	// 'hostname' => 'localhost',
+	// 'username' => 'root',
+	// 'password' => '',
 	'database' => 'nonlit',
 
 	// 'hostname' => '172.17.126.83',
@@ -94,6 +104,7 @@ $db['default'] = array(
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'development'),
+
 	'cache_on' => FALSE,
 	'cachedir' => '',
 	'char_set' => 'utf8',

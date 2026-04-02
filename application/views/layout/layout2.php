@@ -6,14 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>E-NONLIT | Professional Dashboard</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css" />
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
@@ -153,6 +152,20 @@
                                     </a>
                                 </li>
                             </ul>
+                            <ul class="before:hidden ml-6 mt-1 space-y-1">
+                                <li>
+                                    <a href="<?= base_url('laporan_polisi') ?>" class="py-2.5 <?= $this->uri->segment(1) == 'laporan_polisi' ? 'text-white font-bold bg-white/5' : '' ?>">
+                                        <i class="mdi mdi-rhombus-medium text-[10px] mr-2"></i> Data Laporan Polisi
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="before:hidden ml-6 mt-1 space-y-1">
+                                <li>
+                                    <a href="<?= base_url('masalah') ?>" class="py-2.5 <?= $this->uri->segment(1) == 'masalah' ? 'text-white font-bold bg-white/5' : '' ?>">
+                                        <i class="mdi mdi-rhombus-medium text-[10px] mr-2"></i> Data Permasalahan
+                                    </a>
+                                </li>
+                            </ul>
                         </details>
                     </li>
                     <li>
@@ -175,6 +188,12 @@
                         <a href="<?= base_url('laporan') ?>" class="py-3.5 <?= $this->uri->segment(1) == 'laporan' ? 'active-menu' : '' ?>">
                             <i class="mdi mdi-chart-box-outline text-xl"></i>
                             <span class="sidebar-text font-bold text-sm ml-2">Laporan Statistik</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('arsip') ?>" class="py-3.5 <?= $this->uri->segment(1) == 'arsip' ? 'active-menu' : '' ?>">
+                            <i class="mdi mdi-chart-box-outline text-xl"></i>
+                            <span class="sidebar-text font-bold text-sm ml-2">Penyimpanan Berkas </span>
                         </a>
                     </li>
                     <li>
