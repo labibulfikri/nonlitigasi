@@ -1,19 +1,33 @@
-<<<<<<< HEAD
-/assets/berkas_lampiran/*
-/assets/berkas_nonlit/*
-/assets/template/*
-/assets/template2/*
-
-vendor/
-node_modules/
-=======
-/system/ 
+# --- Folder Sistem & Vendor ---
+/system/
 /vendor/
 /node_modules/
 
-/assets/berkas_umum/*
-/assets/berkas_permasalahan/*
-/assets/berkas_nonlit/*
-/assets/berkas_laporan/*
-/assets/berkas_lampiran/*
->>>>>>> Initial commit dari server
+# --- Konfigurasi Spesifik (Lokal vs Server) ---
+# Di-ignore agar settingan DB server tidak tertimpa saat pull dari lokal
+application/config/database.php
+application/config/config.php
+
+# --- File Sampah & Logs ---
+application/logs/*
+!application/logs/index.html
+application/cache/*
+!application/cache/index.html
+
+# --- Assets & Uploads ---
+# Mengabaikan file yang diupload user/tester agar folder tetap bersih
+assets/captcha/*.jpg
+assets/berkas_umum/*
+assets/berkas_nonlit/*
+assets/berkas_laporan_polisi/*
+assets/berkas_permasalahan/*
+assets/berkas_lampiran/*
+assets/upload/*
+!assets/index.html
+
+# --- IDE & OS ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
