@@ -25,13 +25,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
 */
 // $config['base_url'] = 'http://localhost/surat/';
 // $config['base_url'] = 'https://assistdpbt.surabaya.go.id/v2/';
- 
+
 //$config['base_url'] = 'http://localhost/non-lit/';
- 
+
 //$config['base_url'] = 'https://assistdpbt.surabaya.go.id/nonlitigasi/';
- $root = "http://" . $_SERVER['HTTP_HOST'];
-$root .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-$config['base_url'] = $root;
+$config['base_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
 /*
 |--------------------------------------------------------------------------
 | Index File
@@ -484,7 +482,7 @@ $config['csrf_exclude_uris'] = array();
 |
 */
 $config['compress_output'] = FALSE;
- $config['timezone'] = 'Asia/Jakarta';
+$config['timezone'] = 'Asia/Jakarta';
 date_default_timezone_set('Asia/Jakarta');
 /*
 |--------------------------------------------------------------------------
