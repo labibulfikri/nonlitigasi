@@ -15,6 +15,7 @@
         </div>
     </div>
 
+    <?= crsf_ajax()  ?>
     <div id="display-area" class="flex flex-col gap-3 w-full">
         <div class="flex justify-center p-10">
             <span class="loading loading-dots loading-lg text-primary"></span>
@@ -46,6 +47,7 @@
 
         <form id="formMasalah" enctype="multipart/form-data">
             <input type="hidden" name="id_masalah" id="id_masalah">
+            <?= crsf_ajax() ?>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-control">
@@ -116,7 +118,7 @@
         $('#formMasalah').on('submit', function(e) {
             e.preventDefault();
             let formData = new FormData(this);
-            let url = $('#id_masalah').val() ? "<?= base_url('masalah/update') ?>" : "<?= base_url('masalah/simpan') ?>";
+            let url = $('#id_masalah').val() ? "<?= base_url('masalah/update_detail') ?>" : "<?= base_url('masalah/simpan') ?>";
 
             $.ajax({
                 url: url,
@@ -147,6 +149,18 @@
         });
     }
 
+    function updateCsrfToken(newToken) {
+        if (newToken) {
+            // Update input hidden utama (yang id="token")
+            $('#token').val(newToken);
+
+            // Update SEMUA input di dalam form/modal yang namanya "token"
+            $('input[name="token"]').val(newToken);
+
+            console.log("Semua input token di halaman diperbarui ke: " + newToken);
+        }
+    }
+
     function openModalTambah() {
         $('#modal_title').text('Tambah Permasalahan');
         $('#id_masalah').val('');
@@ -155,12 +169,68 @@
         modal_form.showModal();
     }
 
+    // function delete_data(id) {
+    //     if (confirm('Apakah Anda yakin ingin menghapus data ini secara permanen?')) {
+    //         $.post("<?= base_url('masalah/hapus/') ?>" + id, function() {
+    //             load_data($('#search').val());
+    //         });
+    //     }
+    // }
+
     function delete_data(id) {
-        if (confirm('Apakah Anda yakin ingin menghapus data ini secara permanen?')) {
-            $.post("<?= base_url('masalah/hapus/') ?>" + id, function() {
-                load_data($('#search').val());
-            });
-        }
+        Swal.fire({
+            theme: 'auto',
+            title: 'HAPUS DATA PERMANEN?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', // Warna Rose/Red
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'YA, HAPUS',
+            cancelButtonText: 'BATAL',
+            reverseButtons: true,
+            customClass: {
+                popup: 'rounded-[2rem]',
+                confirmButton: 'rounded-xl font-black uppercase italic px-6',
+                cancelButton: 'rounded-xl font-black uppercase italic px-6'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const currentToken = $('#token').val();
+
+                $.post("<?= base_url('masalah/hapus/') ?>" + id, {
+                    token: currentToken // Kirim CSRF Token
+                }, function(res) {
+                    // Parsing respon jika dalam bentuk JSON string
+                    const response = typeof res === 'object' ? res : JSON.parse(res);
+                    // UPDATE TOKEN: Ambil token baru yang dikirim dari controller
+                    // if (response.new_token) {
+                    //     $('#token').val(response.new_token);
+                    // }
+
+                    updateCsrfToken(response.new_token)
+
+
+                    Swal.fire({
+                        theme: 'auto',
+                        title: 'Terhapus!',
+                        text: 'Data berhasil dihapus secara permanen.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: 'rounded-[2rem]'
+                        }
+                    });
+
+                    // REFRESH DATA: Panggil fungsi loadData dengan parameter true
+                    // agar list direset dan mengambil data terbaru dari page 0
+                    loadData(true);
+                }).fail(function(xhr) {
+                    Swal.fire('Error!', 'Gagal menghapus data: ' + xhr.statusText, 'error');
+                });
+            }
+        });
     }
 
     function cetak_label(rak, nama, alamat) {
@@ -323,6 +393,7 @@
     let currentPage = 0;
 
     function loadData(isNewSearch = false) {
+        const currentToken = $('#token').val();
         if (isNewSearch) {
             currentPage = 0;
             $('#display-area').html(''); // Kosongkan list
@@ -335,10 +406,12 @@
             type: 'POST',
             data: {
                 search: keyword,
-                page: currentPage
+                page: currentPage,
+                token: currentToken // Kirim CSRF Token
             },
             dataType: 'json',
             success: function(res) {
+                updateCsrfToken(res.new_token);
                 if (res.html !== '') {
                     if (isNewSearch) {
                         $('#display-area').html(res.html);

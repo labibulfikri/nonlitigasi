@@ -108,8 +108,8 @@ class Masalah extends CI_Controller
     //     }
     public function fetch_data()
     {
-        $search = $this->input->post('search');
-        $page = $this->input->post('page') ?: 0;
+        $search = $this->input->post('search', TRUE);
+        $page = $this->input->post('page');
         $limit = 5; // Samakan limit agar konsisten
         $offset = $page * $limit;
 
@@ -161,12 +161,12 @@ class Masalah extends CI_Controller
                         </a>
 
                         <div class="flex gap-2 justify-center">
-                            <button onclick="editMasalah(' . $row->id_masalah . ')" 
+                            <button onclick="edit_data(' . $row->id_masalah . ')" 
                                     class="btn btn-square btn-ghost btn-sm text-warning hover:bg-warning/10">
                                 <i class="mdi mdi-pencil-outline text-xl"></i>
                             </button>
 
-                            <button onclick="hapus_masalah(' . $row->id_masalah . ')" 
+                            <button onclick="delete_data(' . $row->id_masalah . ')" 
                                     class="btn btn-square btn-ghost btn-sm text-error hover:bg-error/10">
                                 <i class="mdi mdi-trash-can-outline text-xl"></i>
                             </button>
@@ -205,6 +205,9 @@ class Masalah extends CI_Controller
     }
     public function simpan()
     {
+
+
+        cek_csrf();
         $data = [
             'nama_masalah'   => $this->input->post('nama_masalah'),
             'alamat_masalah' => $this->input->post('alamat_masalah'),
@@ -262,8 +265,14 @@ class Masalah extends CI_Controller
     }
     public function hapus($id)
     {
-        $this->m_masalah->delete($id);
-        echo json_encode(['status' => TRUE]);
+        cek_csrf();
+        $delete = $this->m_masalah->delete($id);
+        $new_token = hash('sha1', time() . mt_rand());
+        $this->session->set_userdata('csrf_token', $new_token);
+        echo json_encode([
+            'status' => $delete,
+            'new_token' => $new_token
+        ]);
     }
     // Fungsi untuk memuat konten detail via AJAX
     public function get_detail_content()
@@ -360,6 +369,7 @@ class Masalah extends CI_Controller
     // Update Data Detail
     public function update_detail()
     {
+        cek_csrf();
         $id = $this->input->post('id_masalah_det');
         $id_masalah = $this->input->post('id_masalah');
         $old_file = $this->input->post('old_berkas');

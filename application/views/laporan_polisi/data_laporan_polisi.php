@@ -17,29 +17,29 @@
         </div>
     </div>
 
-    <div id="lp_list_container" class="min-h-[400px]">
-        <div class="flex justify-center p-20">
+    <div id="lp_list_container" class="min-h-[100px] hidden">
+        <div class="flex justify-center p-10">
             <span class="loading loading-spinner loading-lg text-primary"></span>
         </div>
     </div>
 
     <div id="card-list"></div>
 
-    <div id="pagination-area" class="flex justify-center my-10">
-        <button id="btn-load-more" onclick="loadNextPage()" class="btn btn-wide btn-outline border-base-300 rounded-2xl font-black uppercase italic tracking-widest gap-3">
-            <i class="mdi mdi-chevron-double-down animate-bounce"></i>
-            Tampilkan Lebih Banyak
+    <div id="csrf-container">
+        <?= crsf_ajax() ?>
+    </div>
+
+    <div id="pagination-area" class="flex justify-center my-10 hidden">
+        <button id="btn-load-more" onclick="loadNextPage()" class="btn btn-wide btn-outline border-base-300 rounded-2xl font-black uppercase italic tracking-widest gap-3 shadow-sm hover:bg-slate-50 transition-all group">
+            <i id="load-icon" class="mdi mdi-chevron-double-down group-hover:animate-bounce"></i>
+            <span id="load-text">Tampilkan Lebih Banyak</span>
         </button>
     </div>
 
     <div id="end-of-data" class="hidden text-center py-10 opacity-20">
         <div class="divider font-black text-[10px] uppercase tracking-[0.4em]">Akhir dari Data</div>
     </div>
-
-    <div id="pagination_link" class="flex justify-center mt-8"></div>
 </div>
-
-
 <dialog id="modal_master_lp" class="modal">
     <div class="modal-box max-w-2xl p-0 rounded-3xl border-none shadow-2xl">
         <div class="bg-primary p-6 text-primary-content flex justify-between items-center">
@@ -48,6 +48,7 @@
         </div>
         <form action="<?= base_url('laporan_polisi/save_master') ?>" method="POST" class="p-8 grid grid-cols-2 gap-4">
             <input type="hidden" name="id_laporan_polisi" id="m_id">
+            <?= crsf() ?>
 
             <div class="form-control col-span-2">
                 <label class="label text-[10px] font-black uppercase opacity-40">Judul Laporan / Kasus</label>
@@ -123,12 +124,14 @@
 
     function load_lp_data(page) {
         const search = $('#search_lp').val();
+        const token = $('#token').val();
         $.ajax({
             url: "<?= base_url('laporan_polisi/fetch_data') ?>",
             method: "POST",
             data: {
                 search: search,
-                page: page
+                page: page,
+                token: token
             },
             dataType: "JSON",
             success: function(data) {
@@ -207,6 +210,7 @@
 
 <script>
     function hapus_master(id) {
+        var token = $('#token').val(); // Ambil token dari input tersembunyi
         Swal.fire({
             title: 'HAPUS LAPORAN?',
             text: "Seluruh data agenda/detail terkait laporan ini juga akan ikut terhapus!",
@@ -225,7 +229,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.post("<?= base_url('laporan_polisi/delete_master') ?>", {
-                    id: id
+                    id: id,
+                    token: token // Kirim token dengan key dinamis
                 }, function(res) {
                     Swal.fire({
                         title: 'Berhasil!',
@@ -237,7 +242,11 @@
                             popup: 'rounded-[2rem]'
                         }
                     });
-                    load_data(); // Refresh list data tanpa reload halaman
+                    //refresh data setelah hapus
+
+                    loadData(true);
+
+                    // Refresh list data tanpa reload halaman
                 });
             }
         });
@@ -335,7 +344,7 @@
         printWindow.document.close();
     }
 </script>
-
+<!-- 
 <script>
     let currentPage = 0;
 
@@ -384,22 +393,206 @@
             }
         });
     }
+</script> -->
+<!-- <script>
+    // HAPUS SEMUA let/var currentPage di tempat lain. Cukup di sini satu kali.
+    var currentPage = 0;
+    var isLoading = false;
 
+    // Fungsi Load Next Page (Harus Global)
     function loadNextPage() {
+        if (isLoading) return;
         currentPage++;
         loadData(false);
     }
 
+    function loadData(isNewSearch = false) {
+        if (isLoading) return;
+
+        if (isNewSearch) {
+            currentPage = 0;
+            $('#card-list').html('');
+            $('#lp_list_container').removeClass('hidden');
+            $('#pagination-area').addClass('hidden');
+            $('#end-of-data').addClass('hidden');
+        }
+
+        isLoading = true;
+
+        // --- LOGIKA TOKEN ANDA ---
+        // Karena Anda menyebutkan var token = $('#token').val(), pastikan selector ini benar
+        const token = $('#token').val();
+        // const tokenName = '<?= $this->security->get_csrf_token_name(); ?>';
+        const searchKeyword = $('#search_lp').val();
+
+        const btn = $('#btn-load-more');
+        const originalText = $('#load-text').text();
+        $('#load-text').text('Memuat...');
+        btn.addClass('loading');
+
+        $.ajax({
+            url: "<?= base_url('laporan_polisi/fetch_data') ?>",
+            method: "POST",
+            dataType: "JSON",
+            data: {
+                search: searchKeyword,
+                page: currentPage,
+                token: token // Mengirim token ke CodeIgniter
+            },
+            success: function(res) {
+                $('#lp_list_container').addClass('hidden');
+
+                // UPDATE TOKEN SETELAH REQUEST BERHASIL
+                // Agar klik "Tampilkan Lebih Banyak" berikutnya tidak error 403
+                if (res.csrf_hash) {
+                    $('#token').val(res.csrf_hash);
+                }
+
+                if (res.html && res.html !== '') {
+                    if (isNewSearch) {
+                        $('#card-list').html(res.html);
+                    } else {
+                        $('#card-list').append(res.html);
+                    }
+
+                    // Cek apakah data sudah habis
+                    if (res.is_last_page) {
+                        $('#pagination-area').addClass('hidden');
+                        $('#end-of-data').removeClass('hidden');
+                    } else {
+                        $('#pagination-area').removeClass('hidden');
+                        $('#end-of-data').addClass('hidden');
+                    }
+                } else {
+                    if (isNewSearch) {
+                        $('#card-list').html('<div class="text-center py-20 opacity-30 font-black uppercase italic">Data tidak ditemukan</div>');
+                        $('#pagination-area').addClass('hidden');
+                    }
+                }
+            },
+            error: function(xhr) {
+                console.error("AJAX Error: ", xhr.responseText);
+            },
+            complete: function() {
+                isLoading = false;
+                btn.removeClass('loading');
+                $('#load-text').text(originalText);
+            }
+        });
+    }
+
+    // Inisialisasi Event
     $(document).ready(function() {
-        // Jalankan pertama kali
+        // Load data pertama kali saat halaman dibuka
         loadData(true);
 
-        // Perbaikan Event Search
+        // Search dengan delay agar tidak lag
+        let typingTimer;
         $('#search_lp').on('keyup', function() {
-            clearTimeout($.data(this, 'timer'));
-            $(this).data('timer', setTimeout(function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function() {
                 loadData(true);
-            }, 500));
+            }, 500);
         });
     });
+</script> -->
+<script>
+    // Deklarasi Global
+    var currentPage = 0;
+    var isLoading = false;
+    var token = $('#token').val(); // Ambil token dari input tersembunyi
+
+    $(document).ready(function() {
+        // Inisialisasi awal
+        loadData(true);
+
+        // Pencarian Otomatis
+        let typingTimer;
+        $('#search_lp').on('keyup', function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function() {
+                loadData(true);
+            }, 500);
+        });
+    });
+
+    function loadNextPage() {
+        if (isLoading) return;
+        currentPage++;
+        loadData(false);
+    }
+
+    function loadData(isNewSearch = false) {
+        if (isLoading) return;
+
+        if (isNewSearch) {
+            currentPage = 0;
+            $('#card-list').html('');
+            $('#lp_list_container').removeClass('hidden');
+            $('#pagination-area').addClass('hidden');
+            $('#end-of-data').addClass('hidden');
+        }
+
+        isLoading = true;
+        const searchKeyword = $('#search_lp').val();
+
+        // TETAP MENGGUNAKAN FUNGSI ANDA UNTUK MENGAMBIL TOKEN
+        const token = $('#token').val();
+
+        const btn = $('#btn-load-more');
+        const originalText = $('#load-text').text();
+        $('#load-text').text('Memuat...');
+        btn.addClass('loading');
+
+        $.ajax({
+            url: "<?= base_url('laporan_polisi/fetch_data') ?>",
+            method: "POST",
+            dataType: "JSON",
+            data: {
+                search: searchKeyword,
+                page: currentPage,
+                token: token // Kirim token dengan key dinamis
+            },
+            success: function(res) {
+                $('#lp_list_container').addClass('hidden');
+
+                // UPDATE TOKEN CSRF MENGGUNAKAN FUNGSI ANDA (#token)
+                if (res.csrf_hash) {
+                    $('#token').val(res.csrf_hash);
+                }
+
+                if (res.html && res.html !== '') {
+                    if (isNewSearch) {
+                        $('#card-list').html(res.html);
+                    } else {
+                        $('#card-list').append(res.html);
+                    }
+
+                    if (res.is_last_page) {
+                        $('#pagination-area').addClass('hidden');
+                        $('#end-of-data').removeClass('hidden');
+                    } else {
+                        $('#pagination-area').removeClass('hidden');
+                    }
+                } else {
+                    if (isNewSearch) {
+                        $('#card-list').html(`
+                            <div class="flex flex-col items-center justify-center p-24 border-4 border-dashed border-base-300 rounded-[4rem] opacity-20 bg-base-200/10">
+                                <i class="mdi mdi-text-search text-8xl mb-6"></i>
+                                <p class="font-black uppercase tracking-[0.6em] italic text-lg text-center">Data Tidak Ditemukan</p>
+                            </div>
+                        `);
+                    }
+                }
+            },
+            error: function(xhr) {
+                console.error("AJAX Error: ", xhr.responseText);
+            },
+            complete: function() {
+                isLoading = false;
+                btn.removeClass('loading');
+                $('#load-text').text(originalText);
+            }
+        });
+    }
 </script>

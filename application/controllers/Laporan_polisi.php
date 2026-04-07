@@ -32,18 +32,127 @@ class Laporan_polisi extends CI_Controller
         }
     }
 
+    // public function fetch_data()
+    // {
+    //     cek_csrf();
+    //     $search = $this->input->post('search');
+    //     $page = $this->input->post('page') ?: 0;
+    //     $limit = 5;
+    //     $offset = $page * $limit;
+
+    //     $results = $this->m_laporan_polisi->get_all_laporan($search, $limit, $offset);
+    //     $total_data = $this->m_laporan_polisi->count_all($search);
+
+    //     $html = '';
+    //     // Cek apakah ini halaman terakhir berdasarkan total data
+    //     $is_last_page = ($offset + $limit) >= $total_data;
+
+    //     if ($results) {
+    //         foreach ($results as $row) {
+    //             $tanggal = ($row->tgl_laporan_polisi) ? date('d/m/Y', strtotime($row->tgl_laporan_polisi)) : '-';
+
+    //             $html .= '
+    //         <div class="card bg-base-100 shadow-sm border border-base-200 hover:border-primary/50 transition-all mb-4 overflow-hidden group rounded-[2rem]">
+    //             <div class="flex flex-col lg:flex-row items-center w-full p-6 gap-6">
+    //                 <div class="flex flex-row lg:flex-col gap-2 w-full lg:w-36 items-center lg:items-start shrink-0 lg:border-r border-base-200 lg:pr-6">
+    //                     <div class="badge badge-primary font-black uppercase text-[10px] tracking-widest px-4 py-3 italic border-none shadow-lg shadow-primary/20 w-full lg:w-auto justify-center">
+    //                         ' . ($row->status_laporan_polisi ?: "LIDIK") . '
+    //                     </div>
+    //                      <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
+    //                             <i class="mdi mdi-archive-arrow-down text-secondary text-sm"></i>
+    //                             <span class="text-[9px] font-black opacity-50 uppercase">RAK:</span>
+    //                             <span class="text-[10px] font-mono font-black uppercase">' . ($row->penyimpanan_rak ?: '-') . '</span>
+    //                         </div>
+    //                 </div>
+
+    //                 <div class="flex-grow space-y-3">
+    //                     <h2 class="font-black text-2xl text-primary uppercase italic tracking-tighter group-hover:translate-x-1 transition-transform duration-300 leading-none">
+    //                         ' . $row->judul_laporan_polisi . '
+    //                     </h2>
+
+    //                     <div class="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black opacity-60 uppercase tracking-widest">
+    //                         <span class="flex items-center gap-1.5"><i class="mdi mdi-file-certificate text-error text-base"></i> NO. POL: <strong class="text-base-content">' . $row->nomor_polisi . '</strong></span>
+    //                         <span class="flex items-center gap-1.5"><i class="mdi mdi-account-group text-primary text-base"></i> PELAPOR: ' . ($row->pelapor ?: "-") . '</span>
+    //                         <span class="flex items-center gap-1.5"><i class="mdi mdi-map-marker-radius text-success text-base"></i> ' . ($row->alamat_laporan_polisi ?: "-") . '</span>
+    //                     </div>
+
+    //                     <div class="flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t border-base-100">
+    //                         <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
+    //                             <i class="mdi mdi-shield-account text-info text-sm"></i>
+    //                             <span class="text-[9px] font-black opacity-50 uppercase">UNIT:</span>
+    //                             <span class="text-[10px] font-black uppercase italic">' . ($row->team_polisi ?: 'BELUM DIVALIDASI') . '</span>
+    //                         </div>
+
+    //                         <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
+    //                             <i class="mdi mdi-calendar-clock text-warning text-sm"></i>
+    //                             <span class="text-[10px] font-black uppercase">' . $tanggal . '</span>
+    //                         </div>
+    //                     </div>
+    //                 </div>
+
+    //                 <div class="flex lg:flex-col gap-2 shrink-0 lg:pl-6 lg:border-l border-base-200">
+    //                     <a href="' . base_url('laporan_polisi/detail/' . $row->id_laporan_polisi) . '" 
+    //                        class="btn btn-primary btn-sm rounded-xl font-black italic uppercase text-[10px] gap-2 px-5 shadow-md shadow-primary/20">
+    //                         <i class="mdi mdi-eye-outline text-lg"></i> Detail
+    //                     </a>
+
+    //                     <div class="flex gap-2">
+    //                         <button onclick="editLp(' . $row->id_laporan_polisi . ')" 
+    //                                 class="btn btn-square btn-ghost btn-sm text-warning hover:bg-warning/10 transition-colors">
+    //                             <i class="mdi mdi-pencil-outline text-xl"></i>
+    //                         </button>
+
+    //                         <button onclick="hapus_master(' . $row->id_laporan_polisi . ')" 
+    //                                 class="btn btn-square btn-ghost btn-sm text-error hover:bg-error/10 transition-colors">
+    //                             <i class="mdi mdi-trash-can-outline text-xl"></i>
+    //                         </button>
+    //                         <button onclick=\'cetak_label_lp(' .
+    //                 json_encode($row->nomor_polisi ?: "-") . ', ' .
+    //                 json_encode($row->penyimpanan_rak ?: "-") . ', ' .
+    //                 json_encode($row->judul_laporan_polisi ?: "-") . ', ' .
+    //                 json_encode($row->status_laporan_polisi ?: "-") . ')\' 
+    //     class="btn btn-square btn-ghost btn-sm text-success tooltip" data-tip="Cetak Label">
+    //     <i class="mdi mdi-printer text-xl"></i>
+    // </button>
+
+
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         </div>';
+    //         }
+    //     } else {
+    //         if ($page == 0) {
+    //             $html = '
+    //         <div class="flex flex-col items-center justify-center p-24 border-4 border-dashed border-base-300 rounded-[4rem] opacity-20 bg-base-200/10">
+    //             <i class="mdi mdi-text-search text-8xl mb-6"></i>
+    //             <p class="font-black uppercase tracking-[0.6em] italic text-lg text-center">Data Berkas Tidak Ditemukan</p>
+    //         </div>';
+    //         }
+    //     }
+
+    //     echo json_encode([
+    //         'html' => $html,
+    //         'is_last_page' => $is_last_page,
+    //         'total_data' => $total_data
+    //     ]);
+    // }
+
+
     public function fetch_data()
     {
-        $search = $this->input->post('search');
-        $page = $this->input->post('page') ?: 0;
+        cek_csrf();
+
+        $search = $this->input->post('search', TRUE);
+
+        $page = (int) $this->input->post('page');
+
         $limit = 5;
         $offset = $page * $limit;
-
-        $results = $this->m_laporan_polisi->get_all_laporan($search, $limit, $offset);
+        $results    = $this->m_laporan_polisi->get_all_laporan($search, $limit, $offset);
         $total_data = $this->m_laporan_polisi->count_all($search);
 
         $html = '';
-        // Cek apakah ini halaman terakhir berdasarkan total data
         $is_last_page = ($offset + $limit) >= $total_data;
 
         if ($results) {
@@ -51,91 +160,85 @@ class Laporan_polisi extends CI_Controller
                 $tanggal = ($row->tgl_laporan_polisi) ? date('d/m/Y', strtotime($row->tgl_laporan_polisi)) : '-';
 
                 $html .= '
-            <div class="card bg-base-100 shadow-sm border border-base-200 hover:border-primary/50 transition-all mb-4 overflow-hidden group rounded-[2rem]">
-                <div class="flex flex-col lg:flex-row items-center w-full p-6 gap-6">
-                    <div class="flex flex-row lg:flex-col gap-2 w-full lg:w-36 items-center lg:items-start shrink-0 lg:border-r border-base-200 lg:pr-6">
-                        <div class="badge badge-primary font-black uppercase text-[10px] tracking-widest px-4 py-3 italic border-none shadow-lg shadow-primary/20 w-full lg:w-auto justify-center">
-                            ' . ($row->status_laporan_polisi ?: "LIDIK") . '
-                        </div>
-                         <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
+                <div class="card bg-base-100 shadow-sm border border-base-200 hover:border-primary/50 transition-all mb-4 overflow-hidden group rounded-[2rem]">
+                    <div class="flex flex-col lg:flex-row items-center w-full p-6 gap-6">
+                        <div class="flex flex-row lg:flex-col gap-2 w-full lg:w-36 items-center lg:items-start shrink-0 lg:border-r border-base-200 lg:pr-6">
+                            <div class="badge badge-primary font-black uppercase text-[10px] tracking-widest px-4 py-3 italic border-none shadow-lg shadow-primary/20 w-full lg:w-auto justify-center">
+                                ' . ($row->status_laporan_polisi ?: "LIDIK") . '
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
                                 <i class="mdi mdi-archive-arrow-down text-secondary text-sm"></i>
                                 <span class="text-[9px] font-black opacity-50 uppercase">RAK:</span>
                                 <span class="text-[10px] font-mono font-black uppercase">' . ($row->penyimpanan_rak ?: '-') . '</span>
                             </div>
-                    </div>
-
-                    <div class="flex-grow space-y-3">
-                        <h2 class="font-black text-2xl text-primary uppercase italic tracking-tighter group-hover:translate-x-1 transition-transform duration-300 leading-none">
-                            ' . $row->judul_laporan_polisi . '
-                        </h2>
-                        
-                        <div class="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black opacity-60 uppercase tracking-widest">
-                            <span class="flex items-center gap-1.5"><i class="mdi mdi-file-certificate text-error text-base"></i> NO. POL: <strong class="text-base-content">' . $row->nomor_polisi . '</strong></span>
-                            <span class="flex items-center gap-1.5"><i class="mdi mdi-account-group text-primary text-base"></i> PELAPOR: ' . ($row->pelapor ?: "-") . '</span>
-                            <span class="flex items-center gap-1.5"><i class="mdi mdi-map-marker-radius text-success text-base"></i> ' . ($row->alamat_laporan_polisi ?: "-") . '</span>
                         </div>
 
-                        <div class="flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t border-base-100">
-                            <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
-                                <i class="mdi mdi-shield-account text-info text-sm"></i>
-                                <span class="text-[9px] font-black opacity-50 uppercase">UNIT:</span>
-                                <span class="text-[10px] font-black uppercase italic">' . ($row->team_polisi ?: 'BELUM DIVALIDASI') . '</span>
+                        <div class="flex-grow space-y-3">
+                            <h2 class="font-black text-2xl text-primary uppercase italic tracking-tighter group-hover:translate-x-1 transition-transform duration-300 leading-none">
+                                ' . $row->judul_laporan_polisi . '
+                            </h2>
+                            
+                            <div class="flex flex-wrap gap-x-6 gap-y-2 text-[10px] font-black opacity-60 uppercase tracking-widest">
+                                <span class="flex items-center gap-1.5"><i class="mdi mdi-file-certificate text-error text-base"></i> NO. POL: <strong class="text-base-content">' . $row->nomor_polisi . '</strong></span>
+                                <span class="flex items-center gap-1.5"><i class="mdi mdi-account-group text-primary text-base"></i> PELAPOR: ' . ($row->pelapor ?: "-") . '</span>
+                                <span class="flex items-center gap-1.5"><i class="mdi mdi-map-marker-radius text-success text-base"></i> ' . ($row->alamat_laporan_polisi ?: "-") . '</span>
                             </div>
 
-                            <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
-                                <i class="mdi mdi-calendar-clock text-warning text-sm"></i>
-                                <span class="text-[10px] font-black uppercase">' . $tanggal . '</span>
+                            <div class="flex flex-wrap gap-x-4 gap-y-2 pt-2 border-t border-base-100">
+                                <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
+                                    <i class="mdi mdi-shield-account text-info text-sm"></i>
+                                    <span class="text-[9px] font-black opacity-50 uppercase">UNIT:</span>
+                                    <span class="text-[10px] font-black uppercase italic">' . ($row->team_polisi ?: 'BELUM DIVALIDASI') . '</span>
+                                </div>
+                                <div class="flex items-center gap-2 px-3 py-1 bg-base-200/50 rounded-lg border border-base-300">
+                                    <i class="mdi mdi-calendar-clock text-warning text-sm"></i>
+                                    <span class="text-[10px] font-black uppercase">' . $tanggal . '</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="flex lg:flex-col gap-2 shrink-0 lg:pl-6 lg:border-l border-base-200">
-                        <a href="' . base_url('laporan_polisi/detail/' . $row->id_laporan_polisi) . '" 
-                           class="btn btn-primary btn-sm rounded-xl font-black italic uppercase text-[10px] gap-2 px-5 shadow-md shadow-primary/20">
-                            <i class="mdi mdi-eye-outline text-lg"></i> Detail
-                        </a>
-
-                        <div class="flex gap-2">
-                            <button onclick="editLp(' . $row->id_laporan_polisi . ')" 
-                                    class="btn btn-square btn-ghost btn-sm text-warning hover:bg-warning/10 transition-colors">
-                                <i class="mdi mdi-pencil-outline text-xl"></i>
-                            </button>
-
-                            <button onclick="hapus_master(' . $row->id_laporan_polisi . ')" 
-                                    class="btn btn-square btn-ghost btn-sm text-error hover:bg-error/10 transition-colors">
-                                <i class="mdi mdi-trash-can-outline text-xl"></i>
-                            </button>
-                            <button onclick=\'cetak_label_lp(' .
+                        <div class="flex lg:flex-col gap-2 shrink-0 lg:pl-6 lg:border-l border-base-200">
+                            <a href="' . base_url('laporan_polisi/detail/' . $row->id_laporan_polisi) . '" 
+                               class="btn btn-primary btn-sm rounded-xl font-black italic uppercase text-[10px] gap-2 px-5 shadow-md shadow-primary/20">
+                                <i class="mdi mdi-eye-outline text-lg"></i> Detail
+                            </a>
+                            <div class="flex gap-2">
+                                <button onclick="editLp(' . $row->id_laporan_polisi . ')" class="btn btn-square btn-ghost btn-sm text-warning hover:bg-warning/10 transition-colors">
+                                    <i class="mdi mdi-pencil-outline text-xl"></i>
+                                </button>
+                                <button onclick="hapus_master(' . $row->id_laporan_polisi . ')" class="btn btn-square btn-ghost btn-sm text-error hover:bg-error/10 transition-colors">
+                                    <i class="mdi mdi-trash-can-outline text-xl"></i>
+                                </button>
+                                <button onclick=\'cetak_label_lp(' .
                     json_encode($row->nomor_polisi ?: "-") . ', ' .
                     json_encode($row->penyimpanan_rak ?: "-") . ', ' .
                     json_encode($row->judul_laporan_polisi ?: "-") . ', ' .
                     json_encode($row->status_laporan_polisi ?: "-") . ')\' 
-        class="btn btn-square btn-ghost btn-sm text-success tooltip" data-tip="Cetak Label">
-        <i class="mdi mdi-printer text-xl"></i>
-    </button>
-
-     
+                                    class="btn btn-square btn-ghost btn-sm text-success tooltip" data-tip="Cetak Label">
+                                    <i class="mdi mdi-printer text-xl"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>';
+                </div>';
             }
         } else {
             if ($page == 0) {
                 $html = '
-            <div class="flex flex-col items-center justify-center p-24 border-4 border-dashed border-base-300 rounded-[4rem] opacity-20 bg-base-200/10">
-                <i class="mdi mdi-text-search text-8xl mb-6"></i>
-                <p class="font-black uppercase tracking-[0.6em] italic text-lg text-center">Data Berkas Tidak Ditemukan</p>
-            </div>';
+                <div class="flex flex-col items-center justify-center p-24 border-4 border-dashed border-base-300 rounded-[4rem] opacity-20 bg-base-200/10">
+                    <i class="mdi mdi-text-search text-8xl mb-6"></i>
+                    <p class="font-black uppercase tracking-[0.6em] italic text-lg text-center">Data Berkas Tidak Ditemukan</p>
+                </div>';
             }
         }
 
         echo json_encode([
             'html' => $html,
             'is_last_page' => $is_last_page,
-            'total_data' => $total_data
+            'csrf_hash' => $this->security->get_csrf_hash() // Update Token
         ]);
     }
+
     public function get_master_by_id($id)
     {
         $data = $this->m_laporan_polisi->get_master_by_id($id);
@@ -144,8 +247,13 @@ class Laporan_polisi extends CI_Controller
 
     public function delete_master()
     {
-        $id = $this->input->post('id');
-        $this->m_laporan_polisi->delete_master($id);
+        cek_csrf();
+        $id = $this->input->post('id', TRUE);
+        $delete = $this->m_laporan_polisi->delete_master($id);
+
+        echo json_encode([
+            'status' => $delete
+        ]);
     }
     // public function fetch_data()
     // {
@@ -204,7 +312,9 @@ class Laporan_polisi extends CI_Controller
     // Simpan atau Update Master Laporan
     public function save_master()
     {
-        $id = $this->input->post('id_laporan_polisi');
+
+        cek_csrf();
+        $id = $this->input->post('id_laporan_polisi', TRUE);
         $data = [
             'judul_laporan_polisi'  => $this->input->post('judul'),
             'nomor_polisi'          => $this->input->post('nomor'),
@@ -298,7 +408,7 @@ class Laporan_polisi extends CI_Controller
     // AJAX: Load Konten Detail Per Baris Agenda
     public function get_agenda_content()
     {
-        $id = $this->input->post('id');
+        $id = $this->input->post('id', TRUE);
         $data = $this->db->get_where('laporan_polisi_det', ['id_laporan_polisi_det' => $id])->row();
 
         if ($data) {

@@ -52,7 +52,7 @@ class Arsip_umum extends CI_Controller
 
     public function update_proses()
     {
-        $id = $this->input->post('id_berkas_umum');
+        $id = $this->input->post('id_berkas_umum', TRUE);
 
         $data = [
             'nama_berkas_umum' => strtoupper($this->input->post('nama_berkas_umum')),
@@ -69,11 +69,49 @@ class Arsip_umum extends CI_Controller
         redirect('arsip');
     }
 
+    // public function append_file()
+    // {
+    //     $this->load->library('upload');
+    //     $id_data = $this->input->post('id_berkas_umum');
+    //     $uploaded_files = [];
+    //     $files = $_FILES['files'];
+
+    //     if (!empty($files['name'][0])) {
+    //         foreach ($files['name'] as $key => $val) {
+    //             $_FILES['file']['name']     = $files['name'][$key];
+    //             $_FILES['file']['type']     = $files['type'][$key];
+    //             $_FILES['file']['tmp_name'] = $files['tmp_name'][$key];
+    //             $_FILES['file']['error']    = $files['error'][$key];
+    //             $_FILES['file']['size']     = $files['size'][$key];
+
+    //             $config['upload_path']   = './assets/berkas_umum/';
+    //             $config['allowed_types'] = 'pdf|jpg|jpeg|png';
+    //             $config['encrypt_name']  = TRUE;
+
+    //             $this->upload->initialize($config);
+
+    //             if ($this->upload->do_upload('file')) {
+    //                 $fileData = $this->upload->data();
+    //                 // Simpan langsung ke detail per file
+    //                 $this->db->insert('berkas_umum_det', [
+    //                     'id_berkas_umum' => $id_data,
+    //                     'nama_file'      => $fileData['file_name'],
+    //                     'tgl_upload'     => date('Y-m-d H:i:s')
+    //                 ]);
+    //             }
+    //         }
+    //         // Mengirim response balik ke Javascript agar modal bisa refresh
+    //         echo json_encode(['status' => true, 'id_data' => $id_data]);
+    //     } else {
+    //         echo json_encode(['status' => false, 'message' => 'Tidak ada file dipilih']);
+    //     }
+    // }
     public function append_file()
     {
+        cek_csrf(); // Validasi token post
+
         $this->load->library('upload');
         $id_data = $this->input->post('id_berkas_umum');
-        $uploaded_files = [];
         $files = $_FILES['files'];
 
         if (!empty($files['name'][0])) {
@@ -92,7 +130,6 @@ class Arsip_umum extends CI_Controller
 
                 if ($this->upload->do_upload('file')) {
                     $fileData = $this->upload->data();
-                    // Simpan langsung ke detail per file
                     $this->db->insert('berkas_umum_det', [
                         'id_berkas_umum' => $id_data,
                         'nama_file'      => $fileData['file_name'],
@@ -100,10 +137,47 @@ class Arsip_umum extends CI_Controller
                     ]);
                 }
             }
-            // Mengirim response balik ke Javascript agar modal bisa refresh
-            echo json_encode(['status' => true, 'id_data' => $id_data]);
+
+            // REGENERATE TOKEN
+            $new_token = hash('sha1', time() . mt_rand());
+            $this->session->set_userdata('csrf_token', $new_token);
+
+            echo json_encode([
+                'status'    => true,
+                'id_data'   => $id_data,
+                'new_token' => $new_token
+            ]);
         } else {
             echo json_encode(['status' => false, 'message' => 'Tidak ada file dipilih']);
         }
+    }
+
+    public function delete_file()
+    {
+        cek_csrf(); // Validasi token
+
+        $id_det = $this->input->post('id_det', TRUE);
+
+        // 1. Cari nama file untuk dihapus di folder
+        $file = $this->db->get_where('berkas_umum_det', ['id_berkas_umum_det' => $id_det])->row();
+
+        if ($file) {
+            $path = './assets/berkas_umum/' . $file->nama_file;
+            if (file_exists($path)) {
+                unlink($path); // Hapus file fisik
+            }
+
+            // 2. Hapus data di database
+            $this->db->delete('berkas_umum_det', ['id_berkas_umum_det' => $id_det]);
+        }
+
+        // 3. Regenerate Token Baru
+        $new_token = hash('sha1', time() . mt_rand());
+        $this->session->set_userdata('csrf_token', $new_token);
+
+        echo json_encode([
+            'status' => true,
+            'new_token' => $new_token
+        ]);
     }
 }

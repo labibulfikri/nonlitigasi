@@ -17,7 +17,7 @@ class Arsip extends CI_Controller
     public function index()
     {
         // 1. Ambil keyword pencarian dari URL (?search=...)
-        $keyword = $this->input->get('search');
+        $keyword = $this->input->get('search', TRUE);
 
         // 2. Definisi Limit & Start untuk Pagination
         $limit = 10;
@@ -81,9 +81,9 @@ class Arsip extends CI_Controller
 
     public function update_rak()
     {
-        $sumber = $this->input->post('sumber');
-        $id_data = $this->input->post('id_data');
-        $id_rak = $this->input->post('id_rak');
+        $sumber = $this->input->post('sumber', TRUE);
+        $id_data = $this->input->post('id_data', TRUE);
+        $id_rak = $this->input->post('id_rak', TRUE);
 
         if ($this->m_arsip->update_penyimpanan($sumber, $id_data, $id_rak)) {
             $this->session->set_flashdata('success', 'Lokasi rak berhasil diperbarui!');
@@ -95,14 +95,96 @@ class Arsip extends CI_Controller
 
     public function get_detail_json()
     {
+        cek_csrf(); // Validasi Token
+
         $sumber  = $this->input->post('sumber');
         $id_data = $this->input->post('id_data');
 
-        $detail  = $this->m_arsip->get_detail_berkas($sumber, $id_data);
+        $result = $this->m_arsip->get_detail_berkas($sumber, $id_data);
 
-        // Kirim header JSON agar browser mengerti formatnya
+        // Regenerate Token Baru
+        $new_token = hash('sha1', time() . mt_rand());
+        $this->session->set_userdata('csrf_token', $new_token);
+
+        $result['new_token'] = $new_token;
+
         return $this->output
             ->set_content_type('application/json')
-            ->set_output(json_encode($detail));
+            ->set_output(json_encode($result));
+    }
+
+    public function get_detail_json2()
+    {
+        // 1. Validasi Token via Helper Manual
+        cek_csrf();
+
+        $sumber  = $this->input->post('sumber');
+        $id_data = $this->input->post('id_data');
+
+        $data = null;
+        $lampiran = [];
+
+        // Query spesifik berdasarkan sumber
+        if ($sumber === 'UMUM') {
+            $data = $this->db->get_where('berkas_umum', ['id_berkas_umum' => $id_data])->row();
+            $lampiran = $this->db->get_where('berkas_umum_det', ['id_berkas_umum' => $id_data])->result();
+        } else if ($sumber === 'POLISI') {
+            $data = $this->db->get_where('laporan_polisi', ['id_laporan_polisi' => $id_data])->row();
+            $lampiran = $this->db->get_where('laporan_polisi_det', ['id_laporan_polisi' => $id_data])->result();
+        } else if ($sumber === 'MASALAH') {
+            $data = $this->db->get_where('masalah', ['id_masalah' => $id_data])->row();
+            $lampiran = $this->db->get_where('masalah_det', ['id_masalah' => $id_data])->result();
+        } else if ($sumber === 'NONLIT') {
+            $data = $this->db->get_where('nonlits', ['id' => $id_data])->row();
+            $lampiran = $this->db->get_where('nonlit_det', ['id_nonlit' => $id_data])->result();
+        } else if ($sumber === 'ASING') {
+            $data = $this->db->get_where('t_perkara', ['perkara_id' => $id_data])->row();
+            $lampiran = $this->db->get_where('t_perkara_detail', ['perkara_id' => $id_data])->result();
+        }
+
+        // 2. REGENERATE TOKEN (PENTING!)
+        $new_token = hash('sha1', time() . mt_rand());
+        $this->session->set_userdata('csrf_token', $new_token);
+
+        // 3. Kirim JSON
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'status'    => ($data ? true : false),
+                'data'      => $data,
+                'lampiran'  => $lampiran,
+                'new_token' => $new_token
+            ]));
+    }
+
+
+    public function generate_share_link()
+    {
+        cek_csrf(); // Validasi token yang dikirim
+
+        $sumber = $this->input->post('sumber');
+        $id_data = $this->input->post('id_data');
+        $durasi = $this->input->post('durasi');
+
+        // Logic simpan ke table share_links
+        $token_publik = bin2hex(random_bytes(32));
+        $expired = date('Y-m-d H:i:s', strtotime("+$durasi hours"));
+        $this->db->insert('share_links', [
+            'sumber' => $sumber,
+            'id_data' => $id_data,
+            'token' => $token_publik,
+            'expired_at' => $expired
+        ]);
+
+        // --- REGENERASI TOKEN CSRF BARU ---
+        $new_csrf = hash('sha1', time() . mt_rand());
+        $this->session->set_userdata('csrf_token', $new_csrf);
+
+        echo json_encode([
+            'status' => true,
+            'url' => base_url("public_access/view/$token_publik"),
+            'expired' => date('d M Y, H:i', strtotime($expired)) . ' WIB',
+            'new_token' => $new_csrf // Kirim token baru ke JS
+        ]);
     }
 }

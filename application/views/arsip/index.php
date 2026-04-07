@@ -8,6 +8,10 @@
                 <p class="text-[10px] opacity-60 font-bold uppercase tracking-widest text-base-content">Arsip Terpusat • Database: Nonlit & Perkara</p>
             </div>
         </div>
+
+        <div id="csrf-holder">
+            <?= crsf_ajax() ?>
+        </div>
         <button onclick="modal_berkas_umum.showModal()" class="btn btn-sm btn-primary px-5 rounded">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -90,7 +94,9 @@
                                     <span class="text-[10px] italic opacity-30 text-error font-bold tracking-widest">BELUM DIARSIPKAN</span>
                                 <?php endif; ?>
                             </td>
+
                             <td class="text-center">
+
                                 <button class="btn btn-square btn-ghost btn-sm text-info tooltip" data-tip="Lihat Detail & Berkas"
                                     onclick="viewDetail('<?= $row->sumber ?>', '<?= $row->id_data ?>')">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -322,6 +328,57 @@
         </form>
     </div>
 </dialog>
+
+
+<script>
+    function shareLink(sumber, id) {
+        // Ambil token dari input hidden id="token"
+        const currentToken = $('#token').val();
+
+        $.ajax({
+            url: '<?= base_url("arsip/generate_share_link") ?>',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                sumber: sumber,
+                id_data: id,
+                durasi: 24, // Misal default 24 jam
+                token: currentToken
+            },
+            success: function(res) {
+                // PENTING: Update token di seluruh halaman
+                if (res.new_token) {
+                    updateTokenGlobal(res.new_token);
+                }
+
+                Swal.fire({
+                    theme: 'auto',
+                    title: 'LINK BERHASIL DIBUAT!',
+                    html: `
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 mt-4">
+                        <input type="text" id="pubUrl" class="input input-bordered w-full text-xs" value="${res.url}" readonly>
+                        <button onclick="copyToClipboard()" class="btn btn-sm btn-primary w-full mt-2 font-black italic">SALIN LINK</button>
+                        <p class="text-[9px] mt-3 text-error font-black italic uppercase">Berlaku sampai: ${res.expired}</p>
+                    </div>`,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    target: document.getElementById('modal_detail')
+                });
+            },
+            error: function(xhr) {
+                // Jika error 403 muncul lagi, paksa reload agar token sinkron
+                Swal.fire({
+                    theme: 'auto',
+                    title: 'Sesi Keamanan Habis',
+                    text: 'Halaman akan dimuat ulang untuk sinkronisasi token.',
+                    icon: 'warning'
+                }).then(() => {
+                    location.reload();
+                });
+            }
+        });
+    }
+</script>
 <script>
     /**
      * Menyiapkan data ke dalam modal sebelum dibuka
@@ -338,9 +395,21 @@
         modal_rak.showModal();
     }
 </script>
-<!-- 
 <script>
+    // 1. Fungsi Update Token Global agar sinkron dengan Helper Manual
+    function updateTokenGlobal(newToken) {
+        if (newToken) {
+            $('#token').val(newToken);
+            $('input[name="token"]').val(newToken);
+            console.log("CSRF Token Synchronized");
+        }
+    }
+
+    // 2. Fungsi Utama View Detail
     function viewDetail(sumber, id) {
+        const currentToken = $('#token').val();
+
+        // Reset Modal & Show Loading
         document.getElementById('detail_content').innerHTML = `
             <div class="flex justify-center p-10">
                 <span class="loading loading-dots loading-lg text-primary"></span>
@@ -353,113 +422,256 @@
             type: 'POST',
             data: {
                 sumber: sumber,
-                id_data: id
+                id_data: id,
+                token: currentToken
             },
             dataType: 'JSON',
             success: function(res) {
+                // Update Token untuk aksi berikutnya
+                updateTokenGlobal(res.new_token);
+
+                if (!res.data) {
+                    document.getElementById('detail_content').innerHTML = '<div class="alert alert-error font-bold uppercase text-xs">Data Tidak Ditemukan</div>';
+                    return;
+                }
+
                 let html = "";
+                let listDet = res.detail_tambahan; // Data dari t_perkara_detail atau nonlit_det
+
+                // --- LOGIKA TAMPILAN PER SUMBER ---
 
                 if (sumber === 'ASING') {
-                    // Tampilan untuk data ASING
                     html = `
-                    <div class="stats shadow w-full mb-4 bg-orange-50 border border-orange-100">
-                        <div class="stat">
-                            <div class="stat-title text-[10px] font-bold uppercase">Nomor Perkara</div>
-                            <div class="stat-value text-lg text-orange-600">${res.data.perkara_no}</div>
-                            <div class="stat-desc font-bold">${res.data.perkara_jenis || 'Perdata'}</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-title text-[10px] font-bold uppercase">Status</div>
-                            <div class="stat-value text-lg"><span class="badge badge-warning font-bold">${res.data.perkara_status || 'Proses'}</span></div>
+                    <div class="stats shadow w-full mb-4 bg-orange-50 border border-orange-200">
+                        <div class="stat p-4">
+                            <div class="stat-title text-[10px] font-black uppercase text-orange-600">No. Perkara</div>
+                            <div class="stat-value text-lg text-orange-700 font-black">${res.data.perkara_no || '-'}</div>
+                            <div class="stat-desc font-bold text-orange-500 uppercase text-[9px]">Status: ${res.data.perkara_status || '-'}</div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-base-300">
-                        <div>
-                            <p class="text-[10px] font-bold opacity-40 uppercase">Pihak Penggugat</p>
-                            <p class="font-bold text-sm text-primary">${res.data.perkara_penggugat || '-'}</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold opacity-40 uppercase">Pihak Tergugat</p>
-                            <p class="font-bold text-sm text-error">${res.data.perkara_tergugat || '-'}</p>
-                        </div>
-                        <div class="col-span-2">
-                            <p class="text-[10px] font-bold opacity-40 uppercase">Alamat Lokasi</p>
-                            <p class="text-xs italic">${res.data.perkara_alamat || '-'}</p>
-                        </div>
-                    </div>`;
-                } else {
-                    // Tampilan untuk data NONLIT (Menampilkan data nonlit_det juga)
+                    <div class="space-y-3">
+                        <h4 class="text-[10px] font-black opacity-60 uppercase tracking-widest border-l-4 border-orange-500 pl-2">Riwayat Tingkat & Amar Putusan</h4>`;
+
+                    if (listDet && listDet.length > 0) {
+                        listDet.forEach((det, index) => {
+                            html += `
+                            <div class="collapse collapse-arrow bg-white border border-base-200 shadow-sm rounded-xl mb-2">
+                                <input type="radio" name="acc-asing" ${index === 0 ? 'checked' : ''} /> 
+                                <div class="collapse-title p-4 flex justify-between items-center">
+                                    <span class="text-[11px] font-black uppercase text-slate-700">${det.perkaradet_tingkat || 'TINGKAT'} - ${det.perkaradet_status || 'STATUS'}</span>
+                                    <span class="badge badge-sm font-mono text-[9px]">${det.perkaradet_tgl_putusan || '-'}</span>
+                                </div>
+                                <div class="collapse-content bg-orange-50/20 border-t border-slate-50 pt-4">
+                                    <p class="text-[9px] font-black opacity-40 uppercase mb-1 text-orange-600">Amar Putusan:</p>
+                                    <p class="text-[11px] leading-relaxed text-slate-700 italic font-medium">"${det.perkaradet_keterangan || 'Tidak ada amar putusan.'}"</p>
+                                </div>
+                            </div>`;
+                        });
+                    } else {
+                        html += `<p class="p-6 text-center text-[10px] italic opacity-30 uppercase">Belum ada riwayat putusan</p>`;
+                    }
+                    html += `</div>`;
+
+                } else if (sumber === 'NONLIT') {
                     html = `
-                    <div class="stats shadow w-full mb-4 bg-blue-50 border border-blue-100">
-                        <div class="stat">
-                            <div class="stat-title text-[10px] font-bold uppercase">Register</div>
-                            <div class="stat-value text-lg text-blue-600">${res.data.register_baru}</div>
-                            <div class="stat-desc font-bold">Tgl: ${res.data.tanggal_permohonan || '-'}</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-title text-[10px] font-bold uppercase">Status</div>
-                            <div class="stat-value text-lg"><span class="badge badge-info text-white font-bold">${res.data.status || 'Aktif'}</span></div>
+                    <div class="stats shadow w-full mb-4 bg-blue-50 border border-blue-200">
+                        <div class="stat p-4">
+                            <div class="stat-title text-[10px] font-black uppercase text-blue-600">No. Register</div>
+                            <div class="stat-value text-lg text-blue-800 font-black">${res.data.register_baru || '-'}</div>
+                            <div class="stat-desc font-black uppercase text-blue-500 truncate text-[9px]">${res.data.permohonan_nonlit}</div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-base-300">
-                        <div class="col-span-2">
-                            <p class="text-[10px] font-bold opacity-40 uppercase">Pemohon</p>
-                            <p class="font-black text-sm uppercase">${res.data.permohonan_nonlit}</p>
+                    <div class="space-y-3">
+                        <h4 class="text-[10px] font-black opacity-60 uppercase tracking-widest border-l-4 border-blue-500 pl-2">Resume Notulensi Rapat</h4>`;
+
+                    if (listDet && listDet.length > 0) {
+                        listDet.forEach((det) => {
+                            html += `
+                            <div class="collapse collapse-arrow bg-white border border-slate-200 shadow-sm rounded-xl mb-2">
+                                <input type="checkbox" /> 
+                                <div class="collapse-title p-4 flex justify-between items-center">
+                                    <span class="text-[11px] font-black uppercase text-blue-700">${det.judul_rapat || 'RAPAT KOORDINASI'}</span>
+                                    <span class="text-[9px] font-bold opacity-40 font-mono">${det.tgl_rapat || '-'}</span>
+                                </div>
+                                <div class="collapse-content bg-blue-50/20 border-t border-slate-100 pt-4">
+                                    <div class="mb-3">
+                                        <p class="text-[9px] font-black opacity-40 uppercase mb-1 text-blue-600">Resume / Kesimpulan:</p>
+                                        <p class="text-[11px] leading-snug text-slate-700 italic font-medium">"${det.kesimpulan || 'Belum ada resume.'}"</p>
+                                    </div>
+                                    <div class="flex justify-end pt-2 border-t border-blue-100">
+                                        <a href="<?= base_url('assets/berkas_nonlit/') ?>${det.berkas}" target="_blank" 
+                                           class="btn btn-xs btn-primary gap-1 ${det.berkas ? '' : 'btn-disabled'} uppercase font-black italic">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                            Download Resume
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>`;
+                        });
+                    } else {
+                        html += `<p class="p-6 text-center text-[10px] italic opacity-30 uppercase">Belum ada riwayat rapat</p>`;
+                    }
+                    html += `</div>`;
+
+                } else if (sumber === 'UMUM') {
+                    html = `
+                    <div class="stats border border-slate-200 w-full mb-6 rounded-2xl bg-white shadow-sm overflow-hidden">
+                        <div class="stat p-5">
+                            <div class="stat-title text-[10px] font-black uppercase text-primary">Nama Dokumen Digital</div>
+                            <div class="stat-value text-lg text-slate-800 uppercase font-black leading-tight">${res.data.nama_berkas_umum}</div>
+                            <div class="stat-desc mt-2 flex items-center gap-4">
+                                <span class="badge badge-ghost font-bold text-[10px] px-3">RAK: ${res.data.penyimpanan_rak || '-'}</span>
+                                <span class="text-[10px] font-bold opacity-50 uppercase">PIC: ${res.data.pic || '-'}</span>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-[10px] font-bold opacity-40 uppercase">Kategori Detail</p>
-                            <p class="text-xs font-bold">${res.nonlit_detail ? res.nonlit_detail.kategori : '-'}</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold opacity-40 uppercase">Sub-Kategori</p>
-                            <p class="text-xs font-bold">${res.nonlit_detail ? res.nonlit_detail.sub_kategori : '-'}</p>
-                        </div>
-                        <div class="col-span-2 border-t pt-2">
-                            <p class="text-[10px] font-bold opacity-40 uppercase">Alamat Pemohon</p>
-                            <p class="text-xs italic">${res.data.alamat || '-'}</p>
-                        </div>
+                    </div>
+                    <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 mb-6">
+                        <form id="form_append_file" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-3">
+                            <input type="hidden" name="id_berkas_umum" value="${res.data.id_berkas_umum}">
+                            <input type="file" name="files[]" multiple class="file-input file-input-bordered file-input-sm flex-1 bg-white" id="input_append" required>
+                            <button type="button" id="btn_append" onclick="appendFile()" class="btn btn-sm btn-primary px-6 uppercase font-black italic text-white shadow-lg">Upload</button>
+                        </form>
                     </div>`;
+
+
                 }
+                html += `
+        <div class="mt-8 p-5 bg-slate-50 rounded-2xl border border-dashed border-slate-300 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <h5 class="text-[11px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2">
+                    <i class="mdi mdi-share-variant text-primary text-lg"></i> Akses Berbagi Dokumen
+                </h5>
+                <p class="text-[9px] opacity-60 font-bold uppercase italic">Buat link akses publik tanpa perlu login</p>
+            </div>
+            <button onclick="shareLink('${sumber}', '${id}')" class="btn btn-sm btn-primary px-6 rounded-xl font-black italic uppercase shadow-lg shadow-primary/20">
+                Bagikan Berkas
+            </button>
+        </div>
+    `;
                 document.getElementById('detail_content').innerHTML = html;
 
-                // Render Lampiran dengan Icon yang lebih cantik
+                // --- RENDER LAMPIRAN DIGITAL ---
                 let fileHtml = "";
                 if (res.lampiran && res.lampiran.length > 0) {
                     res.lampiran.forEach(file => {
-                        let fileName = (sumber === 'ASING') ? file.name_berkas : file.nama_berkas;
-                        // Pilih warna icon berdasarkan tipe file
-                        let isPdf = fileName.toLowerCase().endsWith('.pdf');
-
+                        let fileName = file.nama_file || file.nama_berkas || file.berkas_laporan || file.name_berkas;
+                        let filePath = (sumber === 'UMUM') ? 'assets/berkas_umum/' : (sumber === 'NONLIT' ? 'assets/berkas_nonlit/' : 'assets/upload/');
+                        // Tombol hapus hanya muncul jika sumbernya UMUM
+                        let btnDelete = (sumber === 'UMUM') ? `
+        <button onclick="deleteFile('${file.id_berkas_umum_det}', '${res.data.id_berkas_umum}')" class="btn btn-xs btn-error btn-circle text-white shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+        </button>` : '';
                         fileHtml += `
-                        <div class="group flex items-center p-3 bg-base-100 rounded-xl gap-3 border border-base-300 hover:border-primary hover:shadow-md transition-all">
-                            <div class="${isPdf ? 'bg-error/10 text-error' : 'bg-info/10 text-info'} p-2 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
+                        <div class="flex items-center p-3 bg-white rounded-xl border border-slate-200 gap-3 mb-2 hover:border-primary transition-all group">
                             <div class="flex-1 overflow-hidden">
-                                <p class="text-[11px] font-black truncate uppercase tracking-tighter">${fileName}</p>
-                                <p class="text-[9px] opacity-50">${isPdf ? 'PDF Document' : 'Attachment'}</p>
+                                <p class="text-[10px] font-black truncate uppercase text-slate-600">${fileName}</p>
                             </div>
-                            <a href="<?= base_url('uploads/') ?>${fileName}" target="_blank" class="btn btn-sm btn-circle btn-ghost hover:bg-primary hover:text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            <a href="<?= base_url() ?>${filePath}${fileName}" target="_blank" class="btn btn-xs btn-primary btn-circle text-white shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                             </a>
+                            ${btnDelete}
                         </div>`;
                     });
                 } else {
-                    fileHtml = `
-                    <div class="col-span-full flex flex-col items-center py-6 opacity-20">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
-                        <p class="text-xs font-bold italic">Belum ada lampiran diunggah</p>
-                    </div>`;
+                    fileHtml = '<div class="py-10 flex flex-col items-center opacity-20"><p class="text-[10px] font-black uppercase italic tracking-widest text-slate-500">Tidak ada berkas digital</p></div>';
                 }
                 document.getElementById('list_lampiran').innerHTML = fileHtml;
             }
         });
     }
-</script> -->
+
+    // 3. Fungsi Upload & Refresh Total
+    function appendFile() {
+        let btn = $('#btn_append');
+        let formData = new FormData($('#form_append_file')[0]);
+        let tokenVal = $('#token').val();
+
+        formData.append('token', tokenVal);
+        btn.addClass('loading').prop('disabled', true).text('Uploading...');
+
+        $.ajax({
+            url: '<?= base_url("arsip_umum/append_file") ?>',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: 'JSON',
+            success: function(res) {
+                Swal.fire({
+                    theme: 'auto',
+                    title: 'BERHASIL!',
+                    text: 'Berkas berhasil diunggah. Halaman akan dimuat ulang.',
+                    icon: 'success',
+                    confirmButtonText: 'OKE',
+                    target: document.getElementById('modal_detail'),
+                    customClass: {
+                        confirmButton: 'btn btn-primary px-10'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            },
+            error: function() {
+                Swal.fire({
+                    title: 'ERROR',
+                    text: 'Token Habis. Refresh halaman.',
+                    icon: 'error'
+                }).then(() => location.reload());
+            }
+        });
+    }
+</script>
 
 <script>
+    function deleteFile(id_det, id_utama) {
+        const tokenVal = $('#token').val();
+
+        Swal.fire({
+            theme: 'auto',
+            title: 'HAPUS BERKAS?',
+            text: "File akan dihapus permanen dari server!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'YA, HAPUS!',
+            target: document.getElementById('modal_detail')
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?= base_url("arsip_umum/delete_file") ?>',
+                    type: 'POST',
+                    data: {
+                        id_det: id_det,
+                        token: tokenVal
+                    },
+                    dataType: 'JSON',
+                    success: function(res) {
+                        updateTokenGlobal(res.new_token); // Update token setelah hapus
+                        if (res.status) {
+                            Swal.fire({
+                                theme: 'auto',
+                                title: 'TERHAPUS!',
+                                icon: 'success',
+                                timer: 1000,
+                                showConfirmButton: false,
+                                target: document.getElementById('modal_detail')
+                            });
+                            // Refresh isi modal tanpa reload halaman
+                            viewDetail('UMUM', id_utama);
+                        }
+                    },
+                    error: function() {
+                        location.reload(); // Jika error/token habis, paksa reload
+                    }
+                });
+            }
+        });
+    }
+</script>
+<!-- <script>
     function appendFile() {
         let btn = $('#btn_append');
         let formData = new FormData($('#form_append_file')[0]);
@@ -512,7 +724,7 @@
             }
         });
     }
-</script>
+</script> -->
 <!-- <script>
     function viewDetail(sumber, id) {
         document.getElementById('detail_content').innerHTML = '<div class="p-10 text-center"><span class="loading loading-spinner text-primary"></span></div>';
@@ -770,7 +982,7 @@
         });
     }
 </script> -->
-<script>
+<!-- <script>
     function viewDetail(sumber, id) {
         // 1. Reset State Modal ke Loading
         document.getElementById('detail_content').innerHTML = '<div class="p-10 text-center"><span class="loading loading-spinner text-primary"></span></div>';
@@ -985,8 +1197,143 @@
             }
         });
     }
-</script>
+</script> -->
 
+
+<script>
+    // Fungsi pembantu agar semua input token di halaman terupdate
+    function updateTokenGlobal(newToken) {
+        if (newToken) {
+            $('#token').val(newToken);
+            $('input[name="token"]').val(newToken);
+            console.log("Token Updated");
+        }
+    }
+
+    function viewDetail2(sumber, id) {
+        // Ambil token dari input hidden id="token"
+        const currentToken = $('#token').val();
+
+        document.getElementById('detail_content').innerHTML = '<div class="p-10 text-center"><span class="loading loading-spinner text-primary"></span></div>';
+        document.getElementById('list_lampiran').innerHTML = '';
+        modal_detail.showModal();
+
+        $.ajax({
+            url: '<?= base_url("arsip/get_detail_json") ?>',
+            type: 'POST',
+            data: {
+                sumber: sumber,
+                id_data: id,
+                token: currentToken // Kirim token untuk cek_csrf
+            },
+            dataType: 'JSON',
+            success: function(res) {
+                // Update token setelah request detail berhasil
+                updateTokenGlobal(res.new_token);
+
+                if (res.status && res.data) {
+                    let html = "";
+                    // Tampilan UMUM
+                    if (sumber === 'UMUM') {
+                        html = `
+                        <div class="stats border border-slate-200 w-full mb-6 rounded-2xl bg-white shadow-sm overflow-hidden">
+                            <div class="stat p-5">
+                                <div class="stat-title text-[10px] font-black uppercase text-primary">Nama Dokumen Digital</div>
+                                <div class="stat-value text-lg text-slate-800 uppercase font-black">${res.data.nama_berkas_umum}</div>
+                                <div class="stat-desc mt-2 flex items-center gap-4">
+                                    <span class="badge badge-ghost font-bold text-[10px] px-3">RAK: ${res.data.penyimpanan_rak || '-'}</span>
+                                    <span class="text-[10px] font-bold opacity-50 uppercase tracking-tighter">PIC: ${res.data.pic || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 mb-6 group">
+                            <p class="text-[10px] font-black text-blue-600 uppercase mb-3 italic">Tambah File Baru:</p>
+                            <form id="form_append_file" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-3">
+                                <input type="hidden" name="id_berkas_umum" value="${res.data.id_berkas_umum}">
+                                <input type="file" name="files[]" multiple class="file-input file-input-bordered file-input-sm flex-1 bg-white rounded-lg font-bold" id="input_append" required>
+                                <button type="button" id="btn_append" onclick="appendFile()" class="btn btn-sm btn-primary px-6 uppercase font-black italic text-white shadow-lg shadow-blue-200">Upload</button>
+                            </form>
+                        </div>`;
+                    }
+                    // Render Sumber Lainnya (NONLIT, ASING, dll) di sini...
+
+                    document.getElementById('detail_content').innerHTML = html;
+
+                    // Render Lampiran
+                    let fileHtml = "";
+                    if (res.lampiran && res.lampiran.length > 0) {
+                        res.lampiran.forEach(file => {
+                            let fileName = file.nama_file || file.nama_berkas;
+                            fileHtml += `
+                            <div class="flex items-center p-3 bg-white rounded-xl border border-slate-200 gap-3 group mb-2 hover:border-primary transition-all">
+                                <div class="flex-1 overflow-hidden">
+                                    <p class="text-[10px] font-black truncate uppercase text-slate-600">${fileName}</p>
+                                </div>
+                                <a href="<?= base_url('assets/berkas_umum/') ?>${fileName}" target="_blank" class="btn btn-xs btn-primary btn-circle text-white shadow-sm">
+                                    <i class="mdi mdi-download"></i>
+                                </a>
+                            </div>`;
+                        });
+                    } else {
+                        fileHtml = '<p class="text-center text-[10px] opacity-30 italic py-10 uppercase font-black">Tidak ada berkas digital</p>';
+                    }
+                    document.getElementById('list_lampiran').innerHTML = fileHtml;
+                } else {
+                    document.getElementById('detail_content').innerHTML = '<div class="alert alert-error">Data Gagal Dimuat (Null)</div>';
+                }
+            }
+        });
+    }
+
+    function appendFile() {
+        let btn = $('#btn_append');
+        let formData = new FormData($('#form_append_file')[0]);
+        let tokenVal = $('#token').val();
+
+        formData.append('token', tokenVal); // Masukkan token terbaru
+
+        btn.addClass('loading').prop('disabled', true).text('Mengunggah...');
+
+        $.ajax({
+            url: '<?= base_url("arsip_umum/append_file") ?>',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: 'JSON',
+            success: function(res) {
+                if (res.status) {
+                    Swal.fire({
+                        theme: 'auto',
+                        title: 'BERHASIL!',
+                        text: 'Berkas berhasil ditambahkan. Halaman akan dimuat ulang.',
+                        icon: 'success',
+                        confirmButtonText: 'OKE',
+                        target: document.getElementById('modal_detail'), // SWAL di depan modal
+                        customClass: {
+                            confirmButton: 'btn btn-primary px-10'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            location.reload(); // Refresh halaman agar token & data sinkron
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        theme: 'auto',
+                        title: 'GAGAL!',
+                        text: res.message,
+                        icon: 'error',
+                        target: document.getElementById('modal_detail')
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire('ERROR', 'Token Expired. Refresh halaman.', 'error').then(() => location.reload());
+            }
+        });
+    }
+</script>
 <script>
     function editUmum(id) {
         $.ajax({

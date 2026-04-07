@@ -211,7 +211,45 @@ class M_arsip extends CI_Model
     //         ];
     //     }
     // }
+
     public function get_detail_berkas($sumber, $id_data)
+    {
+        $data     = null;
+        $lampiran = [];
+        $detail   = [];
+
+        if ($sumber === 'ASING') {
+            // Asumsi tabel di db_perkara tetap seperti sebelumnya
+            $data     = $this->db->where('perkara_id', $id_data)->get('db_perkara.t_perkara')->row();
+            $lampiran = $this->db->where('berkas_perkara_id', $id_data)->get('db_perkara.t_upload')->result();
+            $detail   = $this->db->where('perkaradet_perkara_id', $id_data)->order_by('perkaradet_id', 'ASC')->get('db_perkara.t_perkara_detail')->result();
+        } else if ($sumber === 'NONLIT') {
+            // Sesuai TABLE `nonlits` (PK: id)
+            $data     = $this->db->where('id', $id_data)->get('nonlits')->row();
+            // Sesuai TABLE `berkas_lampiran` (FK: id_nonlit)
+            $lampiran = $this->db->where('id_nonlit', $id_data)->get('berkas_lampiran')->result();
+            // Sesuai TABLE `nonlit_det` (FK: id_nonlit)
+            $detail   = $this->db->where('id_nonlit', $id_data)->order_by('tgl_rapat', 'DESC')->get('nonlit_det')->result();
+        } else if ($sumber === 'POLISI') {
+            // Sesuai TABLE `laporan_polisi` (PK: id_laporan_polisi)
+            $data     = $this->db->where('id_laporan_polisi', $id_data)->get('laporan_polisi')->row();
+            // Sesuai TABLE `laporan_polisi_det` (FK: id_laporan_polisi)
+            $lampiran = $this->db->where('id_laporan_polisi', $id_data)->get('laporan_polisi_det')->result();
+        } else if ($sumber === 'UMUM') {
+            // Sesuai TABLE `berkas_umum` (PK: id_berkas_umum)
+            $data     = $this->db->where('id_berkas_umum', $id_data)->get('berkas_umum')->row();
+            // Sesuai TABLE `berkas_umum_det` (FK: id_berkas_umum)
+            $lampiran = $this->db->where('id_berkas_umum', $id_data)->get('berkas_umum_det')->result();
+        }
+
+        return [
+            'status'          => ($data ? true : false),
+            'data'            => $data,
+            'lampiran'        => $lampiran,
+            'detail_tambahan' => $detail
+        ];
+    }
+    public function get_detail_berkas2($sumber, $id_data)
     {
         if ($sumber === 'ASING') {
             $data     = $this->db->where('perkara_id', $id_data)->get('db_perkara.t_perkara')->row();

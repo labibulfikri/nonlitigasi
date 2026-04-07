@@ -116,7 +116,7 @@
 <script>
     $(document).ready(function() {
         // Ambil Token CSRF CodeIgniter
-        const csrfToken = "<?php echo $this->security->get_csrf_hash(); ?>";
+        const token = $('#token').val();
 
         // Inisialisasi Pertama
         fill_datatable();
@@ -133,7 +133,7 @@
                     "url": "<?php echo base_url('laporan/fetch_nonlit'); ?>",
                     "type": "POST",
                     "data": function(d) { // Gunakan function agar data selalu fresh saat dipanggil
-                        d.<?php echo $this->security->get_csrf_token_name(); ?> = "<?php echo $this->security->get_csrf_hash(); ?>";
+                        d.token = token; // Kirim token CSRF
                         d.tahun = $("#nonlit_filter_bytahun").val();
                         d.status = $("#status").val();
                         d.team = $("#team_nonlit").val();

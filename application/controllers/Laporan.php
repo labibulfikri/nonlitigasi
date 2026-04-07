@@ -41,7 +41,7 @@ class Laporan extends CI_Controller
     public function fetch_nonlit()
     {
         // Cek CSRF (Pastikan fungsi ini ada di Base_Controller atau helper Anda)
-        // cek_csrf(); 
+        cek_csrf();
 
         // Ambil data POST dari DataTables
         $status = $this->input->post('status', true);
@@ -187,10 +187,10 @@ class Laporan extends CI_Controller
     // }
     public function export_excel()
     {
-        $tahun   = $this->input->get('tahun');
-        $status  = $this->input->get('status');
-        $team    = $this->input->get('team');
-        $pic     = $this->input->get('pic'); // Ini berisi ID dari dropdown
+        $tahun   = $this->input->get('tahun', true);
+        $status  = $this->input->get('status', true);
+        $team    = $this->input->get('team', true);
+        $pic     = $this->input->get('pic', true); // Ini berisi ID dari dropdown
 
         // Query utama
         $this->db->select('

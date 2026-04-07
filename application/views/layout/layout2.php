@@ -184,11 +184,37 @@
                         </details>
                     </li>
 
-                    <li>
+                    <!-- <li>
                         <a href="<?= base_url('laporan') ?>" class="py-3.5 <?= $this->uri->segment(1) == 'laporan' ? 'active-menu' : '' ?>">
                             <i class="mdi mdi-chart-box-outline text-xl"></i>
                             <span class="sidebar-text font-bold text-sm ml-2">Laporan Statistik</span>
                         </a>
+                    </li> -->
+
+                    <li>
+                        <details <?= in_array($this->uri->segment(1), ['laporan', 'laporan']) ? 'open' : '' ?> class="group">
+                            <summary class="py-3.5">
+                                <i class="mdi mdi-folder-outline text-xl"></i>
+                                <span class="sidebar-text font-bold text-sm ml-2">Data Laporan Nonlit</span>
+                            </summary>
+                            <ul class="before:hidden ml-6 mt-1 space-y-1">
+                                <li>
+                                    <a href="<?= base_url('laporan') ?>" class="py-2.5 <?= $this->uri->segment(1) == 'laporan' ? 'text-white font-bold bg-white/5' : '' ?>">
+                                        <i class="mdi mdi-rhombus-medium text-[10px] mr-2"></i> Data Laporan Nonlit
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="<?= base_url('report_lp') ?>" class="py-2.5 <?= $this->uri->segment(1) == 'report_lp' ? 'text-white font-bold bg-white/5' : '' ?>">
+                                        <i class="mdi mdi-rhombus-medium text-[10px] mr-2"></i> Data Laporan Polisi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="<?= base_url('report_masalah') ?>" class="py-2.5 <?= $this->uri->segment(1) == 'report_masalah' ? 'text-white font-bold bg-white/5' : '' ?>">
+                                        <i class="mdi mdi-rhombus-medium text-[10px] mr-2"></i> Data Laporan Permasalahan
+                                    </a>
+                                </li>
+                            </ul>
+                        </details>
                     </li>
                     <li>
                         <a href="<?= base_url('arsip') ?>" class="py-3.5 <?= $this->uri->segment(1) == 'arsip' ? 'active-menu' : '' ?>">

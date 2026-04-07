@@ -262,6 +262,7 @@
     // Fungsi Trigger Hapus dengan SweetAlert2
     function hapusDet(id) {
         Swal.fire({
+            theme: 'auto',
             title: 'Hapus Data?',
             text: "Catatan dan berkas ini akan dihapus permanen!",
             icon: 'warning',
@@ -281,6 +282,7 @@
                     },
                     success: function() {
                         Swal.fire({
+                            theme: 'auto',
                             title: 'Terhapus!',
                             icon: 'success',
                             timer: 1000,
