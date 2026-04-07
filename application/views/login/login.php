@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <style>
-<<<<<<< HEAD
         body,
         html {
             height: 100%;
@@ -31,17 +30,6 @@
             width: 41.666667%;
             background-color: #ffffff;
             overflow-y: auto;
-=======
-        body, html { height: 100%; margin: 0; font-family: 'Lato', sans-serif; }
-
-        .login-container { display: flex; min-height: 100vh; width: 100%; }
-
-        /* Area Form yang bisa discroll secara independen */
-        .left-side {
-            width: 41.666667%; 
-            background-color: #ffffff;
-            overflow-y: auto; 
->>>>>>> Initial commit dari server
             height: 100vh;
             z-index: 20;
         }
@@ -59,7 +47,6 @@
             overflow: hidden;
         }
 
-<<<<<<< HEAD
         .left-side::-webkit-scrollbar {
             width: 6px;
         }
@@ -109,23 +96,6 @@
             .right-side {
                 height: 400px;
             }
-=======
-        .left-side::-webkit-scrollbar { width: 6px; }
-        .left-side::-webkit-scrollbar-track { background: #f8fafc; }
-        .left-side::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-
-        @media (max-width: 1024px) {
-            .login-container { flex-direction: column-reverse; }
-            .left-side, .right-side { width: 100%; height: auto; position: relative; }
-            .left-side { overflow-y: visible; height: auto; }
-            .right-side { height: 400px; }
->>>>>>> Initial commit dari server
         }
     </style>
 </head>
@@ -133,26 +103,17 @@
 <body>
 
     <div class="login-container">
-<<<<<<< HEAD
 
         <div class="left-side">
             <div class="flex flex-col items-center p-8 md:p-16 lg:p-20 w-full min-h-full">
                 <div class="max-w-md w-full my-auto py-10">
 
-=======
-        
-        <div class="left-side">
-            <div class="flex flex-col items-center p-8 md:p-16 lg:p-20 w-full min-h-full">
-                <div class="max-w-md w-full my-auto py-10">
-                    
->>>>>>> Initial commit dari server
                     <div class="mb-10">
                         <div class="badge badge-primary badge-outline mb-4 px-4 py-3 font-bold uppercase tracking-widest text-[10px]">Pemerintah Kota Surabaya</div>
                         <h2 class="text-5xl font-black text-slate-800 mb-2 tracking-tight">Login</h2>
                         <p class="text-slate-500 text-lg">Akses Sistem E-Nonlit</p>
                     </div>
 
-<<<<<<< HEAD
                     <?php if ($this->session->userdata('pesan')): ?>
                         <div class="alert alert-error shadow-lg mb-8 border-none bg-red-50 text-red-800">
                             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
@@ -160,13 +121,6 @@
                             </svg>
                             <span class="text-sm font-bold"><?php echo $this->session->userdata('pesan') ?></span>
                         </div>
-=======
-                    <?php if($this->session->userdata('pesan')): ?>
-                    <div class="alert alert-error shadow-lg mb-8 border-none bg-red-50 text-red-800">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span class="text-sm font-bold"><?php echo $this->session->userdata('pesan') ?></span>
-                    </div>
->>>>>>> Initial commit dari server
                     <?php endif; ?>
 
                     <form method="post" action="<?php echo base_url('auth/check_captcha') ?>" class="space-y-6">
@@ -217,24 +171,16 @@
                                 <a href="https://assistdpbt.surabaya.go.id/asing" target="_blank" class="btn btn-outline border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-400 h-14 transition-all normal-case font-bold">
                                     <i class="fa fa-external-link text-primary"></i>ASING
                                 </a>
-<<<<<<< HEAD
                                 <a href="https://assistdpbt.surabaya.go.id/cek/rak.php" target="_blank" class="btn btn-outline border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-400 h-14 transition-all normal-case font-bold">
                                     <i class="fa fa-external-link text-primary"></i> RAK
                                 </a>
-=======
->>>>>>> Initial commit dari server
                             </div>
                         </div>
                     </form>
 
                     <div class="mt-20 text-center opacity-30 text-[10px] font-bold tracking-[0.2em] leading-loose uppercase">
-<<<<<<< HEAD
                         Bagian Hukum dan Kerjasama<br>
                         Setda Kota Surabaya &copy; 2026
-=======
-                        Badan Pengelolaan Keuangan dan Aset Daerah<br>
-                        Kota Surabaya &copy; 2026
->>>>>>> Initial commit dari server
                     </div>
                 </div>
             </div>
@@ -243,11 +189,7 @@
         <div class="right-side hidden lg:flex">
             <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 40px 40px;"></div>
             <div class="absolute w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[120px] -top-20 -right-20"></div>
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> Initial commit dari server
             <div class="relative z-10 text-center">
                 <div class="animate-float">
                     <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-12 rounded-[3.5rem] shadow-2xl inline-block mb-10">
@@ -256,11 +198,7 @@
                 </div>
                 <h1 class="text-7xl font-black text-white tracking-tighter mb-2">E-<span class="text-sky-300">NONLIT</span></h1>
                 <p class="text-sky-100 text-xl font-light tracking-[0.5em] uppercase opacity-70 mb-12">Pemerintah Kota Surabaya</p>
-<<<<<<< HEAD
 
-=======
-                
->>>>>>> Initial commit dari server
                 <div class="flex justify-center gap-8 text-[10px] font-bold text-white/30 tracking-[0.3em]">
                     <span>INTEGRITAS</span>
                     <span>•</span>

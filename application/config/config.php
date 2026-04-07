@@ -484,11 +484,8 @@ $config['csrf_exclude_uris'] = array();
 |
 */
 $config['compress_output'] = FALSE;
-<<<<<<< HEAD
-$config['timezone'] = 'Asia/Jakarta'; // Untuk WIB
-=======
-
->>>>>>> Initial commit dari server
+ $config['timezone'] = 'Asia/Jakarta';
+date_default_timezone_set('Asia/Jakarta');
 /*
 |--------------------------------------------------------------------------
 | Master Time Reference

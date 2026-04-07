@@ -412,14 +412,11 @@
                                 class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-sm" 
                                 title="Hapus">
                             <i class="mdi mdi-trash-can-outline text-xl"></i>
-<<<<<<< HEAD
                         </button> 
                         <button onclick="cetak_label_nonlit('${item.penyimpanan_rak}', '${item.permohonan_nonlit}', '${item.alamat}')" 
                                 class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition-all shadow-sm" 
                                 title="Cetak Label">
                             <i class="mdi mdi-printer-outline text-xl"></i>
-=======
->>>>>>> Initial commit dari server
                         </button>
                     </div>
                     
@@ -619,7 +616,6 @@
      }
  </script>
 
-<<<<<<< HEAD
  <script>
      function cetak_label_nonlit(DisplayRak, DisplayPermohonan, DisplayAlamat) {
          const printWindow = window.open('', '_blank', 'width=900,height=400');
@@ -712,8 +708,6 @@
          printWindow.document.close();
      }
  </script>
-=======
->>>>>>> Initial commit dari server
  <!-- <script>
      let globalData = [];
 
