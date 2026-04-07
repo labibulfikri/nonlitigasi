@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /assets/berkas_lampiran/*
 /assets/berkas_nonlit/*
 /assets/template/*
@@ -5,3 +6,14 @@
 
 vendor/
 node_modules/
+=======
+/system/ 
+/vendor/
+/node_modules/
+
+/assets/berkas_umum/*
+/assets/berkas_permasalahan/*
+/assets/berkas_nonlit/*
+/assets/berkas_laporan/*
+/assets/berkas_lampiran/*
+>>>>>>> Initial commit dari server

@@ -26,12 +26,10 @@
                     <div id='map'></div>
 
                     <form id="formUpdate">
-                        <input type="text" name="id" id="id_nonlits" value="<?php echo $id ?>" />
-
-                        <textarea name="polygon" id="kordinat"> <?php echo $list[0]['kordinat'] ?></textarea>
+                        <input type="hidden" name="id" id="id_nonlits" value="<?php echo $id ?>" />
+                        <textarea name="polygon" id="kordinat" style="display:none;"><?php echo $list[0]['kordinat'] ?></textarea>
                         <br />
-                        <button class="btn btn-sm btn-primary" type="submit"> SIMPAN </button>
-                        <br />
+                        <button class="btn btn-sm btn-primary w-full font-bold italic" type="submit"> SIMPAN PERUBAHAN PETA </button>
                     </form>
                 </div>
             </div>
@@ -39,229 +37,109 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-
                     <h5 class="card-title">Detail</h5>
                 </div>
                 <div class="card-body">
                     <?php $this->load->view($tab) ?>
-
                 </div>
             </div>
         </div>
-
     </div>
 </div>
-<br />
-<br />
- 
+
 <script>
     var map = L.map('map').fitWorld();
 
-    // Tambahkan layer peta dasar
     let streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
     let satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
         maxZoom: 30,
         subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
     }).addTo(map);
-    // let satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
+
     let basemapControl = {
         "Streets": streets,
         "Satellite": satellite,
-        // "tes": tes,
     };
     L.control.layers(basemapControl).addTo(map);
 
-    map.locate({
-        setView: true,
-        maxZoom: 30
-    });
+    map.locate({ setView: true, maxZoom: 30 });
 
     var nama = $("[name=nama_gis]").val();
     var alamat = $("[name=alamat]").val();
-    var kelurahan = $("[name=kelurahan]").val();
-    var latlngs = $("[name=polygon]").val();
+    var latlngsRaw = $("#kordinat").val();
 
-    // Edit polygon
-    if (latlngs != " ") {
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
+    var drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
 
-        var latlngs = JSON.parse(latlngs); // Pastikan data poligon sudah di-parse
-        var polygon = L.polygon(latlngs, {
-                color: 'red'
-            }).addTo(drawnItems)
-            .bindPopup("Nama =" + nama + "<br /> Alamat = " + alamat + " <br /> Kelurahan =" + kelurahan).openPopup();
-        setTimeout(function() {
-            map.fitBounds(polygon.getBounds());
-        }, 100);
-
-        // Memusatkan peta pada polygon yang ada
-        // map.fitBounds(polygon.getBounds());
-
-        var drawControl = new L.Control.Draw({
-            draw: {
-                polyline: false,
-                rectangle: false,
-                circle: false,
-                circlemarker: false,
-                marker: false
-            },
-            edit: {
-                featureGroup: drawnItems
-            }
-        });
-        map.addControl(drawControl);
-
-        map.on('draw:created', function(e) {
-            console.log('created');
-            var type = e.layerType,
-                layer = e.layer;
-            var latLang = layer.getLatLngs();
-            $("[name=polygon]").val(JSON.stringify(latLang[0]));
-            drawnItems.addLayer(layer);
-        });
-
-        map.on('draw:edited', function(e) {
-            console.log('edited');
-            var latLang = e.layers.getLayers()[0].getLatLngs()[0];
-            $("[name=polygon]").val(JSON.stringify(latLang));
-        });
-
-        map.on('draw:deleted', function(e) {
-            console.log('deleted');
-            $("[name=polygon]").val("");
-        });
-    } else {
-        var drawnItems = new L.FeatureGroup();
-        map.addLayer(drawnItems);
-        var drawControl = new L.Control.Draw({
-            draw: {
-                polyline: false,
-                rectangle: false,
-                circle: false,
-                circlemarker: false,
-                marker: false
-            },
-            edit: {
-                featureGroup: drawnItems
-            }
-        });
-
-        map.addControl(drawControl);
-
-        map.on('draw:created', function(e) {
-            console.log('created');
-            var type = e.layerType,
-                layer = e.layer;
-            var latLang = layer.getLatLngs();
-            $("[name=polygon]").val(JSON.stringify(latLang[0]));
-            drawnItems.addLayer(layer);
-        });
-
-        map.on('draw:edited', function(e) {
-            console.log('edited');
-            var latLang = e.layers.getLayers()[0].getLatLngs()[0];
-            $("[name=polygon]").val(JSON.stringify(latLang));
-        });
-
-        map.on('draw:deleted', function(e) {
-            console.log('deleted');
-            $("[name=polygon]").val("");
-        });
+    if (latlngsRaw && latlngsRaw.trim() !== "") {
+        try {
+            var latlngs = JSON.parse(latlngsRaw);
+            var polygon = L.polygon(latlngs, { color: 'red' }).addTo(drawnItems);
+            polygon.bindPopup("<b>" + nama + "</b><br>" + alamat).openPopup();
+            
+            setTimeout(function() {
+                map.fitBounds(polygon.getBounds());
+            }, 500);
+        } catch (e) {
+            console.error("Invalid Polygon Data");
+        }
     }
-</script>
 
-<script>
+    var drawControl = new L.Control.Draw({
+        draw: { polyline: false, rectangle: false, circle: false, circlemarker: false, marker: false },
+        edit: { featureGroup: drawnItems }
+    });
+    map.addControl(drawControl);
+
+    map.on('draw:created', function(e) {
+        var layer = e.layer;
+        var latLang = layer.getLatLngs();
+        $("#kordinat").val(JSON.stringify(latLang[0]));
+        drawnItems.addLayer(layer);
+    });
+
+    map.on('draw:edited', function(e) {
+        var layers = e.layers;
+        layers.eachLayer(function(layer) {
+            var latLang = layer.getLatLngs()[0];
+            $("#kordinat").val(JSON.stringify(latLang));
+        });
+    });
+
+    map.on('draw:deleted', function() {
+        $("#kordinat").val("");
+    });
+
+    // AJAX Update
     document.getElementById("formUpdate").addEventListener("submit", function(event) {
-        event.preventDefault(); // Mencegah pengiriman formulir
-
-        // Validasi formulir
-        // var token = document.getElementById("token").value;
-        // var permohonan_nonlit = document.getElementById("permohonan_nonlit").value;
-        // var register_baru = document.getElementById("register_baru").value;
-        // var tgl_nonlit = document.getElementById("tgl_nonlit").value;
-        // var status = document.getElementById("status").value;
-        // var bidang = document.getElementById("bidang").value;
-        var id = document.getElementById("id_nonlits").value;
-        var kordinat = document.getElementById("kordinat").value;
-
-
-        // if (!permohonan_nonlit || !bidang || !tgl_nonlit || !team_nonlit || status) {
-        //     Swal.fire({
-        //         icon: 'error',
-        //         title: 'Oops...',
-        //         text: 'Harus mengisi semua field!'
-        //     });
-        //     return;
-        // }
-
-        // Tampilkan pesan konfirmasi menggunakan SweetAlert
+        event.preventDefault();
         Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data akan disimpan!",
+            title: 'Simpan Peta?',
+            text: "Koordinat polygon akan diperbarui!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, simpan!'
+            confirmButtonText: 'Ya, Simpan'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Simpan data menggunakan AJAX
-                updateData(id, kordinat);
+                updateData($("#id_nonlits").val(), $("#kordinat").val());
             }
         });
     });
 
-    // Fungsi untuk menyimpan data menggunakan AJAX
     function updateData(id, kordinat) {
-        // Data yang akan dikirim
-        var data = {
-            id: id,
-            kordinat: kordinat
-            // token: token,
-        };
-
-
-
-        // Lakukan permintaan AJAX
         $.ajax({
             url: '<?php echo base_url('peta/update_peta') ?>',
             type: 'POST',
-            // contentType: 'application/json',
-            // data: data,
-            data: {
-                id: data.id,
-                kordinat: data.kordinat,
-                // token: data.token,
-            },
+            data: { id: id, kordinat: kordinat },
             success: function(response) {
-                // Tanggapi hasil dari server
                 var result = JSON.parse(response);
                 if (result.status === 'success') {
-
-                    Swal.fire(
-                        'Berhasil!',
-                        result.message,
-                        'success'
-                    );
-                    setTimeout(function() {
-                        location.reload();
-                    }, 2000); // 2000 milidetik = 2 detik
+                    Swal.fire('Berhasil!', result.message, 'success');
+                    setTimeout(() => { location.reload(); }, 1500);
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Terjadi kesalahan saat menyimpan data!'
-                    });
+                    Swal.fire('Error', 'Gagal menyimpan', 'error');
                 }
-            },
-            error: function(xhr, status, error) {
-                // Tangani kesalahan
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Terjadi kesalahan saat menyimpan data!'
-                });
             }
         });
     }

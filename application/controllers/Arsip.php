@@ -17,7 +17,11 @@ class Arsip extends CI_Controller
     public function index()
     {
         // 1. Ambil keyword pencarian dari URL (?search=...)
+<<<<<<< HEAD
         $keyword = $this->input->get('search', TRUE);
+=======
+        $keyword = $this->input->get('search');
+>>>>>>> Initial commit dari server
 
         // 2. Definisi Limit & Start untuk Pagination
         $limit = 10;
@@ -81,9 +85,15 @@ class Arsip extends CI_Controller
 
     public function update_rak()
     {
+<<<<<<< HEAD
         $sumber = $this->input->post('sumber', TRUE);
         $id_data = $this->input->post('id_data', TRUE);
         $id_rak = $this->input->post('id_rak', TRUE);
+=======
+        $sumber = $this->input->post('sumber');
+        $id_data = $this->input->post('id_data');
+        $id_rak = $this->input->post('id_rak');
+>>>>>>> Initial commit dari server
 
         if ($this->m_arsip->update_penyimpanan($sumber, $id_data, $id_rak)) {
             $this->session->set_flashdata('success', 'Lokasi rak berhasil diperbarui!');
