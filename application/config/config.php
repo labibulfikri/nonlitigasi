@@ -26,7 +26,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 // $config['base_url'] = 'http://localhost/surat/';
 // $config['base_url'] = 'https://assistdpbt.surabaya.go.id/v2/';
 
-$config['base_url'] = 'http://localhost/non-lit/';
+$config['base_url'] = 'https://assistdpbt.surabaya.go.id/nonlitigasi/';
 
 //$config['base_url'] = 'https://assistdpbt.surabaya.go.id/nonlitigasi/';
 // $config['base_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
