@@ -97,8 +97,8 @@ class Arsip extends CI_Controller
     {
         cek_csrf(); // Validasi Token
 
-        $sumber  = $this->input->post('sumber');
-        $id_data = $this->input->post('id_data');
+        $sumber  = $this->input->post('sumber', true);
+        $id_data = $this->input->post('id_data', true);
 
         $result = $this->m_arsip->get_detail_berkas($sumber, $id_data);
 

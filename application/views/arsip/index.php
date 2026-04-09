@@ -1336,12 +1336,14 @@
 </script>
 <script>
     function editUmum(id) {
+        var tokenVal = $('#token').val(); // Ambil token terbaru
         $.ajax({
             url: '<?= base_url("arsip/get_detail_json") ?>',
             type: 'POST',
             data: {
                 sumber: 'UMUM',
-                id_data: id
+                id_data: id,
+                token: tokenVal // Kirim token untuk cek_csrf
             },
             dataType: 'JSON',
             success: function(res) {
