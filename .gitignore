@@ -3,10 +3,15 @@
 /vendor/
 /node_modules/
 
+
+
 # --- Konfigurasi Spesifik (Lokal vs Server) ---
 # Di-ignore agar settingan DB server tidak tertimpa saat pull dari lokal
 application/config/database.php
 application/config/config.php
+application/config/routes.php
+
+.htaccess
 
 # --- File Sampah & Logs ---
 application/logs/*
