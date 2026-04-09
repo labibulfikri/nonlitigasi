@@ -137,8 +137,8 @@ class Home extends CI_Controller
 	public function get_data_chart()
 	{
 		cek_csrf();
-		$tahun  = $this->input->post('tahun');
-		$status = $this->input->post('status');
+		$tahun  = $this->input->post('tahun', true);
+		$status = $this->input->post('status', true);
 
 		// Query total
 		$this->db->select('COUNT(*) as total');
