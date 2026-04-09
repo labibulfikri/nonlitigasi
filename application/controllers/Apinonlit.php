@@ -1,117 +1,121 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-
-
 class Apinonlit extends CI_Controller
 {
-    private $username = 'assist'; // Ganti dengan username yang Anda inginkan
-    private $password = 'P4ssw0rd@123'; // Ganti dengan password yang Anda inginkan
-
+    // Kredensial untuk Basic Auth
+    private $username = 'assist';
+    private $password = 'P4ssw0rd@123';
 
     function __construct()
     {
         parent::__construct();
-
-        // $this->load->library('Auth'); // Memuat library Auth
         $this->load->model('m_nonlit');
-        $this->load->model('m_home');
-        $this->load->model('m_peta');
         $this->load->library('session');
-        $this->load->library('form_validation');
         $this->load->helper('security');
+
+        // Mencegah clickjacking
         $this->output->set_header('X-Frame-Options: SAMEORIGIN');
     }
 
+    /**
+     * Fungsi Autentikasi Internal
+     */
     private function _authenticate()
     {
         $headers = $this->input->request_headers();
-        if (!isset($headers['Authorization'])) {
-            $this->_send_unauthorized();
-            return false;
+        $auth = null;
+
+        // Tambahkan pengecekan X-Authorization
+        if (isset($headers['X-Authorization'])) {
+            $auth = $headers['X-Authorization'];
+        } elseif (isset($headers['x-authorization'])) {
+            $auth = $headers['x-authorization'];
+        } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+            $auth = $_SERVER['HTTP_AUTHORIZATION'];
         }
 
-        list($type, $data) = explode(" ", $headers['Authorization'], 2);
-
-        if (strcasecmp($type, 'Basic') != 0) {
-            $this->_send_unauthorized();
-            return false;
+        if (!$auth) {
+            return $this->_send_unauthorized("Header X-Authorization tidak ditemukan di server");
         }
 
-        $credentials = base64_decode($data);
-        list($username, $password) = explode(":", $credentials, 2);
+        if (strpos($auth, 'Basic ') !== 0) {
+            return $this->_send_unauthorized("Format harus Basic");
+        }
 
-        if ($username == $this->username && $password == $this->password) {
+        $decoded = base64_decode(substr($auth, 6));
+
+        // Keamanan: Cek apakah decode berhasil dan mengandung titik dua
+        if (strpos($decoded, ':') === false) {
+            return $this->_send_unauthorized("Kredensial tidak valid");
+        }
+
+        list($user, $pass) = explode(':', $decoded);
+
+        if (trim($user) === $this->username && trim($pass) === $this->password) {
             return true;
-        } else {
-            $this->_send_unauthorized();
-            return false;
         }
+
+        return $this->_send_unauthorized("Login gagal: Username/Password salah");
     }
 
-    private function _send_unauthorized()
-    {
-        log_message('debug', 'Entering _send_unauthorized()');
-
-        $response = json_encode([
-            'success' => false,
-            'message' => 'Unauthorized',
-            'data' => null
-        ], JSON_PRETTY_PRINT);
-
-        $this->output
-            ->set_status_header(401)
-            ->set_content_type('application/json')
-            ->set_output($response);
-
-
-        exit;
-    }
-
-
-
-
+    /**
+     * Endpoint Utama
+     */
     public function index($register = null)
     {
-        // Autentikasi pengguna
+        // ================= CORS =================
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Authorization, X-Requested-With");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            header("HTTP/1.1 200 OK");
+            exit();
+        }
+        // header("Access-Control-Allow-Origin: *");
+        // header("Access-Control-Allow-Methods: GET, OPTIONS");
+        // header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        // header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Authorization, X-Requested-With");
+        // header("Access-Control-Allow-Credentials: true");
+        // if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        //     http_response_code(200);
+        //     exit();
+        // }
+
+        // ================= AUTH =================
         if (!$this->_authenticate()) {
             return;
         }
 
         try {
-
-            // Ambil data dari model dengan parameter 'register'
-
-
             $data = $this->m_nonlit->m_apinonlit_id($register);
 
-
-            // Format respon
-            $response = [
-                'success' => true,
-                // 'message' => 'Get Data Nonlits',
-                'data' => $data
-            ];
-
-            // Kirimkan respon dalam format JSON
             $this->output
                 ->set_content_type('application/json')
-                ->set_output(json_encode($response, JSON_PRETTY_PRINT));
+                ->set_output(json_encode([
+                    'success' => true,
+                    'data' => $data
+                ]));
         } catch (Exception $e) {
-
             $this->_send_error($e->getMessage());
-            // $response = json_encode([
-            //     'success' => false,
-            //     'message' => 'Unauthorized',
-            //     'data' => null
-            // ], JSON_PRETTY_PRINT);
-
-            // return $this->output
-            //     ->set_status_header(401)
-            //     ->set_content_type('application/json')
-            //     ->set_output($response);
         }
     }
+
+    private function _send_unauthorized($msg = "Unauthorized")
+    {
+        $this->output
+            ->set_status_header(401)
+            ->set_content_type('application/json')
+            ->set_output(json_encode([
+                'success' => false,
+                'message' => $msg
+            ]));
+        // Penting: Hentikan eksekusi script
+        $this->output->_display();
+        exit;
+    }
+
     private function _send_error($message)
     {
         $this->output
@@ -122,6 +126,7 @@ class Apinonlit extends CI_Controller
                 'message' => $message,
                 'data' => null
             ], JSON_PRETTY_PRINT));
+        $this->output->_display();
         exit;
     }
 }

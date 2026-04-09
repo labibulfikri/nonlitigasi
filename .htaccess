@@ -1,17 +1,12 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    
-    # 1. Paksa koneksi ke HTTPS
-    # Ini untuk mengatasi error "Information not secure" yang Anda alami tadi
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # 2. Hapus index.php dari URL
-    # Agar url menjadi: domain.com/auth bukan domain.com/index.php/auth
+    RewriteBase /nonlitigasi/
+
+    # redirect root ke auth
+    RewriteRule ^$ auth [L]
+
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php/$1 [L]
 </IfModule>
-
-# 3. Mencegah akses langsung ke folder sistem dan direktori
-Options -Indexes
