@@ -1347,6 +1347,10 @@
             },
             dataType: 'JSON',
             success: function(res) {
+
+                if (res.new_token) {
+                    updateTokenGlobal(res.new_token);
+                }
                 // Isi form di modal edit dengan data dari database
                 $('#edit_id').val(res.data.id_berkas_umum);
                 $('#edit_nama').val(res.data.nama_berkas_umum);
