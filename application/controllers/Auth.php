@@ -53,7 +53,7 @@ class Auth extends CI_Controller
             'word_length'   => 5,
             // 'word'          => $cap['word'],
             'font_path' => FCPATH . 'assets/font/coolvetica.ttf', #load font jika mau ganti fontnya
-            'pool' => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', #tipe captcha (angka/huruf, atau kombinasi dari keduanya)
+            'pool' => '0123456789', #tipe captcha (angka/huruf, atau kombinasi dari keduanya)
 
             # atur warna captcha-nya di sini ya.. gunakan kode RGB
             'colors' => array(

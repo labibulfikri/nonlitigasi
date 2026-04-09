@@ -1,22 +1,23 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="id" data-theme="light">
 
 <head>
-    <title>Login E-Nonlit</title>
+    <title>Login E-Nonlit | Surabaya City</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
 
     <style>
         body,
         html {
             height: 100%;
             margin: 0;
-            font-family: 'Lato', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fcfcfd;
         }
 
         .login-container {
@@ -25,19 +26,21 @@
             width: 100%;
         }
 
-        /* Area Form yang bisa discroll secara independen */
+        /* Area Form */
         .left-side {
-            width: 41.666667%;
+            width: 40%;
             background-color: #ffffff;
             overflow-y: auto;
             height: 100vh;
-            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #f1f5f9;
         }
 
-        /* Area Gambar yang tetap diam */
+        /* Area Branding (Clean Orange Amber) */
         .right-side {
-            width: 58.333333%;
-            background-color: #0047AB;
+            width: 60%;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
             height: 100vh;
             position: sticky;
             top: 0;
@@ -47,33 +50,31 @@
             overflow: hidden;
         }
 
-        .left-side::-webkit-scrollbar {
-            width: 6px;
+        .input-focus-amber:focus {
+            border-color: #f59e0b !important;
+            outline: 2px solid rgba(245, 158, 11, 0.1);
         }
 
-        .left-side::-webkit-scrollbar-track {
-            background: #f8fafc;
-        }
-
-        .left-side::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        @keyframes float {
+        @keyframes subtle-float {
 
             0%,
             100% {
-                transform: translateY(0px);
+                transform: translateY(0px) rotate(0deg);
             }
 
             50% {
-                transform: translateY(-20px);
+                transform: translateY(-15px) rotate(1deg);
             }
         }
 
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
+        .animate-subtle {
+            animation: subtle-float 8s ease-in-out infinite;
+        }
+
+        /* Styling Quick Action Buttons */
+        .btn-quick-action {
+            @apply flex flex-col items-center justify-center gap-2 p-4 rounded-[1.5rem] border border-slate-100 bg-white transition-all duration-300 hover:border-amber-400 hover:bg-amber-50 group shadow-sm;
+            width: 100%;
         }
 
         @media (max-width: 1024px) {
@@ -88,123 +89,135 @@
                 position: relative;
             }
 
-            .left-side {
-                overflow-y: visible;
-                height: auto;
-            }
-
             .right-side {
-                height: 400px;
+                height: 350px;
+                border-bottom: 1px solid #f1f5f9;
             }
         }
     </style>
 </head>
 
-<body>
+<body class="antialiased">
 
     <div class="login-container">
 
         <div class="left-side">
-            <div class="flex flex-col items-center p-8 md:p-16 lg:p-20 w-full min-h-full">
-                <div class="max-w-md w-full my-auto py-10">
+            <div class="m-auto w-full max-w-[420px] p-8 md:p-12">
 
-                    <div class="mb-10">
-                        <div class="badge badge-primary badge-outline mb-4 px-4 py-3 font-bold uppercase tracking-widest text-[10px]">Pemerintah Kota Surabaya</div>
-                        <h2 class="text-5xl font-black text-slate-800 mb-2 tracking-tight">Login</h2>
-                        <p class="text-slate-500 text-lg">Akses Sistem E-Nonlit</p>
+                <div class="mb-8 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-100 text-amber-600 mb-6">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span class="text-[9px] font-black uppercase tracking-[0.2em]">Pemerintah Kota Surabaya</span>
+                    </div>
+                    <h2 class="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight italic">Sign In</h2>
+                    <p class="text-slate-400 text-sm font-medium">Panel Kontrol Manajemen Sengketa Di Lingkungan Pemerintah Kota Surabaya.</p>
+                </div>
+
+                <?php if ($this->session->userdata('pesan')): ?>
+                    <div class="alert bg-rose-50 border-none text-rose-700 rounded-2xl mb-8 flex items-center gap-3">
+                        <i class="mdi mdi-alert-circle text-xl"></i>
+                        <span class="text-xs font-bold uppercase tracking-wide"><?php echo $this->session->userdata('pesan') ?></span>
+                    </div>
+                <?php endif; ?>
+
+                <form method="post" action="<?php echo base_url('auth/check_captcha') ?>" class="space-y-4">
+                    <?= crsf() ?>
+
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-black text-slate-400 uppercase text-[10px] tracking-widest">Username</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-4 flex items-center text-slate-300">
+                                <i class="mdi mdi-account-circle-outline text-2xl"></i>
+                            </span>
+                            <input type="text" name="username" placeholder="Username"
+                                class="input input-bordered w-full h-14 pl-12 bg-slate-50 border-slate-100 rounded-2xl font-semibold text-slate-700 input-focus-amber transition-all" required />
+                        </div>
                     </div>
 
-                    <?php if ($this->session->userdata('pesan')): ?>
-                        <div class="alert alert-error shadow-lg mb-8 border-none bg-red-50 text-red-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="text-sm font-bold"><?php echo $this->session->userdata('pesan') ?></span>
-                        </div>
-                    <?php endif; ?>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-black text-slate-400 uppercase text-[10px] tracking-widest">Password</span></label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-4 flex items-center text-slate-300">
+                                <i class="mdi mdi-lock-outline text-2xl"></i>
+                            </span>
+                            <input type="password" id="password" name="password" placeholder="••••••••"
+                                class="input input-bordered w-full h-14 px-12 bg-slate-50 border-slate-100 rounded-2xl font-semibold text-slate-700 input-focus-amber transition-all" required />
 
-                    <form method="post" action="<?php echo base_url('auth/check_captcha') ?>" class="space-y-6">
-                        <?= crsf() ?>
-
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-bold text-slate-700 uppercase text-xs tracking-wider">Username</span></label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fa fa-user-circle-o text-lg"></i></span>
-                                <input type="text" name="username" placeholder="Masukkan username" class="input input-bordered w-full pl-12 h-14 bg-slate-50 focus:bg-white border-slate-200 shadow-sm" required />
-                            </div>
-                        </div>
-
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-bold text-slate-700 uppercase text-xs tracking-wider">Password</span></label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-400"><i class="fa fa-lock text-lg"></i></span>
-                                <input type="password" id="password" name="password" placeholder="••••••••" class="input input-bordered w-full px-12 h-14 bg-slate-50 focus:bg-white border-slate-200 shadow-sm" required />
-                                <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-primary transition-all">
-                                    <i id="eye-icon" class="fa fa-eye-slash text-lg"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-200 shadow-inner mt-8">
-                            <div class="flex items-center justify-between mb-4 gap-4">
-                                <div id="captcha-img" class="bg-white p-2 rounded-xl shadow-sm border border-slate-100 flex-grow text-center overflow-hidden">
-                                    <?php echo $image; ?>
-                                </div>
-                                <button id="btn_cap" type="button" class="btn btn-circle btn-primary shadow-md btn-sm">
-                                    <i class="fa fa-refresh"></i>
-                                </button>
-                            </div>
-                            <input type="text" name="captcha" placeholder="Ketik kode di atas" class="input input-bordered w-full text-center h-12 tracking-[0.3em] font-black border-slate-200 uppercase" required>
-                        </div>
-
-                        <div class="space-y-4 pt-6">
-                            <button type="submit" class="btn btn-primary btn-block text-white shadow-xl h-14 text-lg font-bold hover:translate-y-[-2px] transition-all duration-300">
-                                MASUK SEKARANG <i class="fa fa-sign-in ml-2"></i>
+                            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-4 flex items-center text-slate-300 hover:text-amber-500 transition-colors">
+                                <i id="eye-icon" class="mdi mdi-eye-off-outline text-xl"></i>
                             </button>
-
-                            <div class="divider text-slate-300 text-[10px] font-bold uppercase tracking-[0.3em]">Layanan Terintegrasi</div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <a href="https://assistdpbt.surabaya.go.id/" target="_blank" class="btn btn-outline border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-400 h-14 transition-all normal-case font-bold">
-                                    <i class="fa fa-globe text-primary"></i> ASSIST
-                                </a>
-                                <a href="https://assistdpbt.surabaya.go.id/asing" target="_blank" class="btn btn-outline border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-400 h-14 transition-all normal-case font-bold">
-                                    <i class="fa fa-external-link text-primary"></i>ASING
-                                </a>
-                                <a href="https://assistdpbt.surabaya.go.id/cek/rak.php" target="_blank" class="btn btn-outline border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-400 h-14 transition-all normal-case font-bold">
-                                    <i class="fa fa-external-link text-primary"></i> RAK
-                                </a>
-                            </div>
                         </div>
-                    </form>
-
-                    <div class="mt-20 text-center opacity-30 text-[10px] font-bold tracking-[0.2em] leading-loose uppercase">
-                        Bagian Hukum dan Kerjasama<br>
-                        Setda Kota Surabaya &copy; 2026
                     </div>
+
+                    <div class="p-5 bg-slate-50 rounded-[2rem] border border-slate-100 mt-6">
+                        <div class="flex items-center justify-between mb-4 gap-4">
+                            <div id="captcha-img" class="bg-white p-2 rounded-xl border border-slate-100 flex-grow text-center overflow-hidden h-12 flex items-center justify-center grayscale opacity-70">
+                                <?php echo $image; ?>
+                            </div>
+                            <button id="btn_cap" type="button" class="btn btn-square btn-ghost bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-xl">
+                                <i class="mdi mdi-refresh text-xl"></i>
+                            </button>
+                        </div>
+                        <input type="text" name="captcha" placeholder="Masukan Kode"
+                            class="input input-bordered w-full text-center h-12 tracking-[0.4em] font-black border-slate-100 rounded-xl uppercase text-sm input-focus-amber" required>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="btn btn-block bg-amber-500 hover:bg-amber-600 text-white border-none shadow-lg shadow-amber-200 h-14 rounded-2xl text-xs font-black italic tracking-widest uppercase">
+                            Sign In System <i class="mdi mdi-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-12">
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="h-px bg-slate-100 flex-1"></span>
+                        <span class="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em]">Akses Cepat</span>
+                        <span class="h-px bg-slate-100 flex-1"></span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <a href="https://assistdpbt.surabaya.go.id/asing" target="_blank" class="btn-quick-action group">
+                            <i class="mdi mdi-earth text-2xl text-slate-300 group-hover:text-amber-500 transition-colors"></i>
+                            <span class="text-[9px] font-black text-slate-400 group-hover:text-amber-700 uppercase tracking-tighter">Asing</span>
+                        </a>
+
+                        <a href="https://assistdpbt.surabaya.go.id/" target="_blank" class="btn-quick-action group">
+                            <i class="mdi mdi-certificate-outline text-2xl text-slate-300 group-hover:text-amber-500 transition-colors"></i>
+                            <span class="text-[9px] font-black text-slate-400 group-hover:text-amber-700 uppercase tracking-tighter">Sertifikasi</span>
+                        </a>
+
+                        <a href="https://assistdpbt.surabaya.go.id/rak" target="_blank" class="btn-quick-action group">
+                            <i class="mdi mdi-archive-search-outline text-2xl text-slate-300 group-hover:text-amber-500 transition-colors"></i>
+                            <span class="text-[9px] font-black text-slate-400 group-hover:text-amber-700 uppercase tracking-tighter">Cek Rak</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-slate-50 text-center opacity-40">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+                        BPKAD Kota Surabaya &copy; 2026
+                    </p>
                 </div>
             </div>
         </div>
 
-        <div class="right-side hidden lg:flex">
-            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 40px 40px;"></div>
-            <div class="absolute w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[120px] -top-20 -right-20"></div>
+        <div class="right-side lg:flex overflow-hidden">
+            <div class="absolute inset-0 opacity-[0.05]" style="background-image: radial-gradient(#f59e0b 1px, transparent 1px); background-size: 32px 32px;"></div>
 
             <div class="relative z-10 text-center">
-                <div class="animate-float">
-                    <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-12 rounded-[3.5rem] shadow-2xl inline-block mb-10">
-                        <img src="<?php echo base_url() ?>assets/logononlit.png" alt="Logo" class="w-72 h-auto drop-shadow-[0_20px_20px_rgba(0,0,0,0.4)]" />
+                <div class="animate-subtle">
+                    <div class="bg-white/40 backdrop-blur-md border border-white p-12 rounded-[4rem] shadow-sm inline-block mb-12">
+                        <i class="mdi mdi-shield-check text-amber-500 text-[120px] leading-none"></i>
                     </div>
                 </div>
-                <h1 class="text-7xl font-black text-white tracking-tighter mb-2">E-<span class="text-sky-300">NONLIT</span></h1>
-                <p class="text-sky-100 text-xl font-light tracking-[0.5em] uppercase opacity-70 mb-12">Pemerintah Kota Surabaya</p>
+                <h1 class="text-7xl font-black text-slate-800 tracking-tighter mb-2 italic uppercase leading-none">E-<span class="text-amber-500">Nonlit</span></h1>
+                <p class="text-amber-600/60 text-xs font-black tracking-[0.5em] uppercase mb-12 leading-none">Database Terpadu Surabaya</p>
 
-                <div class="flex justify-center gap-8 text-[10px] font-bold text-white/30 tracking-[0.3em]">
-                    <span>INTEGRITAS</span>
-                    <span>•</span>
-                    <span>PROFESIONAL</span>
-                    <span>•</span>
-                    <span>MODERN</span>
+                <div class="flex justify-center gap-10">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Integritas</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Profesional</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Modern</p>
                 </div>
             </div>
         </div>
@@ -213,29 +226,30 @@
 
     <script src="<?php echo base_url() ?>assets/login/js/jquery.min.js"></script>
     <script>
+        // FUNGSI TOGGLE PASSWORD
         function togglePassword() {
             const pwd = document.getElementById('password');
             const icon = document.getElementById('eye-icon');
             if (pwd.type === 'password') {
                 pwd.type = 'text';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
+                icon.classList.replace('mdi-eye-off-outline', 'mdi-eye-outline');
             } else {
                 pwd.type = 'password';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
+                icon.classList.replace('mdi-eye-outline', 'mdi-eye-off-outline');
             }
         }
 
         $(document).ready(function() {
             $("#btn_cap").click(function() {
                 const icon = $(this).find('i');
-                icon.addClass('fa-spin');
+                icon.addClass('mdi-spin');
                 $.ajax({
                     type: "POST",
                     dataType: "html",
                     url: "<?php echo base_url('auth/reload_captcha') ?>",
                     success: function(data) {
                         $('#captcha-img').html(data);
-                        icon.removeClass('fa-spin');
+                        icon.removeClass('mdi-spin');
                     }
                 });
             });
