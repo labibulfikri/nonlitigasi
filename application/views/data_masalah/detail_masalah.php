@@ -359,10 +359,8 @@
             formData.append('berkas[]', file);
         });
 
-        // Tambahkan CSRF jika aktif
         formData.append('<?= $this->security->get_csrf_token_name(); ?>', '<?= $this->security->get_csrf_hash(); ?>');
 
-        // Aktifkan Loading
         $('#btn_upload_kronologi').addClass('loading').prop('disabled', true);
 
         $.ajax({
@@ -372,26 +370,30 @@
             processData: false,
             contentType: false,
             success: function(res) {
-                // Hilangkan Loading
                 $('#btn_upload_kronologi').removeClass('loading').prop('disabled', false);
 
                 if (res.trim() === "success") {
+                    // TUTUP MODAL DULU agar SweetAlert muncul paling depan
+                    const modal = document.getElementById('modal_tambah_kronologi');
+                    if (modal) modal.close();
+
                     Swal.fire({
                         title: 'Berhasil!',
                         text: 'Berkas kronologi telah diupload.',
                         icon: 'success',
-                        confirmButtonText: 'Mantap'
+                        confirmButtonText: 'Mantap',
+                        // Pastikan z-index tinggi jika masih tertutup (opsional)
+                        target: 'body'
                     }).then(() => {
-                        location.reload(); // Refresh halaman agar list muncul
+                        location.reload();
                     });
                 } else {
-                    // Tampilkan pesan error asli jika bukan "success"
                     Swal.fire('Gagal Upload', res, 'error');
                 }
             },
             error: function(xhr) {
                 $('#btn_upload_kronologi').removeClass('loading').prop('disabled', false);
-                Swal.fire('Error Server', 'Terjadi kesalahan sistem atau ukuran file terlalu besar', 'error');
+                Swal.fire('Error Server', 'File terlalu banyak/besar atau permission folder salah.', 'error');
             }
         });
     }
@@ -477,6 +479,10 @@
 </script>
 
 <style>
+    .swal2-container {
+        z-index: 999999 !important;
+    }
+
     .custom-scrollbar::-webkit-scrollbar {
         width: 5px;
     }

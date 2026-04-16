@@ -372,7 +372,6 @@ class Masalah extends CI_Controller
                 $this->M_masalah->insert_bahan([
                     'id_masalah' => $id_masalah,
                     'nama_file'  => $fileData['file_name'],
-                    'tgl_upload' => date('Y-m-d H:i:s')
                 ]);
             }
         }
@@ -552,21 +551,25 @@ class Masalah extends CI_Controller
     public function simpan_kronologi_multiple()
     {
         $id_masalah = $this->input->post('id_masalah');
+        $path = './assets/berkas_bahan_masalah/';
 
-        // 1. Cek apakah ada file yang dikirim
+        // Pastikan folder ada dan writable
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
         if (!isset($_FILES['berkas']) || empty($_FILES['berkas']['name'][0])) {
             echo "Tidak ada file yang dipilih";
             return;
         }
 
         $files = $_FILES['berkas'];
-        $config['upload_path']   = './assets/berkas_bahan_masalah/';
+        $config['upload_path']   = $path;
         $config['allowed_types'] = 'jpg|jpeg|png|pdf';
         $config['encrypt_name']  = TRUE;
 
         $this->load->library('upload');
 
-        // 2. Lakukan looping dengan aman
         foreach ($files['name'] as $key => $val) {
             if (empty($files['name'][$key])) continue;
 
@@ -586,8 +589,9 @@ class Masalah extends CI_Controller
                     'keterangan'   => 'Dokumen Kronologi'
                 ]);
             } else {
-                // Jika ingin melihat error upload per file (opsional)
-                // echo $this->upload->display_errors();
+                // Tampilkan error jika gagal satu saja agar ketahuan penyebabnya di server
+                echo "Gagal upload file " . $val . ": " . $this->upload->display_errors('', '');
+                return;
             }
         }
         echo "success";
