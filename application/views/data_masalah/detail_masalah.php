@@ -1,297 +1,492 @@
-<div class="container mx-auto p-4 mb-20 text-base-content">
-    <div class="container mx-auto p-4 mb-8 text-base-content">
-        <div class="card bg-base-100 shadow-xl border border-base-300 overflow-hidden">
-            <div class="bg-primary p-1"></div>
-            <div class="card-body p-6">
-                <div class="flex flex-col lg:flex-row justify-between items-start gap-6">
-                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 w-full p-2">
-                        <div class="flex-1 space-y-3">
-                            <div class="flex flex-wrap items-center gap-3">
-                                <h1 class="text-4xl font-black text-primary uppercase tracking-tighter italic leading-none">
-                                    <?= $masalah->nama_masalah ?>
-                                </h1>
-                                <div class="badge badge-primary border-none font-black text-[10px] tracking-[0.2em] uppercase px-4 py-3 shadow-md shadow-primary/20">
-                                    <?= $masalah->status_masalah ?>
-                                </div>
-                            </div>
+<div class="min-h-screen bg-[#F1F5F9] p-0 md:p-8 font-sans antialiased text-slate-900">
+    <div class="max-w-[1600px] mx-auto space-y-6">
 
-                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-base-200/50 rounded-lg border border-base-300/30">
-                                <i class="mdi mdi-map-marker text-error animate-pulse"></i>
-                                <p class="text-[11px] font-black opacity-70 uppercase tracking-widest leading-none">
-                                    <?= $masalah->alamat_masalah ?>
-                                </p>
-                            </div>
+        <header class="bg-white border border-slate-200 rounded-[2.5rem] shadow-sm p-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-50 rounded-full blur-3xl -mr-48 -mt-48 opacity-50"></div>
+            <div class="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-5">
+                        <div class="w-16 h-16 bg-slate-900 rounded-[1.5rem] flex items-center justify-center text-white shadow-2xl">
+                            <i class="mdi mdi-scale-balance text-3xl"></i>
                         </div>
-
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 w-full lg:w-auto shrink-0">
-                            <div class="relative bg-gradient-to-br from-base-100 to-base-200/50 p-4 rounded-2xl border border-base-300 shadow-sm min-w-[150px] overflow-hidden group">
-                                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <i class="mdi mdi-account-tie text-4xl"></i>
-                                </div>
-                                <span class="text-[9px] font-black opacity-40 uppercase block mb-2 tracking-tighter">PIC Terkait</span>
-                                <p class="text-xs font-black uppercase tracking-wide text-secondary truncate"><?= $masalah->pic_masalah ?></p>
-                            </div>
-
-                            <div class="relative bg-gradient-to-br from-base-100 to-base-200/50 p-4 rounded-2xl border border-base-300 shadow-sm min-w-[150px] overflow-hidden group">
-                                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <i class="mdi mdi-archive text-4xl"></i>
-                                </div>
-                                <span class="text-[9px] font-black opacity-40 uppercase block mb-2 tracking-tighter">Posisi Arsip</span>
-                                <p class="text-xs font-mono font-black uppercase tracking-widest text-primary"><?= $masalah->penyimpanan_rak ?></p>
-                            </div>
-
-                            <div class="relative bg-gradient-to-br from-base-100 to-base-200/50 p-4 rounded-2xl border border-base-300 shadow-sm min-w-[150px] overflow-hidden group">
-                                <div class="absolute top-0 right-0 p-2 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <i class="mdi mdi-calendar-check text-4xl"></i>
-                                </div>
-                                <span class="text-[9px] font-black opacity-40 uppercase block mb-2 tracking-tighter">Tgl. Registrasi</span>
-                                <p class="text-xs font-black uppercase tracking-wide opacity-80"><?= date('d M Y', strtotime($masalah->tgl_masalah)) ?></p>
+                        <div>
+                            <h1 class="text-3xl font-black tracking-tighter text-slate-800 uppercase italic leading-none mb-2">
+                                <?= $masalah->nama_masalah ?>
+                            </h1>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="badge bg-indigo-100 border-none text-indigo-700 font-black px-3 py-3 rounded-lg text-[10px] uppercase tracking-widest">
+                                    <?= $masalah->status_masalah ?>
+                                </span>
+                                <span class="badge bg-slate-100 border-none text-slate-500 font-bold px-3 py-3 rounded-lg text-[10px] uppercase">
+                                    <i class="mdi mdi-map-marker mr-1"></i> <?= $masalah->alamat_masalah ?>
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div class="lg:col-span-3">
-            <div class="card bg-base-100 shadow-lg border border-base-300 sticky top-4 overflow-hidden">
-                <div class="p-4 border-b border-base-300 flex justify-between items-center bg-base-200/50">
-                    <h3 class="font-black opacity-70 uppercase text-[10px] tracking-widest">Daftar Kronologi</h3>
-                    <button onclick="modal_tambah_det.showModal()" class="btn btn-circle btn-xs btn-primary shadow-lg">
-                        <i class="fas fa-plus"></i>
+                <div class="flex flex-wrap gap-4 bg-slate-50 p-3 rounded-[2rem] border border-slate-100">
+                    <button onclick="modal_tambah_rapat.showModal()" class="btn bg-white hover:bg-indigo-600 hover:text-white border-slate-200 text-indigo-600 px-6 rounded-2xl shadow-sm italic font-black text-xs transition-all">
+                        <i class="mdi mdi-account-group-outline mr-2 text-xl"></i> + RESUME RAPAT
+                    </button>
+                    <button onclick="modal_tambah_kronologi.showModal()" class="btn bg-white hover:bg-amber-500 hover:text-white border-slate-200 text-amber-600 px-6 rounded-2xl shadow-sm italic font-black text-xs transition-all">
+                        <i class="mdi mdi-cloud-upload-outline mr-2 text-xl"></i> + UPLOAD KRONOLOGI
                     </button>
                 </div>
-
-                <div class="card-body p-2 max-h-[500px] overflow-y-auto">
-                    <ul class="menu menu-vertical gap-2" id="menu_history">
-                        <?php foreach ($details as $row) { ?>
-                            <li>
-                                <a onclick="loadContent(this)"
-                                    data-id="<?= $row->id_masalah_det ?>"
-                                    class="flex flex-col items-start p-4 border border-base-200 hover:bg-primary/5 hover:border-primary transition-all rounded-xl group bg-base-100">
-                                    <span class="font-bold uppercase text-xs text-base-content group-hover:text-primary"><?= $row->judul_masalah_det ?></span>
-                                    <span class="text-[10px] opacity-50 italic"><?= date('d M Y', strtotime($row->tgl_masalah_det)) ?></span>
-                                </a>
-                            </li>
-                        <?php } ?>
-                    </ul>
-                </div>
             </div>
-        </div>
+        </header>
 
-        <div class="lg:col-span-9">
-            <div class="card bg-base-100 shadow-xl border border-base-300 min-h-[400px]">
-                <div class="card-body" id="detail_content">
-                    <div class="flex flex-col items-center justify-center h-full text-center py-20 opacity-30">
-                        <div class="bg-base-200 w-24 h-24 rounded-full flex items-center justify-center mb-6">
-                            <i class="fas fa-mouse-pointer text-5xl text-primary"></i>
-                        </div>
-                        <h2 class="text-xl font-black uppercase italic">Pilih Riwayat</h2>
-                        <p class="text-xs">Klik salah satu daftar kronologi di samping untuk melihat detail notulensi</p>
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-4 xl:col-span-3 space-y-6">
+                <div class="bg-white border border-slate-200 rounded-[2.5rem] shadow-sm overflow-hidden flex flex-col h-[750px]">
+                    <div class="grid grid-cols-2 border-b border-slate-100">
+                        <button onclick="switchTab('rapat')" id="tab-rapat" class="p-5 font-black text-[10px] uppercase tracking-[0.2em] border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/30 transition-all">
+                            Resume Rapat
+                        </button>
+                        <button onclick="switchTab('kronologi')" id="tab-kronologi" class="p-5 font-black text-[10px] uppercase tracking-[0.2em] border-b-2 border-transparent text-slate-400 hover:bg-slate-50 transition-all">
+                            Kronologi
+                        </button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar bg-white" id="list_container">
+                        <?php foreach ($details as $row): ?>
+                            <div onclick="loadContent(this)"
+                                data-id="<?= $row->id ?>"
+                                data-type="<?= $row->tipe ?>"
+                                class="item-card group p-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] cursor-pointer hover:bg-white hover:border-slate-300 hover:shadow-xl transition-all active:scale-95 <?= $row->tipe !== 'rapat' ? 'hidden' : '' ?>">
+
+                                <div class="flex justify-between items-start mb-3">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center <?= $row->tipe === 'rapat' ? 'bg-indigo-600 text-white' : 'bg-amber-500 text-white' ?>">
+                                        <i class="mdi <?= $row->tipe === 'rapat' ? 'mdi-text-box-check' : 'mdi-file-multiple' ?> text-xl"></i>
+                                    </div>
+
+                                    <span class="text-[10px] font-bold text-slate-400">
+                                        <?= !empty($row->tgl) ? date('d/m/y', strtotime($row->tgl)) : '-' ?>
+                                    </span>
+                                </div>
+
+                                <h4 class="text-xs font-black text-slate-700 uppercase leading-snug">
+                                    <?= $row->judul ?>
+                                </h4>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
-            </div>
-        </div>
+            </aside>
+
+            <section class="lg:col-span-8 xl:col-span-9">
+                <div id="detail_content" class="bg-white border border-slate-200 rounded-[2.5rem] shadow-sm min-h-[750px] overflow-hidden relative flex items-center justify-center text-center">
+                    <div class="opacity-20 p-10">
+                        <i class="mdi mdi-folder-open text-8xl mb-6"></i>
+                        <h2 class="text-2xl font-black uppercase italic tracking-tighter text-slate-400">Pilih Dokumen</h2>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 </div>
 
-<dialog id="modal_tambah_det" class="modal">
-    <div class="modal-box max-w-4xl p-0 rounded-3xl border-none shadow-2xl">
-        <div class="bg-primary p-6 text-white flex justify-between items-center">
-            <h3 class="font-black text-xl uppercase italic tracking-tighter text-white">Tambah Kronologi / Rapat</h3>
+<dialog id="modal_tambah_rapat" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-3xl p-0 rounded-[2.5rem]  border-none shadow-2xl">
+        <div class="p-10 text-white bg-indigo-600 flex justify-between items-center">
+            <div>
+                <h3 class="text-3xl font-black uppercase italic tracking-tighter mb-1">Resume Rapat</h3>
+                <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest text-indigo-100">Input Notulensi & File PDF tunggal</p>
+            </div>
             <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost text-white">✕</button></form>
         </div>
-        <form action="<?= base_url('masalah/simpan_detail') ?>" method="POST" enctype="multipart/form-data" class="p-8">
+        <form action="<?= base_url('masalah/simpan_resume') ?>" method="POST" enctype="multipart/form-data" class="p-10 space-y-6">
             <input type="hidden" name="id_masalah" value="<?= $masalah->id_masalah ?>">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="form-control">
-                    <label class="label"><span class="label-text font-bold uppercase text-xs">Tanggal Kegiatan</span></label>
-                    <input type="date" name="tgl_masalah_det" class="input input-bordered bg-base-200 rounded-xl" required>
+                    <label class="label font-black text-[10px] uppercase text-slate-400">Tgl. Pertemuan</label>
+                    <input type="date" name="tgl_masalah_det" class="input input-bordered h-14 rounded-2xl bg-slate-50" required>
                 </div>
                 <div class="form-control">
-                    <label class="label"><span class="label-text font-bold uppercase text-xs">Judul Kegiatan</span></label>
-                    <input type="text" name="judul_masalah_det" class="input input-bordered bg-base-200 rounded-xl" placeholder="Contoh: Rapat Mediasi" required>
+                    <label class="label font-black text-[10px] uppercase text-slate-400">Judul Rapat</label>
+                    <input type="text" name="judul_masalah_det" class="input input-bordered h-14 rounded-2xl bg-slate-50" placeholder="Misal: Rapat Koordinasi" required>
                 </div>
             </div>
-            <div class="form-control mb-6">
-                <label class="label"><span class="label-text font-bold uppercase text-xs">Uraian / Kesimpulan</span></label>
-                <textarea name="deskripsi" class="textarea textarea-bordered h-40 bg-base-200 rounded-xl"></textarea>
+            <div class="form-control">
+                <label class="label font-black text-[10px] uppercase text-slate-400">Isi Notulensi</label>
+                <textarea name="deskripsi" class="textarea textarea-bordered h-40 rounded-2xl bg-slate-50 p-5" placeholder="Tuliskan ringkasan diskusi..."></textarea>
             </div>
-            <div class="form-control mb-8 p-6 border-2 border-dashed border-primary/20 rounded-2xl bg-primary/5">
-                <label class="label"><span class="label-text font-bold uppercase text-xs italic">Upload Berkas Pendukung</span></label>
-                <input type="file" name="berkas" class="file-input file-input-bordered file-input-primary w-full rounded-xl" />
+            <div class="p-6 border-2 border-dashed border-indigo-100 rounded-2xl bg-indigo-50/30">
+                <label class="label p-0 font-black text-[10px] uppercase text-indigo-600 italic mb-3">Lampiran Single PDF</label>
+                <input type="file" name="berkas" class="file-input file-input-bordered file-input-primary w-full rounded-xl" accept=".pdf" required />
             </div>
-            <div class="modal-action">
-                <button type="submit" class="btn btn-primary w-full shadow-lg rounded-xl uppercase text-white font-bold">Simpan Notulensi</button>
+            <button type="submit" class="btn btn-block h-16 bg-indigo-600 hover:bg-indigo-700 border-none text-white rounded-2xl font-black uppercase italic shadow-xl shadow-indigo-100 transition-all">
+                Simpan Notulensi
+            </button>
+        </form>
+    </div>
+</dialog>
+
+<dialog id="modal_tambah_kronologi" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-4xl p-0 rounded-[2rem]  border-none shadow-2xl">
+        <div class="p-6 bg-amber-500 text-white flex justify-between items-center">
+            <h3 class="text-xl font-bold uppercase italic tracking-tighter">Upload Kronologi (Banyak File)</h3>
+            <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost text-white">✕</button></form>
+        </div>
+
+        <form id="form_upload_kronologi" class="p-6 space-y-6">
+            <input type="hidden" name="id_masalah" value="<?= $masalah->id_masalah ?>">
+
+            <div class="border-4 border-dashed border-amber-100 rounded-[2rem] p-10 text-center relative cursor-pointer hover:bg-amber-50 transition-all group">
+                <input type="file" id="file_kronologi" multiple accept=".jpg,.jpeg,.png,.pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                <div class="space-y-2">
+                    <i class="mdi mdi-cloud-upload text-5xl text-amber-500 group-hover:scale-110 transition-transform inline-block"></i>
+                    <p class="font-bold text-slate-700 uppercase">Klik / Drag banyak file ke sini</p>
+                    <p class="text-xs text-slate-400">JPG, PNG, PDF (Maks 5MB per file)</p>
+                </div>
+            </div>
+
+            <div id="preview_zone" class="hidden">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <span class="text-xs font-black uppercase text-slate-500">Preview Berkas</span>
+                    <span id="file_count_badge" class="badge badge-warning font-bold text-white">0 File</span>
+                </div>
+                <div id="file_list_preview" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            </div>
+
+            <button type="button" id="btn_upload_kronologi" onclick="submitKronologiMultiple()" class="btn btn-warning w-full h-14 rounded-2xl text-white font-black uppercase italic shadow-lg shadow-amber-200 hidden">
+                <i class="mdi mdi-check-all mr-2"></i> Konfirmasi Upload Kronologi
+            </button>
+        </form>
+    </div>
+</dialog>
+<!-- <dialog id="modal_edit_rapat" class="modal">
+    <div class="modal-box">
+        <form action="<?= base_url('masalah/update_rapat') ?>" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="id_masalah_det" id="edit_rapat_id">
+            <input type="hidden" name="id_masalah" value="<?= $masalah->id_masalah ?>">
+            <input type="hidden" name="old_berkas" id="edit_rapat_old_file">
+            <input type="text" name="judul_masalah_det" id="edit_rapat_judul" placeholder="Judul Rapat" class="input input-bordered w-full mb-4">
+            <input type="date" name="tgl_masalah_det" id="edit_rapat_tgl" class="input input-bordered w-full mb-4">
+            <textarea name="deskripsi" id="edit_rapat_deskripsi" placeholder="Deskripsi Rapat" class="textarea textarea-bordered w-full mb-4"></textarea>
+
+            <p class="text-xs text-slate-400">Jika tidak ada file baru yang dipilih, file lama akan dipertahankan.</p>
+            <input type="file" name="berkas" class="file-input file-input-bordered w-full" accept=".pdf" />
+
+
+
+            <button type="submit" class="btn btn-primary">Simpan Rapat</button>
+        </form>
+    </div>
+</dialog> -->
+
+
+<dialog id="modal_edit_rapat" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-2xl p-0 rounded-[2.5rem]  border-none shadow-2xl">
+        <div class="p-8 text-white bg-indigo-600 flex justify-between items-center">
+            <div>
+                <h3 class="text-2xl font-black uppercase italic tracking-tighter mb-1">Edit Resume Rapat</h3>
+                <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest text-indigo-100">Perbarui notulensi & berkas lampiran</p>
+            </div>
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost text-white">✕</button>
+            </form>
+        </div>
+
+        <form action="<?= base_url('masalah/update_rapat') ?>" method="POST" enctype="multipart/form-data" class="p-8 space-y-5">
+            <input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>">
+            <input type="hidden" name="id_masalah_det" id="edit_rapat_id">
+            <input type="hidden" name="id_masalah" value="<?= $masalah->id_masalah ?>">
+            <input type="hidden" name="old_berkas" id="edit_rapat_old_file">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-control">
+                    <label class="label font-black text-[10px] uppercase text-slate-400">Judul Pertemuan</label>
+                    <div class="relative">
+                        <i class="mdi mdi-format-title absolute left-4 top-4 text-slate-400"></i>
+                        <input type="text" name="judul_masalah_det" id="edit_rapat_judul"
+                            class="input input-bordered w-full pl-11 rounded-2xl bg-slate-50 focus:bg-white transition-all font-bold text-slate-700"
+                            placeholder="Judul Rapat" required>
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label class="label font-black text-[10px] uppercase text-slate-400">Tanggal Rapat</label>
+                    <div class="relative">
+                        <i class="mdi mdi-calendar absolute left-4 top-4 text-slate-400"></i>
+                        <input type="date" name="tgl_masalah_det" id="edit_rapat_tgl"
+                            class="input input-bordered w-full pl-11 rounded-2xl bg-slate-50 focus:bg-white transition-all font-bold text-slate-700" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-control">
+                <label class="label font-black text-[10px] uppercase text-slate-400">Ringkasan Notulensi</label>
+                <textarea name="deskripsi" id="edit_rapat_deskripsi"
+                    class="textarea textarea-bordered h-32 rounded-2xl bg-slate-50 focus:bg-white p-5 font-medium text-slate-600"
+                    placeholder="Tuliskan perubahan notulensi di sini..."></textarea>
+            </div>
+
+            <div class="p-6 border-2 border-dashed border-indigo-100 rounded-2xl bg-indigo-50/30">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
+                        <i class="mdi mdi-file-pdf-box text-2xl"></i>
+                    </div>
+                    <div>
+                        <label class="label p-0 font-black text-[10px] uppercase text-indigo-600 italic">Ganti Lampiran PDF</label>
+                        <p class="text-[9px] text-slate-400 uppercase font-bold tracking-tighter italic leading-none">Kosongkan jika tidak ingin mengganti file</p>
+                    </div>
+                </div>
+                <input type="file" name="berkas" class="file-input file-input-bordered file-input-primary w-full rounded-xl bg-white" accept=".pdf" />
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" class="btn btn-block h-16 bg-indigo-600 hover:bg-indigo-700 border-none text-white rounded-2xl font-black uppercase italic shadow-xl shadow-indigo-100 transition-all active:scale-95">
+                    <i class="mdi mdi-check-decagram mr-2 text-xl"></i> Simpan Perubahan Rapat
+                </button>
             </div>
         </form>
     </div>
 </dialog>
-<dialog id="modal_edit_det" class="modal">
-    <div class="modal-box max-w-4xl p-0 rounded-3xl border-none shadow-2xl">
-        <div class="bg-warning p-6 text-warning-content flex justify-between items-center">
-            <h3 class="font-black text-xl uppercase italic tracking-tighter">Edit Notulensi Rapat</h3>
-            <form method="dialog"><button class="btn btn-sm btn-circle btn-ghost">✕</button></form>
-        </div>
-        <form action="<?= base_url('masalah/update_detail') ?>" method="POST" enctype="multipart/form-data" class="p-8">
+<dialog id="modal_edit_kronologi" class="modal">
+    <div class="modal-box">
+        <form action="<?= base_url('masalah/update_kronologi') ?>" method="POST">
+            <input type="hidden" name="id_bahan_masalah" id="edit_kronologi_id">
             <input type="hidden" name="id_masalah" value="<?= $masalah->id_masalah ?>">
-            <input type="hidden" name="id_masalah_det" id="edit_id_det">
-            <input type="hidden" name="old_berkas" id="edit_old_berkas">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-bold uppercase text-xs text-slate-500">Tanggal Kegiatan</span></label>
-                    <input type="date" name="tgl_masalah_det" id="edit_tgl" class="input input-bordered bg-base-200 rounded-xl" required>
-                </div>
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-bold uppercase text-xs text-slate-500">Judul Kegiatan</span></label>
-                    <input type="text" name="judul_masalah_det" id="edit_judul" class="input input-bordered bg-base-200 rounded-xl uppercase" required>
-                </div>
-            </div>
-            <div class="form-control mb-6">
-                <label class="label"><span class="label-text font-bold uppercase text-xs text-slate-500">Uraian / Kesimpulan</span></label>
-                <textarea name="deskripsi" id="edit_deskripsi" class="textarea textarea-bordered h-40 bg-base-200 rounded-xl"></textarea>
-            </div>
-            <div class="form-control">
-                <label class="label"><span class="label-text font-bold uppercase text-xs italic text-warning">Ganti Berkas (Opsional)</span></label>
-                <input type="file" name="berkas" id="input_file_edit" class="file-input file-input-bordered file-input-warning w-full rounded-xl" />
-            </div>
-            <div class="flex flex-col">
-                <label class="label"><span class="label-text font-bold uppercase text-xs opacity-50">Pratinjau Berkas Saat Ini</span></label>
-                <div id="preview_container" class="rounded-2xl border-2 border-dashed border-base-300 bg-base-200 h-full min-h-[300px] flex items-center justify-center overflow-hidden">
-                    <iframe id="edit_preview_iframe" class="w-full h-full" src="" style="display: none;"></iframe>
-                    <div id="no_preview" class="text-center opacity-30">
-                        <i class="mdi mdi-file-hidden text-5xl"></i>
-                        <p class="text-xs font-bold uppercase">Tidak ada berkas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-action flex gap-2">
-                <button type="submit" class="btn btn-warning flex-1 shadow-lg rounded-xl uppercase font-black text-white">Simpan Perubahan</button>
-            </div>
+            <button type="submit" class="btn btn-warning">Simpan Kronologi</button>
         </form>
     </div>
 </dialog>
 <script>
-    /**
-     * AJAX Load Detail Content
-     */
+    let selectedFiles = []; // Array penampung file kronologi
+
+    // 1. Tab Switcher
+    function switchTab(type) {
+        $('#tab-rapat, #tab-kronologi').removeClass('border-indigo-600 text-indigo-600 bg-indigo-50/30 text-amber-600 border-amber-500 bg-amber-50/30 border-transparent text-slate-400 bg-transparent');
+        if (type === 'rapat') {
+            $('#tab-rapat').addClass('border-indigo-600 text-indigo-600 bg-indigo-50/30');
+            $('.item-card[data-type="rapat"]').show();
+            $('.item-card[data-type="kronologi"]').hide();
+        } else {
+            $('#tab-kronologi').addClass('border-amber-500 text-amber-600 bg-amber-50/30');
+            $('.item-card[data-type="kronologi"]').show();
+            $('.item-card[data-type="rapat"]').hide();
+        }
+    }
+
+    // 2. Load Content Detail via AJAX
     function loadContent(element) {
-        const activeEl = $(element);
-        const id = activeEl.data('id');
+        const id = $(element).data('id');
+        const type = $(element).data('type');
 
-        // UI State: Active Menu
-        $('#menu_history a').removeClass('bg-primary text-white shadow-md scale-105 border-primary')
-            .addClass('bg-base-100 text-base-content border-base-200');
-        activeEl.addClass('bg-primary text-white shadow-md scale-105 border-primary')
-            .removeClass('bg-base-100 text-base-content border-base-200');
+        $('.item-card').removeClass('ring-2 ring-indigo-500 bg-white shadow-2xl scale-[1.02]');
+        $(element).addClass('ring-2 ring-indigo-500 bg-white shadow-2xl scale-[1.02]');
 
-        // Loading State
         $('#detail_content').html(`
-            <div class="flex flex-col items-center justify-center min-h-[350px] opacity-50">
-                <span class="loading loading-spinner loading-lg text-primary"></span>
-                <p class="mt-4 text-[10px] font-black uppercase tracking-widest animate-pulse">Mengambil Data...</p>
+            <div class="flex flex-col items-center justify-center h-[600px] w-full">
+                <span class="loading loading-spinner loading-lg text-indigo-600"></span>
+                <p class="mt-4 text-[10px] font-black uppercase tracking-[0.5em] text-slate-300">Menarik Data...</p>
             </div>
         `);
 
-        // AJAX Request
         $.ajax({
             url: "<?= base_url('masalah/get_detail_content') ?>",
             type: "POST",
             data: {
-                id: id
+                id: id,
+                type: type
             },
-            success: function(response) {
-                $('#detail_content').hide().html(response).fadeIn(300);
-            },
-            error: function() {
-                $('#detail_content').html('<div class="alert alert-error">Gagal memuat data.</div>');
+            success: function(res) {
+                $('#detail_content').hide().html(res).fadeIn(400);
             }
         });
     }
-</script>
 
-
-<script>
-    function editDet(id) {
-        $.getJSON("<?= base_url('masalah/get_det_by_id/') ?>" + id, function(data) {
-            // 1. Isi field teks
-            $('#edit_id_det').val(data.id_masalah_det);
-            $('#edit_old_berkas').val(data.berkas);
-            $('#edit_tgl').val(data.tgl_masalah_det);
-            $('#edit_judul').val(data.judul_masalah_det);
-            $('#edit_deskripsi').val(data.deskripsi);
-
-            // 2. Logic Pratinjau Berkas
-            const iframe = $('#edit_preview_iframe');
-            const noPreview = $('#no_preview');
-
-            if (data.berkas) {
-                // Path sesuaikan dengan folder upload Anda
-                const fileUrl = "<?= base_url('assets/berkas_permasalahan/') ?>" + data.berkas;
-                iframe.attr('src', fileUrl).show();
-                noPreview.hide();
-            } else {
-                iframe.hide().attr('src', '');
-                noPreview.show();
+    // 3. Kronologi Multiple File Handling
+    document.getElementById('file_kronologi').addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            if (file.size > 5 * 1024 * 1024) {
+                alert(file.name + " melebihi 5MB!");
+                return;
             }
-
-            // 3. Tampilkan Modal
-            document.getElementById('modal_edit_det').showModal();
+            selectedFiles.push(file);
         });
-    }
-
-    // 3. Tambahan: Preview instan saat user memilih file baru di komputer
-    $('#input_file_edit').change(function() {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                $('#edit_preview_iframe').attr('src', e.target.result).show();
-                $('#no_preview').hide();
-            }
-            reader.readAsDataURL(file);
-        }
+        renderPreview();
     });
+
+    function renderPreview() {
+        const container = document.getElementById('file_list_preview');
+        const previewZone = document.getElementById('preview_zone');
+        const btnUpload = document.getElementById('btn_upload_kronologi');
+        const badge = document.getElementById('file_count_badge');
+
+        container.innerHTML = "";
+        if (selectedFiles.length > 0) {
+            previewZone.classList.remove('hidden');
+            btnUpload.classList.remove('hidden');
+            badge.innerText = selectedFiles.length + " File";
+
+            selectedFiles.forEach((file, index) => {
+                const isImage = file.type.startsWith('image/');
+                const card = document.createElement('div');
+                card.className = "relative border rounded-lg overflow-hidden bg-slate-50";
+
+                let content = isImage ?
+                    `<img src="${URL.createObjectURL(file)}" class="w-full h-24 object-cover">` :
+                    `<div class="h-24 flex flex-col items-center justify-center text-rose-500 bg-rose-50"><i class="mdi mdi-file-pdf-box text-4xl"></i><span class="text-[8px] font-bold">PDF</span></div>`;
+
+                card.innerHTML = `
+                    ${content}
+                    <div class="p-2 text-[10px] truncate font-bold text-slate-600">${file.name}</div>
+                    <button type="button" onclick="removeFile(${index})" class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center shadow-lg">✕</button>
+                `;
+                container.appendChild(card);
+            });
+        } else {
+            previewZone.classList.add('hidden');
+            btnUpload.classList.add('hidden');
+        }
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        renderPreview();
+    }
+
+    // 4. AJAX Submit Kronologi
+    function submitKronologiMultiple() {
+        if (selectedFiles.length === 0) return Swal.fire('Opps', 'Pilih file dulu', 'warning');
+
+        let formData = new FormData();
+        formData.append('id_masalah', '<?= $masalah->id_masalah ?>');
+
+        selectedFiles.forEach(file => {
+            formData.append('berkas[]', file);
+        });
+
+        // Tambahkan CSRF jika aktif
+        formData.append('<?= $this->security->get_csrf_token_name(); ?>', '<?= $this->security->get_csrf_hash(); ?>');
+
+        // Aktifkan Loading
+        $('#btn_upload_kronologi').addClass('loading').prop('disabled', true);
+
+        $.ajax({
+            url: "<?= base_url('masalah/simpan_kronologi_multiple') ?>",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                // Hilangkan Loading
+                $('#btn_upload_kronologi').removeClass('loading').prop('disabled', false);
+
+                if (res.trim() === "success") {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Berkas kronologi telah diupload.',
+                        icon: 'success',
+                        confirmButtonText: 'Mantap'
+                    }).then(() => {
+                        location.reload(); // Refresh halaman agar list muncul
+                    });
+                } else {
+                    // Tampilkan pesan error asli jika bukan "success"
+                    Swal.fire('Gagal Upload', res, 'error');
+                }
+            },
+            error: function(xhr) {
+                $('#btn_upload_kronologi').removeClass('loading').prop('disabled', false);
+                Swal.fire('Error Server', 'Terjadi kesalahan sistem atau ukuran file terlalu besar', 'error');
+            }
+        });
+    }
 </script>
+
 <script>
-    // Fungsi Trigger Hapus dengan SweetAlert2
-    function hapusDet(id) {
+    // 1. Fungsi Hapus
+    function hapusDetail(id, type) {
         Swal.fire({
-            theme: 'auto',
-            title: 'Hapus Data?',
-            text: "Catatan dan berkas ini akan dihapus permanen!",
+            title: 'Hapus Dokumen?',
+            text: "Data yang dihapus tidak bisa dikembalikan!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
+            confirmButtonText: 'Ya, Hapus!'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "<?= base_url('masalah/hapus_det'); ?>",
-                    method: "POST",
-                    data: {
-                        id: id
-                    },
-                    success: function() {
-                        Swal.fire({
-                            theme: 'auto',
-                            title: 'Terhapus!',
-                            icon: 'success',
-                            timer: 1000,
-                            showConfirmButton: false
-                        });
-                        setTimeout(() => location.reload(), 1100);
+                    url: "<?= base_url('masalah/hapus_detail/') ?>" + id + "/" + type,
+                    type: "GET",
+                    success: function(res) {
+                        if (res.trim() === "success") {
+                            Swal.fire('Terhapus!', 'Data berhasil dibuang.', 'success')
+                                .then(() => location.reload());
+                        }
                     }
                 });
             }
         });
     }
+
+    function openEditRapat(id, id_masalah, type, judul, tgl, deskripsi, berkas = '') {
+        if (type === 'rapat') {
+            // Isi data ke Modal Rapat
+            $('#edit_rapat_id').val(id);
+            $('#edit_rapat_judul').val(judul);
+            $('#edit_rapat_tgl').val(tgl);
+            $('#edit_rapat_deskripsi').val(deskripsi);
+            $('#edit_rapat_old_file').val(berkas); // Jika ada parameter berkas
+
+            modal_edit_rapat.showModal();
+        } else {
+            // Isi data ke Modal Kronologi
+            $('#edit_kronologi_id').val(id);
+            $('#edit_kronologi_nama').val(judul);
+            $('#edit_kronologi_ket').val(deskripsi);
+
+            modal_edit_kronologi.showModal();
+        }
+    }
+
+    // 3. Fungsi Save Update
+    function saveUpdate() {
+        let data = $('#form_edit').serialize();
+
+        $.ajax({
+            url: "<?= base_url('masalah/update_detail') ?>",
+            type: "POST",
+            data: data,
+            success: function(res) {
+                if (res.trim() === "success") {
+                    Swal.fire('Berhasil!', 'Data telah diperbarui.', 'success')
+                        .then(() => location.reload());
+                }
+            }
+        });
+    }
+
+    function hapusDetail(id, type) {
+        let id_masalah = '<?= $masalah->id_masalah ?>'; // Ambil ID utama dari PHP
+        Swal.fire({
+            title: 'Yakin hapus?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Hapus'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "<?= base_url('masalah/hapus_item/') ?>" + id + "/" + type + "/" + id_masalah;
+            }
+        });
+    }
 </script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #E2E8F0;
+        border-radius: 10px;
+    }
+
+    .modal-box {
+        font-family: 'Jakarta Sans', sans-serif;
+    }
+</style>

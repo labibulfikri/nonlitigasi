@@ -70,4 +70,42 @@ class M_masalah extends CI_Model
             ->get('masalah_det')
             ->result();
     }
+
+
+    public function insert_resume($data)
+    {
+        return $this->db->insert('masalah_det', $data);
+    }
+
+    public function insert_bahan($data)
+    {
+        return $this->db->insert('bahan_masalah', $data);
+    }
+
+    public function get_all_details($id_masalah)
+    {
+        $id = $this->db->escape($id_masalah);
+
+        // Ambil dari masalah_det (Resume)
+        $sql1 = "SELECT 
+                id_masalah_det AS id, 
+                judul_masalah_det AS judul, 
+                tgl_masalah_det AS tgl, 
+                'rapat' AS tipe 
+             FROM masalah_det 
+             WHERE id_masalah = $id";
+
+        // Ambil dari bahan_masalah (Kronologi)
+        // Gunakan 'Kronologi' sebagai judul jika judul_bahan kosong
+        $sql2 = "SELECT 
+                id_bahan_masalah AS id, 
+                `nama_berkas` AS judul, 
+                NULL AS tgl, 
+                'kronologi' AS tipe 
+             FROM bahan_masalah 
+             WHERE id_masalah = $id";
+
+        $query = $this->db->query($sql1 . " UNION ALL " . $sql2);
+        return $query->result();
+    }
 }

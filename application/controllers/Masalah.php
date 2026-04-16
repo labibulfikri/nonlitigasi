@@ -221,7 +221,7 @@ class Masalah extends CI_Controller
 
         // // Jika ada detail & berkas
         // if (!empty($this->input->post('deskripsi'))) {
-        //     $config['upload_path']   = './uploads/berkas/';
+        //     $config['upload_path']   = './assets/berkas_bahan_masalah/';
         //     $config['allowed_types'] = 'pdf|jpg|png|doc|docx';
         //     $config['encrypt_name']  = TRUE;
 
@@ -244,15 +244,10 @@ class Masalah extends CI_Controller
 
         echo json_encode(['status' => TRUE]);
     }
-    public function detail($id)
+    public function detail($id = NULL)
     {
-        // Ambil data header
         $data['masalah'] = $this->db->get_where('masalah', ['id_masalah' => $id])->row();
-
-        // Ambil data kronologi/rapat dari masalah_det
-        $this->db->order_by('tgl_masalah_det', 'DESC');
-        $data['details'] = $this->db->get_where('masalah_det', ['id_masalah' => $id])->result();
-
+        $data['details'] = $this->m_masalah->get_all_details($id); // Ini kuncinya
         $data['title'] = "Detail Permasalahan: " . $data['masalah']->nama_masalah;
 
         // Sesuaikan dengan template layout Anda
@@ -263,6 +258,8 @@ class Masalah extends CI_Controller
             'details' => $data['details']
         ]);
     }
+
+
     public function hapus($id)
     {
         cek_csrf();
@@ -275,7 +272,7 @@ class Masalah extends CI_Controller
         ]);
     }
     // Fungsi untuk memuat konten detail via AJAX
-    public function get_detail_content()
+    public function get_detail_content2()
     {
         $id = $this->input->post('id');
         $data = $this->db->get_where('masalah_det', ['id_masalah_det' => $id])->row();
@@ -323,6 +320,80 @@ class Masalah extends CI_Controller
         }
     }
 
+
+    // SIMPAN RESUME (Single File ke masalah_det)
+    public function simpan_resume2()
+    {
+        $id_masalah = $this->input->post('id_masalah');
+
+        $config['upload_path']   = './assets/resume_bahan_masalah/';
+        $config['allowed_types'] = 'pdf';
+        $config['encrypt_name']  = TRUE;
+
+        $this->upload->initialize($config);
+
+        if ($this->upload->do_upload('berkas')) {
+            $fileData = $this->upload->data();
+            $data = [
+                'id_masalah'        => $id_masalah,
+                'tgl_masalah_det'   => $this->input->post('tgl_masalah_det'),
+                'judul_masalah_det' => $this->input->post('judul_masalah_det'),
+                'deskripsi'         => $this->input->post('deskripsi'),
+                'file_notulensi'    => $fileData['file_name']
+            ];
+            $this->M_masalah->insert_resume($data);
+            $this->session->set_flashdata('success', 'Resume berhasil disimpan');
+        }
+        redirect('masalah/detail/' . $id_masalah);
+    }
+
+    // SIMPAN KRONOLOGI (Multiple Files ke bahan_masalah)
+    public function simpan_kronologi_multiple2()
+    {
+        $id_masalah = $this->input->post('id_masalah');
+        $files = $_FILES['berkas'];
+        $count = count($files['name']);
+
+        $config['upload_path']   = './assets/kronologi_bahan_masalah/';
+        $config['allowed_types'] = 'jpg|jpeg|png|pdf';
+        $config['encrypt_name']  = TRUE;
+
+        for ($i = 0; $i < $count; $i++) {
+            $_FILES['file']['name']     = $files['name'][$i];
+            $_FILES['file']['type']     = $files['type'][$i];
+            $_FILES['file']['tmp_name'] = $files['tmp_name'][$i];
+            $_FILES['file']['error']    = $files['error'][$i];
+            $_FILES['file']['size']     = $files['size'][$i];
+
+            $this->upload->initialize($config);
+
+            if ($this->upload->do_upload('file')) {
+                $fileData = $this->upload->data();
+                $this->M_masalah->insert_bahan([
+                    'id_masalah' => $id_masalah,
+                    'nama_file'  => $fileData['file_name'],
+                    'tgl_upload' => date('Y-m-d H:i:s')
+                ]);
+            }
+        }
+        echo "success";
+    }
+
+    // LOAD DETAIL CONTENT (AJAX)
+    public function get_detail_content3()
+    {
+        $id   = $this->input->post('id');
+        $type = $this->input->post('type');
+
+        if ($type == 'rapat') {
+            $data['detail'] = $this->db->get_where('masalah_det', ['id_masalah_det' => $id])->row();
+            $this->load->view('masalah/v_detail_rapat', $data);
+        } else {
+            $data['bahan'] = $this->db->get_where('bahan_masalah', ['id_bahan' => $id])->row();
+            $this->load->view('masalah/v_detail_kronologi', $data);
+        }
+    }
+
     public function simpan_detail()
     {
         $id_masalah = $this->input->post('id_masalah'); // ID Relasi ke tabel induk
@@ -366,26 +437,40 @@ class Masalah extends CI_Controller
         echo json_encode($data);
     }
 
-    // Update Data Detail
     public function update_detail()
     {
-        cek_csrf();
+        cek_csrf(); // Pastikan fungsi ini tersedia di helper Anda
         $id = $this->input->post('id_masalah_det');
         $id_masalah = $this->input->post('id_masalah');
         $old_file = $this->input->post('old_berkas');
 
+        // 1. Validasi ID Masalah agar redirect tidak error
+        if (empty($id_masalah)) {
+            show_error("ID Masalah tidak ditemukan. Redirect gagal.");
+        }
+
         $config['upload_path']   = './assets/berkas_permasalahan/';
         $config['allowed_types'] = 'pdf|jpg|png|jpeg';
         $config['encrypt_name']  = TRUE;
-        $this->load->library('upload', $config);
 
-        $file_name = $old_file; // Default pake file lama
+        // Load library upload
+        $this->load->library('upload');
+        $this->upload->initialize($config);
 
-        if ($this->upload->do_upload('berkas')) {
-            $file_name = $this->upload->data('file_name');
-            // Hapus file lama jika ada file baru
-            if ($old_file && file_exists('./assets/berkas_permasalahan/' . $old_file)) {
-                unlink('./assets/berkas_permasalahan/' . $old_file);
+        $file_name = $old_file; // Default tetap pakai file lama
+
+        // 2. Cek jika ada file baru yang diunggah
+        if (!empty($_FILES['berkas']['name'])) {
+            if ($this->upload->do_upload('berkas')) {
+                $file_name = $this->upload->data('file_name');
+
+                // Hapus file lama hanya jika file baru berhasil diupload
+                if ($old_file && file_exists('./assets/berkas_permasalahan/' . $old_file)) {
+                    @unlink('./assets/berkas_permasalahan/' . $old_file);
+                }
+            } else {
+                // Opsional: Jika upload gagal, beri tahu user tapi proses text tetap lanjut
+                $this->session->set_flashdata('error', $this->upload->display_errors());
             }
         }
 
@@ -397,6 +482,8 @@ class Masalah extends CI_Controller
         ];
 
         $this->db->where('id_masalah_det', $id)->update('masalah_det', $data);
+
+        // Pastikan $id_masalah terisi agar redirect('masalah/detail/23') valid
         redirect('masalah/detail/' . $id_masalah);
     }
 
@@ -404,10 +491,10 @@ class Masalah extends CI_Controller
     {
         $id = $this->input->post('id');
 
-        // 1. Ambil data untuk hapus file fisik di folder uploads
-        $data = $this->db->get_where('masalah_det', ['id_masalah_det' => $id])->row();
-        if ($data->berkas && file_exists('./uploads/berkas/' . $data->berkas)) {
-            unlink('./uploads/berkas/' . $data->berkas);
+        // 1. Ambil data untuk hapus file fisik di folder assets
+        $data_bahan_masalah = $this->db->get_where('masalah_det', ['id_masalah_det' => $id])->row();
+        if ($data->berkas && file_exists('./assets/berkas_bahan_masalah/' . $data->berkas)) {
+            unlink('./assets/berkas_bahan_masalah/' . $data->berkas);
         }
 
         // 2. Hapus data dari database
@@ -418,5 +505,190 @@ class Masalah extends CI_Controller
         } else {
             echo json_encode(['status' => false]);
         }
+    }
+
+
+    // 1. Simpan Resume ke tabel masalah_det
+    public function simpan_resume()
+    {
+        $id_masalah = $this->input->post('id_masalah');
+
+        // Load library upload terlebih dahulu agar tidak error "Call to a member function... on null"
+        $this->load->library('upload');
+
+        // Pastikan folder ini sudah ada dan bisa ditulisi (writable)
+        $config['upload_path']   = './assets/berkas_permasalahan/';
+        $config['allowed_types'] = 'pdf|jpg|png';
+        $config['encrypt_name']  = TRUE;
+        $config['max_size']      = 5120; // Opsional: Batasi 5MB
+
+        $this->upload->initialize($config);
+
+        if ($this->upload->do_upload('berkas')) {
+            $fileData = $this->upload->data();
+            $data = [
+                'id_masalah'        => $id_masalah,
+                'judul_masalah_det' => $this->input->post('judul_masalah_det'),
+                'deskripsi'         => $this->input->post('deskripsi'),
+                'tgl_masalah_det'   => $this->input->post('tgl_masalah_det'),
+                'berkas'            => $fileData['file_name']
+            ];
+
+            // Pastikan nama model menggunakan huruf kecil/besar sesuai definisi (m_masalah atau M_masalah)
+            $this->m_masalah->insert_resume($data);
+
+            // Opsional: Beri pesan sukses
+            $this->session->set_flashdata('success', 'Resume berhasil disimpan.');
+        } else {
+            // Jika upload gagal, simpan pesan error ke flashdata untuk debug
+            $error = $this->upload->display_errors();
+            $this->session->set_flashdata('error', 'Gagal upload: ' . $error);
+        }
+
+        redirect('masalah/detail/' . $id_masalah);
+    }
+
+    // 2. Simpan Kronologi ke tabel bahan_masalah (Multiple)
+    public function simpan_kronologi_multiple()
+    {
+        $id_masalah = $this->input->post('id_masalah');
+
+        // 1. Cek apakah ada file yang dikirim
+        if (!isset($_FILES['berkas']) || empty($_FILES['berkas']['name'][0])) {
+            echo "Tidak ada file yang dipilih";
+            return;
+        }
+
+        $files = $_FILES['berkas'];
+        $config['upload_path']   = './assets/berkas_bahan_masalah/';
+        $config['allowed_types'] = 'jpg|jpeg|png|pdf';
+        $config['encrypt_name']  = TRUE;
+
+        $this->load->library('upload');
+
+        // 2. Lakukan looping dengan aman
+        foreach ($files['name'] as $key => $val) {
+            if (empty($files['name'][$key])) continue;
+
+            $_FILES['any_file']['name']     = $files['name'][$key];
+            $_FILES['any_file']['type']     = $files['type'][$key];
+            $_FILES['any_file']['tmp_name'] = $files['tmp_name'][$key];
+            $_FILES['any_file']['error']    = $files['error'][$key];
+            $_FILES['any_file']['size']     = $files['size'][$key];
+
+            $this->upload->initialize($config);
+
+            if ($this->upload->do_upload('any_file')) {
+                $fileData = $this->upload->data();
+                $this->m_masalah->insert_bahan([
+                    'id_masalah'   => $id_masalah,
+                    'nama_berkas'  => $fileData['file_name'],
+                    'keterangan'   => 'Dokumen Kronologi'
+                ]);
+            } else {
+                // Jika ingin melihat error upload per file (opsional)
+                // echo $this->upload->display_errors();
+            }
+        }
+        echo "success";
+    }
+    public function update_rapat()
+    {
+        $id_masalah = $this->input->post('id_masalah');
+        $id_det = $this->input->post('id_masalah_det');
+        $old_file = $this->input->post('old_berkas');
+
+        $config['upload_path'] = './assets/berkas_permasalahan/';
+        $config['allowed_types'] = 'pdf|jpg|png|jpeg';
+        $config['encrypt_name'] = TRUE;
+
+        $this->load->library('upload', $config);
+        $file_name = $old_file;
+
+        if (!empty($_FILES['berkas']['name'])) {
+            if ($this->upload->do_upload('berkas')) {
+                $file_name = $this->upload->data('file_name');
+                if ($old_file && file_exists($config['upload_path'] . $old_file)) {
+                    @unlink($config['upload_path'] . $old_file);
+                }
+            }
+        }
+
+        $data = [
+            'judul_masalah_det' => $this->input->post('judul_masalah_det'),
+            'tgl_masalah_det' => $this->input->post('tgl_masalah_det'),
+            'deskripsi' => $this->input->post('deskripsi'),
+            'berkas' => $file_name
+        ];
+
+        $this->db->where('id_masalah_det', $id_det)->update('masalah_det', $data);
+        redirect('masalah/detail/' . $id_masalah);
+    }
+    // 3. Ambil data untuk tampilan detail (AJAX)
+    public function get_detail_content()
+    {
+        $id = $this->input->post('id');
+        $type = $this->input->post('type');
+
+        if ($type == 'rapat') {
+            $data = $this->db->get_where('masalah_det', ['id_masalah_det' => $id])->row();
+
+            echo ' 
+            <div class="p-10 text-left w-full">
+            <button onclick="openEditRapat(\'' . $data->id_masalah_det . '\',\'' . $data->id_masalah . '\', \'rapat\', \'' . addslashes($data->judul_masalah_det) . '\', \'' . $data->tgl_masalah_det . '\', \'' . addslashes($data->deskripsi) . '\', \'' . $data->berkas . '\')" class="btn btn-sm btn-warning">Edit</button>
+                <button onclick="hapusDetail(\'' . $data->id_masalah_det . '\', \'rapat\')" class="btn btn-sm btn-error">Hapus</button>
+                <hr/>
+                <h2 class="text-2xl font-black uppercase mb-4">' . $data->judul_masalah_det . '</h2>
+                <p class="text-sm text-slate-500 mb-6 italic">Tanggal: ' . $data->tgl_masalah_det . '</p>
+                <div class="bg-slate-50 p-6 rounded-2xl mb-6 border border-slate-200">
+                    <h3 class="font-bold mb-2">Notulensi:</h3>
+                    <p>' . $data->deskripsi . '</p>
+                </div>
+                <iframe src="' . base_url('assets/berkas_permasalahan/' . $data->berkas) . '" class="w-full h-[500px] rounded-xl border shadow-sm"></iframe>
+            </div>';
+        } else {
+            $data = $this->db->get_where('bahan_masalah', ['id_bahan_masalah' => $id])->row();
+            $nama_file = $data->{'nama_berkas'}; // Cara akses property dengan spasi
+
+            // Render HTML untuk Kronologi
+            echo '
+            
+            <div class="p-10 text-left w-full h-full">
+            <button onclick="hapusDetail(\'' . $data->id_bahan_masalah . '\', \'kronologi\')" class="btn btn-sm btn-error">Hapus</button>
+            <hr/>
+                <h2 class="text-xl font-black mb-6 uppercase">Pratinjau Berkas Kronologi</h2>
+                <div class="flex justify-center bg-slate-100 rounded-3xl p-4 border-4 border-dashed border-slate-200">';
+            // Tambahkan ini di bagian Kronologi
+            // <div class="flex gap-2 mt-4">
+            //     <button onclick="editDetail(\'' . $data->id_bahan_masalah . '\',\'' . $data->id_masalah . '\', \'kronologi\', \'' . $data->{'nama_berkas'} . '\', \'\', \'' . $data->keterangan . '\')" class="btn btn-sm btn-warning">Edit</button>
+
+            if (pathinfo($nama_file, PATHINFO_EXTENSION) == 'pdf') {
+                echo '<iframe src="' . base_url('assets/berkas_bahan_masalah/' . $nama_file) . '" class="w-full h-[600px] rounded-xl"></iframe>';
+            } else {
+                echo '<img src="' . base_url('assets/berkas_bahan_masalah/' . $nama_file) . '" class="max-w-full rounded-2xl shadow-lg">';
+            }
+
+            echo '</div>
+            <div class="mt-4 text-center">
+                <a href="' . base_url('assets/berkas_bahan_masalah/' . $nama_file) . '" target="_blank" class="btn btn-primary">Buka File di Tab Baru</a>
+            </div>
+            </div>';
+        }
+    }
+
+    // Fungsi Delete (Menangani Rapat & Kronologi)
+    public function hapus_item($id, $type, $id_masalah)
+    {
+        if ($type === 'rapat') {
+            $row = $this->db->get_where('masalah_det', ['id_masalah_det' => $id])->row();
+            if ($row->berkas) @unlink('./assets/berkas_permasalahan/' . $row->berkas);
+            $this->db->delete('masalah_det', ['id_masalah_det' => $id]);
+        } else {
+            $row = $this->db->get_where('bahan_masalah', ['id_bahan_masalah' => $id])->row();
+            $file_kolom = 'nama berkas';
+            if ($row->$file_kolom) @unlink('./assets/berkas_bahan_masalah/' . $row->$file_kolom);
+            $this->db->delete('bahan_masalah', ['id_bahan_masalah' => $id]);
+        }
+        redirect('masalah/detail/' . $id_masalah);
     }
 }
