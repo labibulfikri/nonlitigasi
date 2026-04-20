@@ -76,7 +76,7 @@
                         <?php foreach ($result['lampiran'] as $file): ?>
                             <?php
                             $fileName = $file->nama_file ?? $file->nama_berkas ?? $file->berkas_laporan ?? $file->name_berkas;
-                            $filePath = ($sumber === 'UMUM') ? 'assets/berkas_umum/' : ($sumber === 'NONLIT' ? 'assets/berkas_nonlit/' : 'assets/upload/');
+                            $filePath = ($sumber === 'UMUM') ? 'assets/berkas_umum/detail/' : ($sumber === 'NONLIT' ? 'assets/berkas_nonlit/' : 'assets/upload/');
                             ?>
                             <div class="flex items-center p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-primary hover:bg-white transition-all group shadow-sm">
                                 <div class="p-3 bg-white rounded-xl text-primary shadow-sm group-hover:bg-primary group-hover:text-white transition-colors">
