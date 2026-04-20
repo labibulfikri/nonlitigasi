@@ -4,7 +4,9 @@
             <h1 class="text-3xl font-black uppercase italic tracking-tighter text-slate-800">Berkas Umum</h1>
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Manajemen Folder Dokumen Utama</p>
         </div>
-
+        <div id="csrf-holder">
+            <?= crsf_ajax() ?>
+        </div>
         <div class="flex items-center gap-2 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-full md:w-auto">
             <div class="relative flex-1 md:flex-none">
                 <i class="mdi mdi-magnify absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -34,7 +36,14 @@
                 <div class="absolute top-5 right-5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onclick="editFolder(<?= $b->id_berkas_umum ?>)" class="btn btn-circle btn-xs btn-ghost text-amber-500 bg-amber-50"><i class="mdi mdi-pencil"></i></button>
                     <button onclick="hapusFolder(<?= $b->id_berkas_umum ?>)" class="btn btn-circle btn-xs btn-ghost text-red-500 bg-red-50"><i class="mdi mdi-delete"></i></button>
+                    <!-- <button onclick="shareLink('${sumber}', '${id}')" class="btn btn-sm btn-primary px-6 rounded-xl font-black italic uppercase shadow-lg shadow-primary/20">
+                        <i class="mdi mdi-share-variant mr-1"></i>
+                    </button> -->
+                    <button onclick="copyShareLink(<?= $b->id_berkas_umum ?>)" class="btn btn-circle btn-xs btn-ghost text-indigo-500 hover:bg-indigo-50" title="Bagikan Folder">
+                        <i class="mdi mdi-share-variant"></i>
+                    </button>
                 </div>
+
                 <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform">
                     <i class="mdi mdi-folder text-3xl"></i>
                 </div>
@@ -77,27 +86,46 @@
         </table>
     </div>
 </div>
-
 <dialog id="modal_folder" class="modal">
     <div class="modal-box rounded-[2.5rem] p-10">
-        <h3 id="modal_title" class="font-black text-2xl uppercase italic text-indigo-600 mb-8">Buat Folder</h3>
+        <h3 id="modal_title" class="font-black text-2xl uppercase italic text-indigo-600 mb-8">Data Master Folder</h3>
         <form id="form_folder">
             <input type="hidden" name="id_berkas_umum" id="id_berkas_umum">
-            <div class="space-y-6">
+            <div class="space-y-5">
+
                 <div class="form-control">
                     <label class="label"><span class="label-text text-[10px] font-black uppercase text-slate-400">Judul Folder</span></label>
                     <input type="text" name="nama_berkas_umum" id="nama_berkas_umum" class="input input-bordered w-full rounded-2xl font-bold bg-slate-50 border-none" required>
                 </div>
-                <div class="form-control">
-                    <label class="label"><span class="label-text text-[10px] font-black uppercase text-slate-400">Penyimpanan Rak</span></label>
-                    <input type="text" name="penyimpanan_rak" id="penyimpanan_rak" class="input input-bordered w-full rounded-2xl font-bold bg-slate-50 border-none" required>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-[10px] font-black uppercase text-slate-400">Penyimpanan Rak</span></label>
+                        <input type="text" name="penyimpanan_rak" id="penyimpanan_rak" list="data_rak" class="input input-bordered w-full rounded-2xl font-bold bg-slate-50 border-none" placeholder="Pilih atau Ketik...">
+                        <datalist id="data_rak">
+                            <?php foreach ($list_rak as $rk): ?>
+                                <option value="<?= $rk->penyimpanan_rak ?>">
+                                <?php endforeach; ?>
+                        </datalist>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-[10px] font-black uppercase text-slate-400">PIC Terkait</span></label>
+                        <select name="pic" id="pic_folder" class="select select-bordered w-full rounded-2xl font-bold bg-slate-50 border-none">
+                            <option value="">Pilih PIC</option> <?php foreach ($master_pic as $p): ?>
+                                <option value="<?= $p->nama_pic ?>"><?= strtoupper($p->nama_pic) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="form-control">
                     <label class="label"><span class="label-text text-[10px] font-black uppercase text-slate-400">Keterangan</span></label>
-                    <textarea name="keterangan" id="keterangan" class="textarea textarea-bordered rounded-2xl h-24 bg-slate-50 border-none"></textarea>
+                    <textarea name="keterangan" id="keterangan" class="textarea textarea-bordered rounded-2xl h-24 bg-slate-50 border-none" placeholder="Opsional..."></textarea>
                 </div>
+
                 <div class="modal-action">
-                    <button type="submit" class="btn btn-primary btn-block rounded-2xl font-black uppercase italic">Simpan Data</button>
+                    <button type="submit" class="btn btn-primary btn-block rounded-2xl font-black uppercase italic shadow-lg shadow-indigo-100">Simpan Perubahan</button>
                 </div>
             </div>
         </form>
@@ -148,6 +176,11 @@
             $('#id_berkas_umum').val(data.id_berkas_umum);
             $('#nama_berkas_umum').val(data.nama_berkas_umum);
             $('#penyimpanan_rak').val(data.penyimpanan_rak);
+
+            setTimeout(function() {
+                $('#pic_folder').val(data.pic).change();
+            }, 100);
+
             $('#keterangan').val(data.keterangan);
             $('#modal_title').text('Update Folder');
             modal_folder.showModal();
@@ -181,3 +214,106 @@
         });
     }
 </script>
+
+<script>
+    function copyShareLink(id) {
+        $.get("<?= base_url('berkas_umum/generate_share_folder/') ?>" + id, function(link) {
+            Swal.fire({
+                title: 'BAGIKAN FOLDER',
+                html: `
+                <div class="mt-4">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2 text-left">Link Akses Publik</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="linkInput" class="input input-bordered w-full rounded-xl bg-slate-50 border-none font-medium text-xs" value="${link}" readonly>
+                        <button onclick="copyToClipboard()" class="btn btn-primary rounded-xl px-4">
+                            <i class="mdi mdi-content-copy"></i>
+                        </button>
+                    </div>
+                    <p class="text-[9px] text-amber-500 font-bold uppercase mt-3 italic">* Siapa pun yang memiliki link ini dapat melihat isi folder.</p>
+                </div>
+            `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'rounded-[2.5rem]'
+                }
+            });
+        });
+    }
+
+    function copyToClipboard() {
+        const copyText = document.getElementById("linkInput");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Untuk mobile
+
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Link Tersalin!',
+                text: 'Link berhasil dicopy ke clipboard',
+                timer: 1500,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'rounded-[2rem]'
+                }
+            });
+        });
+    }
+</script>
+<!-- <script>
+    function updateTokenGlobal(newToken) {
+        if (newToken) {
+            $('#token').val(newToken);
+            $('input[name="token"]').val(newToken);
+            console.log("CSRF Token Synchronized");
+        }
+    }
+
+    function shareLink(sumber, id) {
+        // Ambil token dari input hidden id="token"
+        const currentToken = $('#token').val();
+
+        $.ajax({
+            url: '<?= base_url("arsip/generate_share_link") ?>',
+            type: 'POST',
+            dataType: 'JSON',
+            data: {
+                sumber: sumber,
+                id_data: id,
+                durasi: 24, // Misal default 24 jam
+                token: currentToken
+            },
+            success: function(res) {
+                // PENTING: Update token di seluruh halaman
+                if (res.new_token) {
+                    updateTokenGlobal(res.new_token);
+                }
+
+                Swal.fire({
+                    theme: 'auto',
+                    title: 'LINK BERHASIL DIBUAT!',
+                    html: `
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 mt-4">
+                        <input type="text" id="pubUrl" class="input input-bordered w-full text-xs" value="${res.url}" readonly>
+                        <button onclick="copyToClipboard()" class="btn btn-sm btn-primary w-full mt-2 font-black italic">SALIN LINK</button>
+                        <p class="text-[9px] mt-3 text-error font-black italic uppercase">Berlaku sampai: ${res.expired}</p>
+                    </div>`,
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    target: document.getElementById('modal_detail')
+                });
+            },
+            error: function(xhr) {
+                // Jika error 403 muncul lagi, paksa reload agar token sinkron
+                Swal.fire({
+                    theme: 'auto',
+                    title: 'Sesi Keamanan Habis',
+                    text: 'Halaman akan dimuat ulang untuk sinkronisasi token.',
+                    icon: 'warning'
+                }).then(() => {
+                    location.reload();
+                });
+            }
+        });
+    }
+</script> -->

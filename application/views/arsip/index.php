@@ -12,12 +12,12 @@
         <div id="csrf-holder">
             <?= crsf_ajax() ?>
         </div>
-        <button onclick="modal_berkas_umum.showModal()" class="btn btn-sm btn-primary px-5 rounded">
+        <!-- <button onclick="modal_berkas_umum.showModal()" class="btn btn-sm btn-primary px-5 rounded">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             DIGITALISASI UMUM
-        </button>
+        </button> -->
         <form action="<?= base_url('arsip/index') ?>" method="get" class="join shadow-sm">
             <input type="text" name="search"
                 class="input input-bordered join-item w-full md:w-64 focus:outline-primary"

@@ -24,12 +24,23 @@ class Berkas_umum extends CI_Controller
             redirect('auth/logout');
         } else {
             //list pic
+
             $data['berkas'] = $this->m_berkas_umum->get_all();
+
+            // Ambil data Master PIC (asumsi nama tabel: master_pic)
+            $data['master_pic'] = $this->db->get('master_pic')->result();
+
+            // Ambil daftar Rak yang unik dari tabel berkas_umum untuk datalist
+            $data['list_rak'] = $this->db->select('penyimpanan_rak')
+                ->group_by('penyimpanan_rak')
+                ->get('berkas_umum')
+                ->result();
             $data = array(
                 'masterpage' => 'layout/layout2',
                 'content' => 'data_berkas_umum/data_berkas_umum',
                 'berkas' => $data['berkas'],
-
+                'master_pic' => $data['master_pic'],
+                'list_rak' => $data['list_rak'],
                 // 'footer' => 'layout/footer',
                 'title' => 'Daftar Berkas Umum'
             );
@@ -63,6 +74,7 @@ class Berkas_umum extends CI_Controller
             'nama_berkas_umum' => $this->input->post('nama_berkas_umum'),
             'keterangan'       => $this->input->post('keterangan'),
             'penyimpanan_rak'       => $this->input->post('penyimpanan_rak'),
+            'pic'           => $this->input->post('pic')
         ];
 
         if ($id) {
@@ -138,5 +150,57 @@ class Berkas_umum extends CI_Controller
             $this->db->where('id_berkas_umum_det', $id)->delete('berkas_umum_det');
         }
         redirect($_SERVER['HTTP_REFERER']);
+    }
+
+
+    public function generate_share_folder($id_data)
+    {
+        $sumber = 'berkas_umum'; // Penanda bahwa ini dari folder umum
+
+        // 1. Cek apakah link sudah ada di tabel share_links
+        $cek = $this->db->get_where('share_links', [
+            'sumber'  => $sumber,
+            'id_data' => $id_data
+        ])->row();
+
+        if ($cek) {
+            $token = $cek->token;
+        } else {
+            // 2. Jika belum ada, buat token baru
+            $token = bin2hex(random_bytes(16));
+            $this->db->insert('share_links', [
+                'sumber'     => $sumber,
+                'id_data'    => $id_data,
+                'token'      => $token,
+                'expired_at' => date('Y-m-d H:i:s', strtotime('+7 days')) // Contoh: expired dalam 7 hari
+            ]);
+        }
+
+        echo base_url('berkas_umum/folder/' . $token);
+    }
+
+    public function folder($token)
+    {
+        // 1. Cari token di tabel share_links
+        $link = $this->db->get_where('share_links', ['token' => $token])->row();
+
+        // 2. Validasi: Ada tidak? Expired tidak?
+        if (!$link || ($link->expired_at && $link->expired_at < date('Y-m-d H:i:s'))) {
+            show_error('Link sudah kadaluarsa atau tidak valid.', 404);
+            return;
+        }
+
+        // 3. Ambil data asli berdasarkan id_data di tabel share_links
+        $parent = $this->db->get_where('berkas_umum', ['id_berkas_umum' => $link->id_data])->row();
+
+        if (!$parent) {
+            show_404();
+            return;
+        }
+
+        $data['parent'] = $parent;
+        $data['files']  = $this->db->get_where('berkas_umum_det', ['id_berkas_umum' => $parent->id_berkas_umum])->result();
+
+        $this->load->view('data_berkas_umum/public_folder_share', $data);
     }
 }
