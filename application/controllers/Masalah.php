@@ -350,7 +350,9 @@ class Masalah extends CI_Controller
     // SIMPAN KRONOLOGI (Multiple Files ke bahan_masalah)
     public function simpan_kronologi_multiple2()
     {
+
         $id_masalah = $this->input->post('id_masalah');
+        $nama_kustom = $this->input->post('nama_kustom');
         $files = $_FILES['berkas'];
         $count = count($files['name']);
 
@@ -369,9 +371,10 @@ class Masalah extends CI_Controller
 
             if ($this->upload->do_upload('file')) {
                 $fileData = $this->upload->data();
-                $this->M_masalah->insert_bahan([
+                $this->m_masalah->insert_bahan([
                     'id_masalah' => $id_masalah,
                     'nama_file'  => $fileData['file_name'],
+                    'judul_berkas' => $nama_kustom[$key],
                 ]);
             }
         }
@@ -548,50 +551,96 @@ class Masalah extends CI_Controller
     }
 
     // 2. Simpan Kronologi ke tabel bahan_masalah (Multiple)
+    // public function simpan_kronologi_multiple()
+    // {
+    //     $id_masalah = $this->input->post('id_masalah');
+    //     $nama_kustom = $this->input->post('nama_kustom'); // Tangkap array nama kustom
+    //     $path = './assets/berkas_bahan_masalah/';
+
+    //     if (!is_dir($path)) mkdir($path, 0777, true);
+
+    //     $files = $_FILES['berkas'];
+    //     $this->load->library('upload');
+
+    //     $sukses_count = 0;
+
+    //     foreach ($files['name'] as $key => $val) {
+    //         if (empty($files['name'][$key])) continue;
+
+    //         $_FILES['any_file']['name']     = $files['name'][$key];
+    //         $_FILES['any_file']['type']     = $files['type'][$key];
+    //         $_FILES['any_file']['tmp_name'] = $files['tmp_name'][$key];
+    //         $_FILES['any_file']['error']    = $files['error'][$key];
+    //         $_FILES['any_file']['size']     = $files['size'][$key];
+
+    //         $config['upload_path']   = $path;
+    //         $config['allowed_types'] = 'jpg|jpeg|png|pdf';
+    //         $config['encrypt_name']  = TRUE;
+
+    //         $this->upload->initialize($config);
+
+    //         if ($this->upload->do_upload('any_file')) {
+    //             $fileData = $this->upload->data();
+
+    //             // Gunakan nama kustom dari input jika tersedia
+    //             $judul_dokumen = (!empty($nama_kustom[$key])) ? $nama_kustom[$key] : $val;
+
+    //             $this->m_masalah->insert_bahan([
+    //                 'id_masalah'   => $id_masalah,
+    //                 'nama_berkas'  => $fileData['file_name'],
+    //                 'judul_berkas'   => $judul_dokumen // Simpan nama kustom ke kolom keterangan atau nama_dokumen
+    //             ]);
+    //             $sukses_count++;
+    //         }
+    //     }
+    //     echo "success";
+    // }
+
     public function simpan_kronologi_multiple()
     {
+        $this->load->helper('url');
         $id_masalah = $this->input->post('id_masalah');
+        $nama_kustom = $this->input->post('nama_kustom');
         $path = './assets/berkas_bahan_masalah/';
 
-        // Pastikan folder ada dan writable
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
-
-        if (!isset($_FILES['berkas']) || empty($_FILES['berkas']['name'][0])) {
-            echo "Tidak ada file yang dipilih";
-            return;
-        }
+        if (!is_dir($path)) mkdir($path, 0777, true);
 
         $files = $_FILES['berkas'];
-        $config['upload_path']   = $path;
-        $config['allowed_types'] = 'jpg|jpeg|png|pdf';
-        $config['encrypt_name']  = TRUE;
-
         $this->load->library('upload');
 
         foreach ($files['name'] as $key => $val) {
             if (empty($files['name'][$key])) continue;
 
-            $_FILES['any_file']['name']     = $files['name'][$key];
+            $extension = pathinfo($val, PATHINFO_EXTENSION);
+
+            // Hanya bersihkan karakter berbahaya (spasi jadi dash, huruf kecil semua)
+            // Tanpa tambahan time() atau angka unik lainnya
+            $clean_name = url_title($nama_kustom[$key], 'dash', TRUE);
+            $new_file_name = $clean_name . '.' . $extension;
+
+            $_FILES['any_file']['name']     = $new_file_name;
             $_FILES['any_file']['type']     = $files['type'][$key];
             $_FILES['any_file']['tmp_name'] = $files['tmp_name'][$key];
             $_FILES['any_file']['error']    = $files['error'][$key];
             $_FILES['any_file']['size']     = $files['size'][$key];
 
+            $config['upload_path']   = $path;
+            $config['allowed_types'] = 'jpg|jpeg|png|pdf';
+            $config['file_name']     = $new_file_name;
+            $config['overwrite']     = TRUE; // Penting: Mengizinkan timpa file jika namanya sama
+            $config['encrypt_name']  = FALSE;
+
             $this->upload->initialize($config);
 
             if ($this->upload->do_upload('any_file')) {
                 $fileData = $this->upload->data();
+
                 $this->m_masalah->insert_bahan([
                     'id_masalah'   => $id_masalah,
-                    'nama_berkas'  => $fileData['file_name'],
+                    'nama_berkas'  => $fileData['file_name'], // Nama fisik sesuai inputan
+                    'judul_berkas' => $nama_kustom[$key],    // Nama tampilan aplikasi
                     'keterangan'   => 'Dokumen Kronologi'
                 ]);
-            } else {
-                // Tampilkan error jika gagal satu saja agar ketahuan penyebabnya di server
-                echo "Gagal upload file " . $val . ": " . $this->upload->display_errors('', '');
-                return;
             }
         }
         echo "success";
@@ -694,5 +743,97 @@ class Masalah extends CI_Controller
             $this->db->delete('bahan_masalah', ['id_bahan_masalah' => $id]);
         }
         redirect('masalah/detail/' . $id_masalah);
+    }
+
+
+    public function search_global()
+    {
+        $keyword = trim($this->input->get('q'));
+        if (empty($keyword)) return;
+
+        $safe_keyword = $this->db->escape_like_str($keyword);
+
+        // 1. Masalah (5 Kolom: id, judul, info_tambahan, sub, tipe)
+        $this->db->select('id_masalah as id, nama_masalah as judul, penyimpanan_rak as info, alamat_masalah as sub, "masalah" as tipe');
+        $this->db->group_start();
+        $this->db->like('nama_masalah', $safe_keyword);
+        $this->db->or_like('alamat_masalah', $safe_keyword);
+        $this->db->group_end();
+        $query1 = $this->db->get_compiled_select('masalah');
+
+        // 2. Laporan Polisi (5 Kolom)
+        $this->db->select('id_laporan_polisi as id, nomor_polisi as judul, pelapor as info, judul_laporan_polisi as sub, "lp" as tipe');
+        $this->db->group_start();
+        $this->db->like('nomor_polisi', $safe_keyword);
+        $this->db->or_like('judul_laporan_polisi', $safe_keyword);
+        $this->db->group_end();
+        $query2 = $this->db->get_compiled_select('laporan_polisi');
+
+        //3. berka umum (5 Kolom) - Kita geser nama_berkas ke kolom 'info' agar urutan SAMA
+        $this->db->select('id_berkas_umum as id, nama_berkas_umum as judul, keterangan as info, penyimpanan_rak as sub, "berkas" as tipe');
+        $this->db->group_start();
+        $this->db->like('nama_berkas_umum', $safe_keyword);
+        $this->db->or_like('keterangan', $safe_keyword);
+        $this->db->or_like('penyimpanan_rak', $safe_keyword);
+        $this->db->group_end();
+        $query3 = $this->db->get_compiled_select('berkas_umum');
+
+        // 4. Nonlits (5 Kolom) - Kita geser register_baru ke kolom 'info' agar urutan SAMA
+        $this->db->select('id as id, permohonan_nonlit as judul, register_baru as info, alamat as sub, "nonlit" as tipe');
+        $this->db->group_start();
+        $this->db->like('permohonan_nonlit', $safe_keyword);
+        $this->db->or_like('alamat', $safe_keyword);
+        $this->db->group_end();
+        $query4 = $this->db->get_compiled_select('nonlits');
+
+        // 5. Perkara Asing (5 Kolom)
+        $this->db->select('perkara_id as id, perkara_no as judul, register_baru as info, perkara_alamat as sub, "asing" as tipe');
+        $this->db->group_start();
+        $this->db->like('perkara_no', $safe_keyword);
+        $this->db->or_like('register_baru', $safe_keyword); // Gunakan OR agar lebih luas pencariannya
+        $this->db->or_like('perkara_alamat', $safe_keyword);
+        $this->db->group_end();
+        $query5 = $this->db->get_compiled_select('db_perkara.t_perkara');
+
+        // Eksekusi UNION (Semua sudah 5 kolom dengan urutan: ID, JUDUL, INFO, SUB, TIPE)
+        $sql = "($query1) UNION ($query2) UNION ($query3) UNION ($query4) UNION ($query5) LIMIT 10";
+        $all_query = $this->db->query($sql);
+
+        if (!$all_query) {
+            $error = $this->db->error();
+            echo "SQL Error: " . $error['message'];
+            return;
+        }
+
+        $res = $all_query->result();
+
+        if ($res) {
+            foreach ($res as $row) {
+                // Tentukan link & warna berdasarkan tipe
+                $color = 'bg-slate-100 text-slate-600';
+                $link = base_url('masalah/detail/' . $row->id);
+
+                if ($row->tipe == 'lp') $link = base_url('laporan_polisi/detail/' . $row->id);
+                if ($row->tipe == 'berkas') $link = base_url('berkas_umum/detail/' . $row->id);
+                if ($row->tipe == 'nonlit') $link = base_url('nonlit/detail/' . $row->id);
+                // if ($row->tipe == 'asing') $link = base_url('perkara_asing/detail/' . $row->id);
+                if ($row->tipe == 'asing') $link = 'https://assistdpbt.surabaya.go.id/asing/perkara/detail_perkara/' . $row->id;
+
+                echo '
+            <a href="' . $link . '" class="flex items-center gap-4 p-4 hover:bg-slate-50 border-b border-slate-50 last:border-none">
+                <div class="w-10 h-10 ' . $color . ' rounded-xl flex items-center justify-center shrink-0 font-black text-[10px]">
+                    ' . strtoupper($row->tipe) . '
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-[11px] font-black text-slate-700 truncate uppercase">' . $row->judul . '</p>
+                    <p class="text-[9px] text-slate-400 truncate uppercase tracking-tighter">
+                        <span class="text-indigo-500 font-bold">[' . $row->info . ']</span> ' . $row->sub . '
+                    </p>
+                </div>
+            </a>';
+            }
+        } else {
+            echo '<div class="p-6 text-center text-xs font-bold text-slate-400 uppercase italic">Data tidak ditemukan</div>';
+        }
     }
 }

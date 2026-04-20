@@ -44,7 +44,7 @@
                             Resume Rapat
                         </button>
                         <button onclick="switchTab('kronologi')" id="tab-kronologi" class="p-5 font-black text-[10px] uppercase tracking-[0.2em] border-b-2 border-transparent text-slate-400 hover:bg-slate-50 transition-all">
-                            Kronologi
+                            Berkas Lainnya
                         </button>
                     </div>
 
@@ -122,6 +122,7 @@
     </div>
 </dialog>
 
+
 <dialog id="modal_tambah_kronologi" class="modal modal-bottom sm:modal-middle">
     <div class="modal-box max-w-4xl p-0 rounded-[2rem]  border-none shadow-2xl">
         <div class="p-6 bg-amber-500 text-white flex justify-between items-center">
@@ -141,12 +142,19 @@
                 </div>
             </div>
 
-            <div id="preview_zone" class="hidden">
+            <!-- <div id="preview_zone" class="hidden">
                 <div class="flex justify-between items-center mb-4 border-b pb-2">
                     <span class="text-xs font-black uppercase text-slate-500">Preview Berkas</span>
                     <span id="file_count_badge" class="badge badge-warning font-bold text-white">0 File</span>
                 </div>
                 <div id="file_list_preview" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            </div> -->
+            <div id="preview_zone" class="hidden">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <span class="text-xs font-black uppercase text-slate-500">Preview & Penamaan Berkas</span>
+                    <span id="file_count_badge" class="badge badge-warning font-bold text-white">0 File</span>
+                </div>
+                <div id="file_list_preview" class="space-y-4"></div>
             </div>
 
             <button type="button" id="btn_upload_kronologi" onclick="submitKronologiMultiple()" class="btn btn-warning w-full h-14 rounded-2xl text-white font-black uppercase italic shadow-lg shadow-amber-200 hidden">
@@ -309,6 +317,39 @@
         renderPreview();
     });
 
+    // function renderPreview() {
+    //     const container = document.getElementById('file_list_preview');
+    //     const previewZone = document.getElementById('preview_zone');
+    //     const btnUpload = document.getElementById('btn_upload_kronologi');
+    //     const badge = document.getElementById('file_count_badge');
+
+    //     container.innerHTML = "";
+    //     if (selectedFiles.length > 0) {
+    //         previewZone.classList.remove('hidden');
+    //         btnUpload.classList.remove('hidden');
+    //         badge.innerText = selectedFiles.length + " File";
+
+    //         selectedFiles.forEach((file, index) => {
+    //             const isImage = file.type.startsWith('image/');
+    //             const card = document.createElement('div');
+    //             card.className = "relative border rounded-lg overflow-hidden bg-slate-50";
+
+    //             let content = isImage ?
+    //                 `<img src="${URL.createObjectURL(file)}" class="w-full h-24 object-cover">` :
+    //                 `<div class="h-24 flex flex-col items-center justify-center text-rose-500 bg-rose-50"><i class="mdi mdi-file-pdf-box text-4xl"></i><span class="text-[8px] font-bold">PDF</span></div>`;
+
+    //             card.innerHTML = `
+    //                 ${content}
+    //                 <div class="p-2 text-[10px] truncate font-bold text-slate-600">${file.name}</div>
+    //                 <button type="button" onclick="removeFile(${index})" class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center shadow-lg">✕</button>
+    //             `;
+    //             container.appendChild(card);
+    //         });
+    //     } else {
+    //         previewZone.classList.add('hidden');
+    //         btnUpload.classList.add('hidden');
+    //     }
+    // }
     function renderPreview() {
         const container = document.getElementById('file_list_preview');
         const previewZone = document.getElementById('preview_zone');
@@ -324,18 +365,34 @@
             selectedFiles.forEach((file, index) => {
                 const isImage = file.type.startsWith('image/');
                 const card = document.createElement('div');
-                card.className = "relative border rounded-lg overflow-hidden bg-slate-50";
+                // Kita buat layout baris (Flex) agar ada tempat untuk input teks
+                card.className = "flex items-center gap-4 p-3 border rounded-2xl bg-slate-50 relative group";
 
-                let content = isImage ?
-                    `<img src="${URL.createObjectURL(file)}" class="w-full h-24 object-cover">` :
-                    `<div class="h-24 flex flex-col items-center justify-center text-rose-500 bg-rose-50"><i class="mdi mdi-file-pdf-box text-4xl"></i><span class="text-[8px] font-bold">PDF</span></div>`;
+                let thumbnail = isImage ?
+                    `<img src="${URL.createObjectURL(file)}" class="w-16 h-16 object-cover rounded-xl">` :
+                    `<div class="w-16 h-16 flex items-center justify-center bg-rose-100 text-rose-500 rounded-xl"><i class="mdi mdi-file-pdf-box text-3xl"></i></div>`;
 
                 card.innerHTML = `
-                    ${content}
-                    <div class="p-2 text-[10px] truncate font-bold text-slate-600">${file.name}</div>
-                    <button type="button" onclick="removeFile(${index})" class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center shadow-lg">✕</button>
-                `;
+                ${thumbnail}
+                <div class="flex-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase">Nama Dokumen</label>
+                    <input type="text" 
+                        class="input input-sm input-bordered w-full rounded-lg custom-name-input" 
+                        placeholder="Masukkan nama dokumen..." 
+                        data-index="${index}" 
+                        value="${file.customName || file.name.split('.').slice(0, -1).join('.')}">
+                </div>
+                <button type="button" onclick="removeFile(${index})" class="btn btn-circle btn-xs btn-error text-white">✕</button>
+            `;
                 container.appendChild(card);
+            });
+
+            // Tambahkan event listener untuk menangkap perubahan nama
+            document.querySelectorAll('.custom-name-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const idx = e.target.getAttribute('data-index');
+                    selectedFiles[idx].customName = e.target.value;
+                });
             });
         } else {
             previewZone.classList.add('hidden');
@@ -349,17 +406,69 @@
     }
 
     // 4. AJAX Submit Kronologi
+    // function submitKronologiMultiple() {
+    //     if (selectedFiles.length === 0) return Swal.fire('Opps', 'Pilih file dulu', 'warning');
+
+    //     let formData = new FormData();
+    //     formData.append('id_masalah', '<?= $masalah->id_masalah ?>');
+
+    //     selectedFiles.forEach(file => {
+    //         formData.append('berkas[]', file);
+    //     });
+
+    //     formData.append('<?= $this->security->get_csrf_token_name(); ?>', '<?= $this->security->get_csrf_hash(); ?>');
+
+    //     $('#btn_upload_kronologi').addClass('loading').prop('disabled', true);
+
+    //     $.ajax({
+    //         url: "<?= base_url('masalah/simpan_kronologi_multiple') ?>",
+    //         type: "POST",
+    //         data: formData,
+    //         processData: false,
+    //         contentType: false,
+    //         success: function(res) {
+    //             $('#btn_upload_kronologi').removeClass('loading').prop('disabled', false);
+
+    //             if (res.trim() === "success") {
+    //                 // TUTUP MODAL DULU agar SweetAlert muncul paling depan
+    //                 const modal = document.getElementById('modal_tambah_kronologi');
+    //                 if (modal) modal.close();
+
+    //                 Swal.fire({
+    //                     title: 'Berhasil!',
+    //                     text: 'Berkas kronologi telah diupload.',
+    //                     icon: 'success',
+    //                     confirmButtonText: 'Mantap',
+    //                     // Pastikan z-index tinggi jika masih tertutup (opsional)
+    //                     target: 'body'
+    //                 }).then(() => {
+    //                     location.reload();
+    //                 });
+    //             } else {
+    //                 Swal.fire('Gagal Upload', res, 'error');
+    //             }
+    //         },
+    //         error: function(xhr) {
+    //             $('#btn_upload_kronologi').removeClass('loading').prop('disabled', false);
+    //             Swal.fire('Error Server', 'File terlalu banyak/besar atau permission folder salah.', 'error');
+    //         }
+    //     });
+    // }
     function submitKronologiMultiple() {
         if (selectedFiles.length === 0) return Swal.fire('Opps', 'Pilih file dulu', 'warning');
 
         let formData = new FormData();
         formData.append('id_masalah', '<?= $masalah->id_masalah ?>');
-
-        selectedFiles.forEach(file => {
-            formData.append('berkas[]', file);
-        });
-
         formData.append('<?= $this->security->get_csrf_token_name(); ?>', '<?= $this->security->get_csrf_hash(); ?>');
+
+        selectedFiles.forEach((file, index) => {
+            formData.append('berkas[]', file);
+            // Kirimkan array nama kustom ke controller
+            // const namaKustom = file.customName || file.name.split('.').slice(0, -1).join('.');
+            // formData.append('nama_kustom[]', namaKustom);
+            const inputName = document.querySelector(`.custom-name-input[data-index="${index}"]`).value;
+            formData.append('nama_kustom[]', inputName);
+        });
 
         $('#btn_upload_kronologi').addClass('loading').prop('disabled', true);
 
@@ -371,29 +480,11 @@
             contentType: false,
             success: function(res) {
                 $('#btn_upload_kronologi').removeClass('loading').prop('disabled', false);
-
                 if (res.trim() === "success") {
-                    // TUTUP MODAL DULU agar SweetAlert muncul paling depan
-                    const modal = document.getElementById('modal_tambah_kronologi');
-                    if (modal) modal.close();
-
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: 'Berkas kronologi telah diupload.',
-                        icon: 'success',
-                        confirmButtonText: 'Mantap',
-                        // Pastikan z-index tinggi jika masih tertutup (opsional)
-                        target: 'body'
-                    }).then(() => {
-                        location.reload();
-                    });
+                    Swal.fire('Berhasil!', 'Berkas berhasil dinamai dan diupload.', 'success').then(() => location.reload());
                 } else {
-                    Swal.fire('Gagal Upload', res, 'error');
+                    Swal.fire('Gagal', res, 'error');
                 }
-            },
-            error: function(xhr) {
-                $('#btn_upload_kronologi').removeClass('loading').prop('disabled', false);
-                Swal.fire('Error Server', 'File terlalu banyak/besar atau permission folder salah.', 'error');
             }
         });
     }

@@ -165,6 +165,7 @@
                                 <li><a href="<?= base_url('nonlit') ?>" class="<?= $this->uri->segment(1) == 'nonlit' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Nonlit</a></li>
                                 <li><a href="<?= base_url('laporan_polisi') ?>" class="<?= $this->uri->segment(1) == 'laporan_polisi' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Laporan Polisi</a></li>
                                 <li><a href="<?= base_url('masalah') ?>" class="<?= $this->uri->segment(1) == 'masalah' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Permasalahan</a></li>
+                                <li><a href="<?= base_url('berkas_umum') ?>" class="<?= $this->uri->segment(1) == 'berkas_umum' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Berkas Umum</a></li>
                             </ul>
                         </details>
                     </li>
@@ -230,11 +231,26 @@
                         </h2>
                         <div class="flex items-center gap-1.5 mt-0.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pemerintah Kota Surabaya</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pemerintah Kota Surabaya </span>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="relative w-full max-w-md hidden md:block">
+                    <div class="relative">
+                        <i class="mdi mdi-magnify absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
+                        <input type="text"
+                            id="global_search"
+                            placeholder="Cari Nama Perkara / Masalah..."
+                            class="input input-bordered w-full pl-12 pr-4 h-12 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm"
+                            autocomplete="off">
+
+                        <div id="search_results" class="absolute top-full left-0 w-full bg-white mt-2 rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[999] hidden">
+                            <div id="results_list" class="max-h-64 overflow-y-auto">
+                            </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="flex items-center gap-6">
                     <div class="flex items-center gap-4">
                         <div class="text-right hidden sm:block">
@@ -268,7 +284,33 @@
             </main>
         </div>
     </div>
+    <style>
+        #search_results {
+            animation: slideDown 0.3s ease-out;
+        }
 
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom scrollbar untuk hasil pencarian */
+        #results_list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #results_list::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+    </style>
     <script>
         $(document).ready(function() {
             let isCollapsed = false;
@@ -305,6 +347,40 @@
             });
         });
     </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#global_search').on('keyup', function() {
+                let q = $(this).val();
+                let resultsBox = $('#search_results');
+                let resultsList = $('#results_list');
+
+                if (q.length > 2) {
+                    $.ajax({
+                        url: "<?= base_url('masalah/search_global') ?>",
+                        type: "GET",
+                        data: {
+                            q: q
+                        },
+                        success: function(res) {
+                            resultsList.html(res);
+                            resultsBox.removeClass('hidden');
+                        }
+                    });
+                } else {
+                    resultsBox.addClass('hidden');
+                }
+            });
+
+            // Menutup pencarian saat klik di luar area
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#global_search, #search_results').length) {
+                    $('#search_results').addClass('hidden');
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </html>
