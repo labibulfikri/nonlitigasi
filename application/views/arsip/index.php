@@ -104,13 +104,13 @@
                                     </svg>
                                 </button>
 
-                                <?php if ($row->sumber === 'UMUM'): ?>
+                                <!-- <?php if ($row->sumber === 'UMUM'): ?>
                                     <button onclick="editUmum(<?= $row->id_data ?>)" class="btn btn-xs btn-warning btn-square">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
                                     </button>
-                                <?php endif; ?>
+                                <?php endif; ?> -->
                                 <!-- <button class="btn btn-square btn-ghost btn-sm text-primary hover:bg-primary hover:text-white transition-all"
                                     onclick="prepUpdate('<?= $row->sumber ?>', '<?= $row->id_data ?>', '<?= $row->id_rak ?>')">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -524,14 +524,14 @@
                                 <span class="text-[10px] font-bold opacity-50 uppercase">PIC: ${res.data.pic || '-'}</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 mb-6">
-                        <form id="form_append_file" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-3">
-                            <input type="hidden" name="id_berkas_umum" value="${res.data.id_berkas_umum}">
-                            <input type="file" name="files[]" multiple class="file-input file-input-bordered file-input-sm flex-1 bg-white" id="input_append" required>
-                            <button type="button" id="btn_append" onclick="appendFile()" class="btn btn-sm btn-primary px-6 uppercase font-black italic text-white shadow-lg">Upload</button>
-                        </form>
                     </div>`;
+                    // <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 mb-6">
+                    //     <form id="form_append_file" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-3">
+                    //         <input type="hidden" name="id_berkas_umum" value="${res.data.id_berkas_umum}">
+                    //         <input type="file" name="files[]" multiple class="file-input file-input-bordered file-input-sm flex-1 bg-white" id="input_append" required>
+                    //         <button type="button" id="btn_append" onclick="appendFile()" class="btn btn-sm btn-primary px-6 uppercase font-black italic text-white shadow-lg">Upload</button>
+                    //     </form>
+                    // </div>`
 
 
                 }
@@ -555,12 +555,12 @@
                 if (res.lampiran && res.lampiran.length > 0) {
                     res.lampiran.forEach(file => {
                         let fileName = file.nama_file || file.nama_berkas || file.berkas_laporan || file.name_berkas;
-                        let filePath = (sumber === 'UMUM') ? 'assets/berkas_umum/' : (sumber === 'NONLIT' ? 'assets/berkas_nonlit/' : 'assets/upload/');
+                        let filePath = (sumber === 'UMUM') ? 'assets/berkas_umum/detail/' : (sumber === 'NONLIT' ? 'assets/berkas_nonlit/' : 'assets/upload/');
                         // Tombol hapus hanya muncul jika sumbernya UMUM
                         let btnDelete = (sumber === 'UMUM') ? `
-        <button onclick="deleteFile('${file.id_berkas_umum_det}', '${res.data.id_berkas_umum}')" class="btn btn-xs btn-error btn-circle text-white shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-        </button>` : '';
+                        <button onclick="deleteFile('${file.id_berkas_umum_det}', '${res.data.id_berkas_umum}')" class="btn btn-xs btn-error btn-circle text-white shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>` : '';
                         fileHtml += `
                         <div class="flex items-center p-3 bg-white rounded-xl border border-slate-200 gap-3 mb-2 hover:border-primary transition-all group">
                             <div class="flex-1 overflow-hidden">
@@ -569,8 +569,8 @@
                             <a href="<?= base_url() ?>${filePath}${fileName}" target="_blank" class="btn btn-xs btn-primary btn-circle text-white shadow-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                             </a>
-                            ${btnDelete}
-                        </div>`;
+                            </div>`;
+                        // ${btnDelete}
                     });
                 } else {
                     fileHtml = '<div class="py-10 flex flex-col items-center opacity-20"><p class="text-[10px] font-black uppercase italic tracking-widest text-slate-500">Tidak ada berkas digital</p></div>';
@@ -1234,27 +1234,27 @@
                 if (res.status && res.data) {
                     let html = "";
                     // Tampilan UMUM
-                    if (sumber === 'UMUM') {
-                        html = `
-                        <div class="stats border border-slate-200 w-full mb-6 rounded-2xl bg-white shadow-sm overflow-hidden">
-                            <div class="stat p-5">
-                                <div class="stat-title text-[10px] font-black uppercase text-primary">Nama Dokumen Digital</div>
-                                <div class="stat-value text-lg text-slate-800 uppercase font-black">${res.data.nama_berkas_umum}</div>
-                                <div class="stat-desc mt-2 flex items-center gap-4">
-                                    <span class="badge badge-ghost font-bold text-[10px] px-3">RAK: ${res.data.penyimpanan_rak || '-'}</span>
-                                    <span class="text-[10px] font-bold opacity-50 uppercase tracking-tighter">PIC: ${res.data.pic || '-'}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 mb-6 group">
-                            <p class="text-[10px] font-black text-blue-600 uppercase mb-3 italic">Tambah File Baru:</p>
-                            <form id="form_append_file" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-3">
-                                <input type="hidden" name="id_berkas_umum" value="${res.data.id_berkas_umum}">
-                                <input type="file" name="files[]" multiple class="file-input file-input-bordered file-input-sm flex-1 bg-white rounded-lg font-bold" id="input_append" required>
-                                <button type="button" id="btn_append" onclick="appendFile()" class="btn btn-sm btn-primary px-6 uppercase font-black italic text-white shadow-lg shadow-blue-200">Upload</button>
-                            </form>
-                        </div>`;
-                    }
+                    // if (sumber === 'UMUM') {
+                    //     html = `
+                    //     <div class="stats border border-slate-200 w-full mb-6 rounded-2xl bg-white shadow-sm overflow-hidden">
+                    //         <div class="stat p-5">
+                    //             <div class="stat-title text-[10px] font-black uppercase text-primary">Nama Dokumen Digital</div>
+                    //             <div class="stat-value text-lg text-slate-800 uppercase font-black">${res.data.nama_berkas_umum}</div>
+                    //             <div class="stat-desc mt-2 flex items-center gap-4">
+                    //                 <span class="badge badge-ghost font-bold text-[10px] px-3">RAK: ${res.data.penyimpanan_rak || '-'}</span>
+                    //                 <span class="text-[10px] font-bold opacity-50 uppercase tracking-tighter">PIC: ${res.data.pic || '-'}</span>
+                    //             </div>
+                    //         </div>
+                    //     </div>
+                    //     <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 mb-6 group">
+                    //         <p class="text-[10px] font-black text-blue-600 uppercase mb-3 italic">Tambah File Baru:</p>
+                    //         <form id="form_append_file" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-3">
+                    //             <input type="hidden" name="id_berkas_umum" value="${res.data.id_berkas_umum}">
+                    //             <input type="file" name="files[]" multiple class="file-input file-input-bordered file-input-sm flex-1 bg-white rounded-lg font-bold" id="input_append" required>
+                    //             <button type="button" id="btn_append" onclick="appendFile()" class="btn btn-sm btn-primary px-6 uppercase font-black italic text-white shadow-lg shadow-blue-200">Upload</button>
+                    //         </form>
+                    //     </div>`;
+                    // }
                     // Render Sumber Lainnya (NONLIT, ASING, dll) di sini...
 
                     document.getElementById('detail_content').innerHTML = html;
