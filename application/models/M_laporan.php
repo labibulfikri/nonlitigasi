@@ -121,72 +121,71 @@ class M_laporan extends CI_Model
     //     $query = $this->db->get();
     //     return $this->db->count_all_results();
     // }
+var $table = 'nonlits';
+    var $column_order = array(null, 'permohonan_nonlit', 'pic', 'tgl_nonlit', 'jenis', 'status');
+    var $column_search = array('permohonan_nonlit', 'pic', 'team_nonlit');
 
-    function make_query($status, $bidang, $pic, $team, $tahun, $permohonan_nonlit)
-    {
-        // Gunakan alias agar query lebih bersih
-        $this->db->select('n.*, u.username, p.nama_pic');
-        $this->db->from('nonlits as n');
-
-        // Join ke users dan master_pic
-        $this->db->join('users as u', 'u.id = n.updated_by', 'left');
-        $this->db->join('master_pic as p', 'p.id = n.id_pic', 'left'); // JOIN ke master_pic
+    private function _get_datatables_query() {
+        $this->db->from($this->table);
 
         // Filter Tahun
-        if (!empty($tahun)) {
-            $this->db->where('YEAR(n.tgl_nonlit)', $tahun);
+        $tahun = $this->input->post('tahun');
+        if ($tahun && $tahun != 'all') {
+            $this->db->where('YEAR(tgl_nonlit)', $tahun);
         }
 
         // Filter Status
-        if (!empty($status)) {
-            $this->db->where('n.status', $status);
-        }
-
-        // Filter Bidang
-        if (!empty($bidang)) {
-            $this->db->where('n.bidang', $bidang);
-        }
-
-        // Filter PIC (Sekarang menggunakan ID)
-        if (!empty($pic)) {
-            $this->db->where('n.id_pic', $pic);
-        }
-
-        // Filter Permohonan (Gunakan LIKE agar lebih fleksibel)
-        if (!empty($permohonan_nonlit)) {
-            $this->db->like('n.permohonan_nonlit', $permohonan_nonlit);
+        $status = $this->input->post('status');
+        if ($status) {
+            $this->db->where('status', $status);
         }
 
         // Filter Team
-        if (!empty($team)) {
-            $this->db->where('n.team_nonlit', $team);
+        $team = $this->input->post('team');
+        if ($team) {
+            $this->db->where('team_nonlit', $team);
         }
 
-        // Pencarian Global (Search Box DataTables)
-        if (!empty($_POST['search']['value'])) {
-            $search = $_POST['search']['value'];
-            $this->db->group_start();
-            $this->db->like('n.permohonan_nonlit', $search);
-            $this->db->or_like('n.register_baru', $search);
-            $this->db->or_like('p.nama_pic', $search); // Cari berdasarkan nama PIC
-            $this->db->or_like('n.team_nonlit', $search);
-            $this->db->group_end();
+        // Filter PIC
+        $pic = $this->input->post('pic');
+        if ($pic) {
+            $this->db->where('pic', $pic); 
         }
 
-        // Order By (Default terbaru)
-        $this->db->order_by('n.id', 'desc');
+        // Filter Search Text (Permohonan)
+        $permohonan = $this->input->post('permohonan_nonlit');
+        if ($permohonan) {
+            $this->db->like('permohonan_nonlit', $permohonan);
+        }
+
+        if (isset($_POST['order'])) {
+            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else {
+            $this->db->order_by('id', 'DESC');
+        }
     }
 
-    // Perbaikan get_all_data agar tidak berat
-    function get_all_data()
-    {
-        return $this->db->count_all("nonlits");
+    public function get_datatables() {
+        $this->_get_datatables_query();
+        if ($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        return $this->db->get()->result();
     }
 
-    function get_filtered_data($status, $bidang, $pic, $team, $tahun, $permohonan_nonlit)
-    {
-        $this->make_query($status, $bidang, $pic, $team, $tahun, $permohonan_nonlit);
-        $query = $this->db->get();
-        return $query->num_rows();
+    public function count_filtered() {
+        $this->_get_datatables_query();
+        return $this->db->get()->num_rows();
     }
+
+    public function count_all() {
+        return $this->db->count_all_results($this->table);
+    }
+
+    public function get_list_pic() {
+    $this->db->select('DISTINCT(pic) as nama_pic');
+    $this->db->from('nonlits');
+    $this->db->where('pic !=', '');
+    $this->db->order_by('pic', 'ASC');
+    return $this->db->get()->result();
+}
 }

@@ -1,4 +1,11 @@
+   
+            <a href="<?= base_url('nonlit') ?>" 
+               class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
+               title="Kembali ke Daftar">
+                <i class="mdi mdi-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
+            </a>
 <div class="container mx-auto p-4 mb-20 text-base-content">
+     
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
         <div class="lg:col-span-8 card bg-base-100 shadow-xl border border-base-300">
             <div class="card-body p-4">
@@ -286,7 +293,7 @@
         // Handle Iframe Preview
         const iframe = $('#edit_berkas');
         if (d.berkas) {
-            iframe.attr('src', "<?= base_url() ?>assets/berkas_nonlit/" + d.berkas).show();
+            iframe.attr('src', "<?= base_url() ?>assets/berkas_lampiran/" + d.berkas).show();
         } else {
             iframe.hide();
         }

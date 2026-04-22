@@ -50,52 +50,7 @@
             </div>
         </div>
     </div>
-
-    <!-- <div class="space-y-12 animate-fade-in p-4 lg:p-6 bg-[#fcfcfd]">
-
-        <div class="hero min-h-[350px] rounded-[3rem] bg-white border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] overflow-hidden relative">
-            <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#2563eb 0.5px, transparent 0.5px); background-size: 24px 24px;"></div>
-
-            <div class="hero-content flex-col lg:flex-row-reverse p-10 lg:p-20 gap-16 relative z-10 w-full max-w-none justify-between">
-                <div class="flex-1 flex justify-center lg:justify-end">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-blue-500/10 blur-[80px] rounded-full"></div>
-                        <img src="<?php echo base_url('assets/bpkad_ikon.png') ?>"
-                            class="max-w-[150px] md:max-w-[280px] relative drop-shadow-sm transition-all duration-700 hover:scale-105" />
-                    </div>
-                </div>
-
-                <div class="flex-1 text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 mb-8">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                        </span>
-                        <span class="text-[9px] font-bold tracking-[0.2em] uppercase">Official Control Panel</span>
-                    </div>
-
-                    <h1 class="text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1] mb-8 tracking-tighter">
-                        Manajemen <br />
-                        <span class="text-blue-600 italic">Non-Litigasi</span>
-                    </h1>
-
-                    <p class="text-slate-500 text-base lg:text-xl max-w-xl leading-relaxed font-medium">
-                        Pusat kendali data bantuan hukum dan penyelesaian sengketa BMD <br class="hidden lg:block"> Pemerintah Kota Surabaya.
-                    </p>
-
-                    <div class="mt-10 flex flex-wrap justify-center lg:justify-start gap-4">
-                        <button class="btn btn-primary bg-blue-600 border-none px-8 rounded-2xl normal-case font-bold text-white shadow-lg shadow-blue-200 hover:bg-blue-700">
-                            Mulai Analisis
-                        </button>
-                        <button class="btn btn-ghost text-slate-400 normal-case font-bold hover:bg-slate-50 rounded-2xl">
-                            Pelajari Sistem
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
+ 
     <div class="card bg-white/90 backdrop-blur-2xl shadow-2xl border border-slate-200 -mt-12 mx-4 lg:mx-12 relative z-20 rounded-3xl transition-all hover:shadow-blue-500/10">
         <div class="card-body p-8">
             <div class="flex flex-col md:flex-row gap-6 items-end text-slate-700">

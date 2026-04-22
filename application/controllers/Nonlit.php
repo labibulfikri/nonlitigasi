@@ -56,50 +56,48 @@ class Nonlit extends CI_Controller
     }
 
 
-    function fetch_nonlit()
+    public function fetch_nonlit()
     {
-        // 1. Cek Keamanan
-        cek_csrf();
+        cek_csrf(); // Jika Anda menggunakan fungsi keamanan
 
-        // 2. Ambil data dari model (tetap gunakan fungsi yang sudah ada)
-        $fetch_data = $this->m_nonlit->make_datatables();
+    // --- TANGKAP VARIABEL DARI DATATABLES/AJAX POST ---
+    $search = $this->input->post('search')['value'] ?? '';
+    $start  = $this->input->post('start') ?? 0;
+    $length = $this->input->post('length') ?? 10;
 
-        $data = array();
-        $no = $_POST['start'] ?? 0;
+    // --- KIRIM VARIABEL KE MODEL (Baris 67) ---
+    $fetch_data = $this->m_nonlit->make_datatables($search, $start, $length);
+    
+    $stats = $this->m_nonlit->get_count_by_jenis($search);
+    
+    $data = array();
+    $no = $start;
 
-        foreach ($fetch_data as $row) {
-            $no++;
-            $sub_array = array();
+    foreach ($fetch_data as $row) {
+        $no++;
+        $sub_array = array();
+        $sub_array['no']                = $no;
+        $sub_array['id']                = $row->id;
+        $sub_array['jenis']             = $row->jenis;
+        $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit));
+        $sub_array['pic']               = $row->pic ?: 'N/A';
+        $sub_array['tgl_nonlit']        = date('d-m-Y', strtotime($row->tgl_nonlit));
+        $sub_array['status']            = strtolower($row->status);
+       $sub_array['penyimpanan_rak'] = strtoupper($row->penyimpanan_rak ?: '-');
+        // ... (lanjutkan field lainnya seperti sebelumnya)
+        $data[] = $sub_array;
+    }
 
-            // Kirim data mentah (gunakan strip_tags agar tidak ada <strong> atau <p>)
-            $sub_array['no']                = $no;
-            $sub_array['id']                = $row->id;
-            $sub_array['register_baru']     = $row->register_baru;
-            $sub_array['alamat']     = $row->alamat;
-            $sub_array['kesimpulan']     = $row->kesimpulan;
-            $sub_array['tgl_nonlit'] = date('d-m-Y', strtotime($row->tgl_nonlit)); // Untuk tampilan di Card
-            $sub_array['tgl_nonlit_raw'] = date('Y-m-d', strtotime($row->tgl_nonlit)); // UNTUK INPUT MODAL
-            $sub_array['bidang']            = $row->bidang;
-            $sub_array['luas']            = $row->luas;
-            $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit)); // Paksa Uppercase biar tegas
-            $sub_array['pic'] = $row->pic ?: 'N/A';
-            $sub_array['penyimpanan_rak'] = $row->penyimpanan_rak ?: 'BELUM DIATUR';
-            $sub_array['status']            = strtolower($row->status);
-            $sub_array['team_nonlit']       = $row->team_nonlit;
-            $sub_array['keterangan']        = strip_tags($row->keterangan ?? '');
+    $output = array(
+        "draw"            => intval($this->input->post("draw")),
+        "recordsTotal"    => $this->m_nonlit->get_all_data(),
+        "recordsFiltered" => $this->m_nonlit->get_filtered_data($search), // --- KIRIM SEARCH KE SINI (Baris 96) ---
+        "data"            => $data,
+        "stats"           => $stats
+    );
 
-            $data[] = $sub_array;
-        }
-
-        $output = array(
-            "draw"            => intval($_POST["draw"]),
-            "recordsTotal"    => $this->m_nonlit->get_all_data(),
-            "recordsFiltered" => $this->m_nonlit->get_filtered_data(),
-            "data"            => $data,
-        );
-
-        header('Content-Type: application/json');
-        echo json_encode($output);
+    header('Content-Type: application/json');
+    echo json_encode($output);
     }
 
 
@@ -107,17 +105,18 @@ class Nonlit extends CI_Controller
     function tambah_data_nonlit()
     {
 
-        $this->form_validation->set_rules('permohonan_nonlit', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('tgl_nonlit', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('team_nonlit', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('status', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('bidang', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('keterangan', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('register_baru', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('luas', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('pic', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('penyimpanan_rak', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('alamat', 'Harus Di Isi', 'required');
+        $this->form_validation->set_rules('permohonan_nonlit', 'Permohonan Non-Litigasi Harus Di Isi', 'required');
+        $this->form_validation->set_rules('tgl_nonlit', 'Tanggal Non-Litigasi Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('team_nonlit', 'Team Non-Litigasi Harus Di Isi', 'required');
+        $this->form_validation->set_rules('status', 'Status Harus Di Isi', 'required');
+        $this->form_validation->set_rules('bidang', 'Bidang Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('keterangan', 'Keterangan Harus Di Isi', 'required');
+        $this->form_validation->set_rules('register_baru', 'Nomor Register Baru Harus Di Isi', 'required');
+        $this->form_validation->set_rules('luas', 'Luas Harus Di Isi', 'required');
+        $this->form_validation->set_rules('pic', 'Pic Harus Di Isi', 'required');
+        $this->form_validation->set_rules('penyimpanan_rak', 'Penyimpanan Rak Harus Di Isi', 'required');
+        $this->form_validation->set_rules('alamat', 'Alamat Harus Di Isi', 'required');
+        $this->form_validation->set_rules('jenis', 'Jenis Harus Di Isi', 'required');
         // // echo "<script type='text/javascript'>
         // //     alert(' Harus di isi semua field ');
         // //     window.location.href ='" . base_url('nonlit') . "';
@@ -131,6 +130,7 @@ class Nonlit extends CI_Controller
             $data = array(
                 'permohonan_nonlit' => $this->input->post('permohonan_nonlit', TRUE),
                 // 'token' => $this->input->post('token', TRUE),
+                'jenis' => $this->input->post('jenis', TRUE),
                 'bidang' => $this->input->post('bidang', TRUE),
                 'status' => $this->input->post('status', TRUE),
                 'keterangan' => $this->input->post('keterangan', TRUE),
@@ -143,7 +143,6 @@ class Nonlit extends CI_Controller
                 'id_pic' => $this->input->post('id_pic', TRUE),
                 'penyimpanan_rak' => $this->input->post('penyimpanan_rak', TRUE),
             );
-
 
 
             $exe = $this->m_nonlit->insertdata($data);
@@ -159,16 +158,16 @@ class Nonlit extends CI_Controller
     {
 
         $this->form_validation->set_rules('id', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('permohonan_nonlit', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('tgl_nonlit', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('team_nonlit', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('bidang', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('status', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('register_baru', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('pic', 'Harus Di Isi', 'required');
-        // $this->form_validation->set_rules('alamat', 'Harus Di Isi', 'required');
-        // $this->form_validation->set_rules('luas', 'Harus Di Isi', 'required');
-        $this->form_validation->set_rules('penyimpanan_rak', 'Harus Di Isi', 'required');
+        $this->form_validation->set_rules('permohonan_nonlit', ' Permohonan Non-Litigasi Harus Di Isi', 'required');
+        $this->form_validation->set_rules('tgl_nonlit', 'Tanggal Non-Litigasi Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('team_nonlit', 'Team Non-Litigasi Harus Di Isi', 'required');
+        $this->form_validation->set_rules('bidang', 'Bidang Harus Di Isi', 'required');
+        $this->form_validation->set_rules('status', 'Status Harus Di Isi', 'required');
+        $this->form_validation->set_rules('register_baru', 'Nomor Register Baru Harus Di Isi', 'required');
+        $this->form_validation->set_rules('pic', 'PIC Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('alamat', 'Alamat Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('luas', 'Luas Harus Di Isi', 'required');
+        $this->form_validation->set_rules('penyimpanan_rak', 'Penyimpanan Rak Harus Di Isi', 'required');
 
 
         if ($this->form_validation->run() == FALSE) {
@@ -186,6 +185,7 @@ class Nonlit extends CI_Controller
             $tgl_nonlit = $this->input->post('tgl_nonlit', TRUE);
             $team_nonlit = $this->input->post('team_nonlit', TRUE);
             $bidang = $this->input->post('bidang', TRUE);
+            $jenis = $this->input->post('jenis', TRUE);
             $status = $this->input->post('status', TRUE);
             $register_baru = $this->input->post('register_baru', TRUE);
             $keterangan = $this->input->post('keterangan', TRUE);
@@ -212,6 +212,7 @@ class Nonlit extends CI_Controller
                 "alamat" => $alamat,
                 "penyimpanan_rak" => $penyimpanan_rak,
                 "luas" => $luas,
+                "jenis" => $jenis,
                 "team_nonlit" => $team_nonlit,
                 "updated_at" => $updated_at,
                 "updated_by" => $updated_by
@@ -957,4 +958,45 @@ class Nonlit extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($response, JSON_PRETTY_PRINT));
     }
+
+
+
+    public function generate_share_link()
+{
+    // Validasi CSRF manual jika Anda tidak menggunakan sistem otomatis CI
+    $token_post = $this->input->post('token');
+    if ($token_post !== $this->session->userdata('csrf_token')) {
+        echo json_encode(['status' => false, 'msg' => 'Invalid CSRF Token']);
+        return;
+    }
+
+    $id_data = $this->input->post('id_data');
+    $sumber  = $this->input->post('sumber'); // e.g., 'nonlit'
+    $durasi  = 24; // Default 24 jam, atau ambil dari post jika ada
+
+    $token_publik = bin2hex(random_bytes(32));
+    $expired = date('Y-m-d H:i:s', strtotime("+$durasi hours"));
+
+    $insert = $this->db->insert('share_links', [
+        'sumber'     => $sumber,
+        'id_data'    => $id_data,
+        'token'      => $token_publik,
+        'expired_at' => $expired
+    ]);
+
+    if ($insert) {
+        // Regenerasi CSRF Token agar bisa digunakan untuk request berikutnya
+        $new_csrf = hash('sha1', time() . mt_rand());
+        $this->session->set_userdata('csrf_token', $new_csrf);
+
+        echo json_encode([
+            'status'    => true,
+            'url'       => base_url("public_access/view/$token_publik"),
+            'expired'   => date('d M Y, H:i', strtotime($expired)) . ' WIB',
+            'new_token' => $new_csrf
+        ]);
+    } else {
+        echo json_encode(['status' => false, 'msg' => 'Gagal membuat link']);
+    }
+}
 }

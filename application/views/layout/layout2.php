@@ -162,9 +162,9 @@
                                 <span class="sidebar-text font-bold text-sm ml-1">Data Perkara</span>
                             </summary>
                             <ul>
-                                <li><a href="<?= base_url('nonlit') ?>" class="<?= $this->uri->segment(1) == 'nonlit' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Nonlit</a></li>
-                                <li><a href="<?= base_url('laporan_polisi') ?>" class="<?= $this->uri->segment(1) == 'laporan_polisi' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Laporan Polisi</a></li>
-                                <li><a href="<?= base_url('masalah') ?>" class="<?= $this->uri->segment(1) == 'masalah' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Permasalahan</a></li>
+                                <li><a href="<?= base_url('nonlit') ?>" class="<?= $this->uri->segment(1) == 'nonlit' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Permasalahan</a></li>
+                                <!-- <li><a href="<?= base_url('laporan_polisi') ?>" class="<?= $this->uri->segment(1) == 'laporan_polisi' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Laporan Polisi</a></li>
+                                <li><a href="<?= base_url('masalah') ?>" class="<?= $this->uri->segment(1) == 'masalah' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Permasalahan</a></li> -->
                                 <li><a href="<?= base_url('berkas_umum') ?>" class="<?= $this->uri->segment(1) == 'berkas_umum' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Berkas Umum</a></li>
                             </ul>
                         </details>
@@ -185,8 +185,8 @@
                             </summary>
                             <ul>
                                 <li><a href="<?= base_url('laporan') ?>">Laporan Nonlit</a></li>
-                                <li><a href="<?= base_url('report_lp') ?>">Laporan Polisi</a></li>
-                                <li><a href="<?= base_url('report_masalah') ?>">Laporan Masalah</a></li>
+                                <!-- <li><a href="<?= base_url('report_lp') ?>">Laporan Polisi</a></li>
+                                <li><a href="<?= base_url('report_masalah') ?>">Laporan Masalah</a></li> -->
                             </ul>
                         </details>
                     </li>

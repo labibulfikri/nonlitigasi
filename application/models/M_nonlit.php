@@ -8,7 +8,9 @@ class M_nonlit extends CI_Model
     {
         parent::__construct();
     }
-
+    var $table = 'nonlits'; // Sesuaikan nama tabel Anda
+    var $column_order  = array(null, 'permohonan_nonlit', 'pic', 'tgl_nonlit', 'status');
+    var $column_search = array('permohonan_nonlit', 'alamat', 'pic', 'register_baru');
 
     //     function make_query()
     // {
@@ -80,6 +82,51 @@ class M_nonlit extends CI_Model
     //     // Order Default
     //     $this->db->order_by('nonlits.id', 'desc');
     // }
+
+    private function _get_datatables_query($search = "")
+    {
+        $this->db->from($this->table);
+
+        if (!empty($search)) {
+            $i = 0;
+            foreach ($this->column_search as $item) {
+                if ($i === 0) {
+                    $this->db->group_start();
+                    $this->db->like($item, $search);
+                } else {
+                    $this->db->or_like($item, $search);
+                }
+                if (count($this->column_search) - 1 == $i) $this->db->group_end();
+                $i++;
+            }
+        }
+        $this->db->order_by('id', 'DESC');
+    }
+    public function get_count_by_jenis($search = "")
+    {
+        $table = "nonlits";
+        $this->db->select('jenis, COUNT(*) as jumlah');
+        $this->db->from($table);
+
+        if ($search) {
+            $this->db->group_start();
+            $this->db->like('permohonan_nonlit', $search);
+            $this->db->or_like('alamat', $search);
+            $this->db->group_end();
+        }
+
+        $this->db->group_by('jenis');
+        $result = $this->db->get()->result();
+
+        // Format agar mudah dibaca JS
+        $counts = ['nonlit' => 0, 'laporan_polisi' => 0, 'permasalahan' => 0, 'data_umum' => 0];
+        foreach ($result as $row) {
+            if (isset($counts[$row->jenis])) {
+                $counts[$row->jenis] = (int)$row->jumlah;
+            }
+        }
+        return $counts;
+    }
     function make_query()
     {
         $table = "nonlits";
@@ -152,60 +199,22 @@ class M_nonlit extends CI_Model
         $this->db->order_by('nonlits.id', 'desc');
     }
 
-    function make_datatables()
+    function make_datatables($search, $start, $length)
     {
 
-        $this->make_query();
-
-        if ($_POST["length"] != -1) {
-            $this->db->limit($_POST['length'], $_POST['start']);
-        }
-        $query = $this->db->get();
-        // $a = $this->db->last_query($query);
-        // print_r($a);
-        // exit();
-        return $query->result();
+        $this->_get_datatables_query($search);
+        if ($length != -1) $this->db->limit($length, $start);
+        return $this->db->get()->result();
     }
 
-    function get_filtered_data()
+    function get_filtered_data($search)
     {
-        $this->make_query();
-        $i = 0;
-        $column_search = array('team_nonlit', 'permohonan_nonlit', 'status', 'keterangan', 'tgl_nonlit', 'register_baru', 'penyimpanan_rak');
-        foreach ($column_search as $item) // loop column 
-        {
-            if (@$_POST['search']['value']) // if datatable send POST for search
-            {
-
-                if ($i === 0) // first loop
-                {
-                    $this->db->group_start(); // open bracket. query Where with OR clause better with bracket. because maybe can combine with other WHERE with AND.
-                    $this->db->group_by('id');
-                    // $this->db->group_by('m_aset_baru.id_aset');
-
-                    $this->db->order_by('id', 'asc');
-                    $this->db->like($item, $_POST['search']['value']);
-                } else {
-
-                    $this->db->or_like($item, $_POST['search']['value']);
-                }
-
-                if (count($column_search) - 1 == $i) //last loop 
-                    $this->db->group_end(); //close bracket
-            }
-            $i++;
-        }
-        $query = $this->db->get();
-
-
-
-        return $query->num_rows();
+        $this->_get_datatables_query($search);
+        return $this->db->get()->num_rows();
     }
     function get_all_data()
     {
-        $this->make_query();
-        $query = $this->db->get();
-        return $this->db->count_all_results();
+        return $this->db->count_all_results($this->table);
     }
 
 
