@@ -128,7 +128,7 @@
                                     if($sumber === 'ASING') {
                                         $filePath = 'assets/upload/'; // Sesuaikan folder t_upload anda
                                     } elseif($sumber === 'NONLIT') {
-                                        $filePath = 'assets/berkas_nonlit/';
+                                        $filePath = 'assets/berkas_lampiran/';
                                     } else {
                                         $filePath = 'assets/upload/';
                                     }
