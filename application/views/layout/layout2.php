@@ -165,7 +165,7 @@
                                 <li><a href="<?= base_url('nonlit') ?>" class="<?= $this->uri->segment(1) == 'nonlit' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Permasalahan</a></li>
                                 <!-- <li><a href="<?= base_url('laporan_polisi') ?>" class="<?= $this->uri->segment(1) == 'laporan_polisi' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Laporan Polisi</a></li>
                                 <li><a href="<?= base_url('masalah') ?>" class="<?= $this->uri->segment(1) == 'masalah' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Permasalahan</a></li> -->
-                                <li><a href="<?= base_url('berkas_umum') ?>" class="<?= $this->uri->segment(1) == 'berkas_umum' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Berkas Umum</a></li>
+                                <!-- <li><a href="<?= base_url('berkas_umum') ?>" class="<?= $this->uri->segment(1) == 'berkas_umum' ? 'text-amber-600 bg-amber-50/50' : '' ?>">Berkas Umum</a></li> -->
                             </ul>
                         </details>
                     </li>
