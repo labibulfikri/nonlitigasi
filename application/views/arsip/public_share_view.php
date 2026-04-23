@@ -98,7 +98,7 @@
                                         </div>
                                         <?php if ($sumber === 'NONLIT' && !empty($det->berkas)): ?>
                                             <div class="flex justify-end mt-4">
-                                                <a href="<?= base_url('assets/berkas_lampiran/' . $det->berkas) ?>" target="_blank" 
+                                                <a href="<?= base_url('assets/berkas_nonlit/' . $det->berkas) ?>" target="_blank" 
                                                    class="btn btn-xs btn-primary rounded-lg px-4 font-black italic uppercase">
                                                     <i class="mdi mdi-download mr-1 text-sm"></i> Berkas Rapat
                                                 </a>
