@@ -433,7 +433,7 @@
          const cfg = getJenisConfig(item.jenis);
     const isSelesai = item.status.toLowerCase() === 'selesai';
     
-    return `
+    return `  
     <div class="group bg-white rounded-[2.5rem] border border-slate-200 p-1 flex flex-col hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 relative">
         <div class="p-5 flex flex-col h-full">
             <div class="flex justify-between items-start mb-6">
@@ -448,12 +448,15 @@
                 </div>
             </div>
 
+            <a href="<?php echo base_url('nonlit/detail/'.'${item.id}')?>">
             <div class="mb-6">
                 <p class="text-[9px] font-black ${cfg.color} uppercase tracking-[0.2em] mb-1">${cfg.label}</p>
                 <h4 class="font-black text-slate-800 text-sm uppercase leading-tight line-clamp-3 min-h-[3rem] italic group-hover:text-blue-600 transition-colors">
-                    ${item.permohonan_nonlit}
+                    ${item.permohonan_nonlit} 
                 </h4>
             </div>
+            </a>
+
 
             <div class="bg-slate-50 rounded-2xl p-3 flex flex-col gap-2 border border-slate-50">
                 <div class="flex items-center justify-between">
@@ -465,8 +468,7 @@
                     <span class="text-[10px] font-black text-purple-600 uppercase italic">RAK ${item.penyimpanan_rak || '-'}</span>
                 </div>
             </div>
-        </div>
-
+        </div> 
         <div class="mt-auto bg-slate-900 rounded-b-[2.4rem] p-4 flex justify-between items-center mx-[1px] mb-[1px]">
             <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full ${isSelesai ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400 animate-pulse'}"></div>
@@ -474,8 +476,8 @@
             </div>
             <span class="text-[9px] font-black text-slate-500 uppercase tracking-tighter">#${item.id}</span>
         </div>
-    </div>`;
-     }
+        </div> 
+     `;}
 
      // --- 5. FUNGSI DROPDOWN AKSI ---
      function renderActionMenu(item) {
@@ -667,141 +669,9 @@ var sumber="";
              $('#count-umum').text(umum);
          }
 
-         function renderListView(item) {
-             const cfg = getJenisConfig(item.jenis);
+          
 
-             // TARUH DI SINI
-             const actionMenu = `
-    <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-sm btn-circle text-slate-400 hover:bg-slate-100">
-            <i class="mdi mdi-dots-vertical text-xl"></i>
-        </label>
-        <ul tabindex="0" class="dropdown-content z-[50] menu p-2 shadow-2xl bg-base-100 rounded-2xl w-52 border border-slate-100 text-[11px] font-bold uppercase tracking-tighter">
-            <li>
-                <a href="<?= base_url('nonlit/detail/') ?>${item.id}" class="py-3">
-                    <i class="mdi mdi-eye-outline text-blue-500 text-lg"></i> Lihat Detail
-                </a>
-            </li>
-            <li>
-                <button onclick="shareFolder(${item.id})" class="py-3 text-indigo-600">
-                    <i class="mdi mdi-share-variant text-lg"></i> Bagikan Link
-                </button>
-            </li>
-            <li>
-                <a href="<?= base_url('peta/edit/') ?>${item.id}" class="py-3 text-emerald-600">
-                    <i class="mdi mdi-map-marker-path text-lg"></i> Edit Area Peta
-                </a>
-            </li>
-            <li>
-                <button onclick="editData(${item.id})" class="py-3 text-amber-500">
-                    <i class="mdi mdi-pencil-outline text-lg"></i> Update Data
-                </button>
-            </li>
-            <li>
-                <button onclick="cetak_label_nonlit('${item.penyimpanan_rak}', '${item.permohonan_nonlit}', '${item.alamat}')" class="py-3 text-slate-600">
-                    <i class="mdi mdi-printer-outline text-lg"></i> Cetak Label
-                </button>
-            </li>
-            <div class="divider my-0 opacity-50"></div>
-            <li>
-                <button onclick="hapusData(${item.id})" class="py-3 text-red-500">
-                    <i class="mdi mdi-trash-can-outline text-lg"></i> Hapus Permanen
-                </button>
-            </li>
-        </ul>
-    </div>`;
-
-             return `
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 mb-2 flex items-center justify-between group hover:border-blue-400 transition-all shadow-sm">
-        <div class="flex items-center gap-4 flex-grow truncate">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center ${cfg.bg} ${cfg.color} shrink-0">
-                <i class="mdi ${cfg.icon} text-xl"></i>
-            </div>
-            <div class="truncate">
-                <h4 class="font-black text-slate-700 text-sm uppercase truncate tracking-tight">${item.permohonan_nonlit}</h4>
-                <p class="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-0.5 italic">
-                    PIC: ${item.pic} • ${item.tgl_nonlit}
-                </p>
-            </div>
-        </div>
-        
-        <div class="ml-4">
-            ${actionMenu}
-        </div>
-    </div>`;
-         }
-
-
-
-
-
-         function renderGridView(item) {
-             const cfg = getJenisConfig(item.jenis);
-             return `
-    <div class="bg-white rounded-[2.5rem] border border-slate-200 p-6 flex flex-col hover:shadow-xl hover:border-blue-200 transition-all group relative">
-        <div class="absolute left-0 top-0 bottom-0 w-1 ${cfg.hex}"></div>
-        <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 rounded-2xl ${cfg.bg} ${cfg.color} flex items-center justify-center shadow-sm">
-                <i class="mdi ${cfg.icon} text-2xl"></i>
-            </div>
-
-            <div class="dropdown dropdown-left dropdown-end">
-                <label tabindex="0" class="btn btn-ghost btn-sm btn-circle text-slate-400 focus:bg-slate-100">
-                    <i class="mdi mdi-dots-vertical text-xl"></i>
-                </label>
-                <ul tabindex="0" class="dropdown-content z-[999] menu p-2 shadow-2xl bg-base-100 rounded-2xl w-52 border border-slate-100 text-[10px] font-black uppercase tracking-tight">
-                    <li><a href="<?= base_url('nonlit/detail/') ?>${item.id}" class="py-3"><i class="mdi mdi-eye text-blue-500 text-lg"></i> Detail</a></li>
-                    <li><button onclick="shareFolder(${item.id})" class="py-3 text-indigo-600"><i class="mdi mdi-share-variant text-lg"></i> Bagikan Link</button></li>
-                    <li><a href="<?= base_url('peta/edit/') ?>${item.id}" class="py-3 text-emerald-600"><i class="mdi mdi-map-marker-path text-lg"></i> Edit Peta</a></li>
-                    <li><button onclick="editData(${item.id})" class="py-3 text-amber-500"><i class="mdi mdi-pencil-outline text-lg"></i> Update Data</button></li>
-                    <li><button onclick="cetak_label_nonlit('${item.penyimpanan_rak}', '${item.permohonan_nonlit}', '${item.alamat}')" class="py-3 text-slate-600"><i class="mdi mdi-printer-outline text-lg"></i> Cetak Label</button></li>
-                    <div class="divider my-0 opacity-50"></div>
-                    <li><button onclick="hapusData(${item.id})" class="py-3 text-red-500"><i class="mdi mdi-trash-can-outline text-lg"></i> Hapus</button></li>
-                </ul>
-            </div>
-        </div>
-
-        <h4 class="font-black text-slate-800 text-xs uppercase leading-tight mb-4 h-8 line-clamp-2">${item.permohonan_nonlit}</h4>
-        
-        <div class="mt-auto pt-4 border-t border-slate-50 flex justify-between items-center text-[9px] font-black text-slate-400 uppercase italic">
-            <span class="truncate"><i class="mdi mdi-account"></i> ${item.pic}</span>
-            <span class="shrink-0 ml-2">${item.tgl_nonlit}</span>
-        </div>
-    </div>`;
-         }
-
-         function renderDropdown(item) {
-             return `
-    <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-sm btn-circle text-slate-400"><i class="mdi mdi-dots-vertical text-xl"></i></label>
-        <ul tabindex="0" class="dropdown-content z-[50] menu p-2 shadow-2xl bg-base-100 rounded-2xl w-52 border border-slate-100 text-[10px] font-black uppercase">
-            <li><a href="<?= base_url('nonlit/detail/') ?>${item.id}"><i class="mdi mdi-eye text-blue-500 text-lg"></i> Detail</a></li>
-            <li><button onclick="shareFolder(${item.id})"><i class="mdi mdi-share-variant text-indigo-500 text-lg"></i> Bagikan</button></li>
-            <li><a href="<?= base_url('peta/edit/') ?>${item.id}"><i class="mdi mdi-map-marker text-emerald-500 text-lg"></i> Peta</a></li>
-            <li><button onclick="editData(${item.id})"><i class="mdi mdi-pencil text-amber-500 text-lg"></i> Edit</button></li>
-            <div class="divider my-1"></div>
-            <li><button onclick="hapusData(${item.id})" class="text-red-500"><i class="mdi mdi-trash-can text-lg"></i> Hapus</button></li>
-        </ul>
-    </div>`;
-         }
-
-
-         // Fungsi Render Pagination Manual
-         function renderPagination(totalRecords, currentPage, search) {
-             const totalPages = Math.ceil(totalRecords / 10);
-             let html = '<div class="join shadow-sm border border-slate-200 bg-white p-1 rounded-2xl">';
-
-             if (totalPages > 1) {
-                 for (let i = 1; i <= totalPages; i++) {
-                     const activeClass = (i === currentPage) ? 'btn-primary text-white shadow-md' : 'btn-ghost text-slate-500';
-                     html += `<button onclick="loadData(${i}, '${search}')" class="btn btn-sm join-item rounded-xl px-4 ${activeClass}">${i}</button>`;
-                 }
-             }
-             html += '</div>';
-
-             // Pastikan ID ini ada di HTML Anda
-             $('#pagination-container').html(totalPages > 0 ? html : '');
-         }
+ 
          // Event Pencarian
          $('#search-input').on('keyup', function() {
              searchQuery = $(this).val();
