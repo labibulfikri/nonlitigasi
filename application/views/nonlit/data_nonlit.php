@@ -149,6 +149,12 @@
                          <option value="data_umum">DATA UMUM</option>
                      </select>
                  </div>
+
+                     <div class="form-control hidden" id="container_tanggal_tambah">
+                     <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Tanggal Non-Litigasi</span></label>
+                     <input type="date" name="tgl_nonlit" class="input input-bordered bg-slate-50 rounded-xl">
+                 </div>
+
                  <div id="container_instansi" class="form-control col-span-full hidden border-l-4 border-blue-500 bg-blue-50/50 p-4 rounded-r-xl">
                      <label class="label"><span id="label_instansi" class="label-text font-bold text-blue-700 uppercase text-[11px]">Team / Instansi Terkait</span></label>
                      <select name="team_nonlit" id="select_instansi" class="select select-bordered bg-white rounded-xl">
@@ -189,11 +195,7 @@
                      </div>
                  </div>
 
-                 <div class="form-control">
-                     <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Tanggal Non-Litigasi</span></label>
-                     <input type="date" name="tgl_nonlit" class="input input-bordered bg-slate-50 rounded-xl">
-                 </div>
-
+             
                  <div class="form-control">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Nomor Register Baru</span></label>
                      <input type="text" name="register_baru" class="input input-bordered bg-slate-50 rounded-xl" placeholder="Masukkan No. Register">
@@ -308,7 +310,7 @@
                      </div>
                  </div>
 
-                 <div class="form-control">
+                 <div class="form-control hidden" id="container_tanggal_update">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Tanggal</span></label>
                      <input type="date" name="tgl_nonlit" id="edit_tgl_nonlit" class="input input-bordered bg-slate-50 rounded-xl">
                  </div>
@@ -1092,10 +1094,12 @@ function copyLinkOnly(text) {
     const container = $('#container_instansi');
     const selectInstansi = $('#select_instansi');
     const labelInstansi = $('#label_instansi');
-
+const containerTanggal = $('#container_tanggal_tambah');
     selectInstansi.empty();
 
-    if (jenis === 'nonlit') {
+    if (jenis === 'nonlit') { 
+
+    containerTanggal.removeClass('hidden');
         container.removeClass('hidden');
         labelInstansi.text("PILIH KEJAKSAAN (TEAM NON-LITIGASI)");
         selectInstansi.append(`
@@ -1105,6 +1109,7 @@ function copyLinkOnly(text) {
             <option value="kejari_perak">KEJAKSAAN NEGERI TANJUNG PERAK</option>
         `);
     } else if (jenis === 'laporan_polisi') {
+        containerTanggal.removeClass('hidden'); 
         container.removeClass('hidden');
         labelInstansi.text("PILIH KEPOLISIAN (WILAYAH)");
         selectInstansi.append(`
@@ -1113,20 +1118,29 @@ function copyLinkOnly(text) {
             <option value="polrestabes">POLRESTABES SURABAYA</option>
             <option value="polres_perak">POLRES TANJUNG PERAK</option>
         `);
-    } else {
+    }else if (jenis === "permasalahan"){
+        containerTanggal.addClass('hidden');
         container.addClass('hidden');
+
+    }
+     else {
+        container.addClass('hidden');
+     containerTanggal.addClass('hidden');
+        // containerTanggal.classList.add('hidden');
+
     }
 }
      function toggleInstansiUpdate(selectedValue = null) {
+        const containerTanggal = $('#container_tanggal_update');
          const jenis = $('#edit_jenis').val();
-         const container = $('#container_instansi_update');
+         const containerInstansi = $('#container_instansi_update');
          const selectInstansi = $('#edit_team_nonlit');
          const labelInstansi = $('#label_instansi_update');
 
          selectInstansi.empty();
 
          if (jenis === 'nonlit') {
-             container.removeClass('hidden');
+            containerInstansi.removeClass('hidden') 
              labelInstansi.text("PILIH KEJAKSAAN (TEAM NON-LITIGASI)");
              selectInstansi.append(`
             <option value="kejati">KEJAKSAAN TINGGI JAWA TIMUR</option>
@@ -1134,15 +1148,19 @@ function copyLinkOnly(text) {
             <option value="kejari_perak">KEJAKSAAN NEGERI TANJUNG PERAK</option>
         `);
          } else if (jenis === 'laporan_polisi') {
-             container.removeClass('hidden');
+            containerInstansi.removeClass('hidden')  
              labelInstansi.text("PILIH KEPOLISIAN (WILAYAH)");
              selectInstansi.append(`
             <option value="polda">POLDA JAWA TIMUR</option>
             <option value="polrestabes">POLRESTABES SURABAYA</option>
             <option value="polres_perak">POLRES TANJUNG PERAK</option>
         `);
-         } else {
-             container.addClass('hidden');
+         } else if (jenis === "permasalahan"){
+containerInstansi.addClass('hidden')
+         }
+         else {
+            containerTanggal.addClass('hidden');
+            containerInstansi.addClass('hidden')
          }
 
          if (selectedValue) {

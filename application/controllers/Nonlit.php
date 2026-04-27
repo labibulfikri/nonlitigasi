@@ -106,7 +106,7 @@ class Nonlit extends CI_Controller
     {
 
         $this->form_validation->set_rules('permohonan_nonlit', 'Permohonan Non-Litigasi Harus Di Isi', 'required');
-        $this->form_validation->set_rules('tgl_nonlit', 'Tanggal Non-Litigasi Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('tgl_nonlit', 'Tanggal Non-Litigasi Harus Di Isi', 'required');
         // $this->form_validation->set_rules('team_nonlit', 'Team Non-Litigasi Harus Di Isi', 'required');
         $this->form_validation->set_rules('status', 'Status Harus Di Isi', 'required');
         $this->form_validation->set_rules('bidang', 'Bidang Harus Di Isi', 'required');
