@@ -255,6 +255,9 @@
              <input type="hidden" name="id" id="edit_id">
 
              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+
+                
                  <div class="form-control col-span-full">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Jenis Data</span></label>
                      <select name="jenis" id="edit_jenis" class="select select-bordered bg-amber-50 border-amber-200 focus:ring-2 focus:ring-amber-500 rounded-xl font-bold" required onchange="toggleInstansiUpdate()">
@@ -264,7 +267,10 @@
                          <option value="data_umum">DATA UMUM</option>
                      </select>
                  </div>
-
+ <div class="form-control hidden" id="container_tanggal_update">
+                     <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Tanggal</span></label>
+                     <input type="date" name="tgl_nonlit" id="edit_tgl_nonlit" class="input input-bordered bg-slate-50 rounded-xl">
+                 </div>
                  <div id="container_instansi_update" class="form-control col-span-full hidden border-l-4 border-amber-500 bg-amber-50/50 p-4 rounded-r-xl">
                      <label class="label"><span id="label_instansi_update" class="label-text font-bold text-amber-700 uppercase text-[11px]">Team / Instansi Terkait</span></label>
                      <select name="team_nonlit" id="edit_team_nonlit" class="select select-bordered bg-white rounded-xl">
@@ -308,11 +314,6 @@
                          </select>
                          <input type="hidden" id="edit_nama_pic" name="pic" class="input input-bordered bg-slate-50 rounded-xl mt-2 w-full" readonly>
                      </div>
-                 </div>
-
-                 <div class="form-control hidden" id="container_tanggal_update">
-                     <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Tanggal</span></label>
-                     <input type="date" name="tgl_nonlit" id="edit_tgl_nonlit" class="input input-bordered bg-slate-50 rounded-xl">
                  </div>
 
                  <div class="form-control">
@@ -1140,6 +1141,7 @@ const containerTanggal = $('#container_tanggal_tambah');
          selectInstansi.empty();
 
          if (jenis === 'nonlit') {
+            containerTanggal.removeClass('hidden')
             containerInstansi.removeClass('hidden') 
              labelInstansi.text("PILIH KEJAKSAAN (TEAM NON-LITIGASI)");
              selectInstansi.append(`
@@ -1148,6 +1150,7 @@ const containerTanggal = $('#container_tanggal_tambah');
             <option value="kejari_perak">KEJAKSAAN NEGERI TANJUNG PERAK</option>
         `);
          } else if (jenis === 'laporan_polisi') {
+                  containerTanggal.removeClass('hidden')
             containerInstansi.removeClass('hidden')  
              labelInstansi.text("PILIH KEPOLISIAN (WILAYAH)");
              selectInstansi.append(`
@@ -1157,6 +1160,7 @@ const containerTanggal = $('#container_tanggal_tambah');
         `);
          } else if (jenis === "permasalahan"){
 containerInstansi.addClass('hidden')
+      containerTanggal.addClass('hidden')
          }
          else {
             containerTanggal.addClass('hidden');
