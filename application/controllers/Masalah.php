@@ -754,29 +754,29 @@ class Masalah extends CI_Controller
         $safe_keyword = $this->db->escape_like_str($keyword);
 
         // 1. Masalah (5 Kolom: id, judul, info_tambahan, sub, tipe)
-        $this->db->select('id_masalah as id, nama_masalah as judul, penyimpanan_rak as info, alamat_masalah as sub, "masalah" as tipe');
-        $this->db->group_start();
-        $this->db->like('nama_masalah', $safe_keyword);
-        $this->db->or_like('alamat_masalah', $safe_keyword);
-        $this->db->group_end();
-        $query1 = $this->db->get_compiled_select('masalah');
+        // $this->db->select('id_masalah as id, nama_masalah as judul, penyimpanan_rak as info, alamat_masalah as sub, "masalah" as tipe');
+        // $this->db->group_start();
+        // $this->db->like('nama_masalah', $safe_keyword);
+        // $this->db->or_like('alamat_masalah', $safe_keyword);
+        // $this->db->group_end();
+        // $query1 = $this->db->get_compiled_select('masalah');
 
-        // 2. Laporan Polisi (5 Kolom)
-        $this->db->select('id_laporan_polisi as id, nomor_polisi as judul, pelapor as info, judul_laporan_polisi as sub, "lp" as tipe');
-        $this->db->group_start();
-        $this->db->like('nomor_polisi', $safe_keyword);
-        $this->db->or_like('judul_laporan_polisi', $safe_keyword);
-        $this->db->group_end();
-        $query2 = $this->db->get_compiled_select('laporan_polisi');
+        // // 2. Laporan Polisi (5 Kolom)
+        // $this->db->select('id_laporan_polisi as id, nomor_polisi as judul, pelapor as info, judul_laporan_polisi as sub, "lp" as tipe');
+        // $this->db->group_start();
+        // $this->db->like('nomor_polisi', $safe_keyword);
+        // $this->db->or_like('judul_laporan_polisi', $safe_keyword);
+        // $this->db->group_end();
+        // $query2 = $this->db->get_compiled_select('laporan_polisi');
 
-        //3. berka umum (5 Kolom) - Kita geser nama_berkas ke kolom 'info' agar urutan SAMA
-        $this->db->select('id_berkas_umum as id, nama_berkas_umum as judul, keterangan as info, penyimpanan_rak as sub, "berkas" as tipe');
-        $this->db->group_start();
-        $this->db->like('nama_berkas_umum', $safe_keyword);
-        $this->db->or_like('keterangan', $safe_keyword);
-        $this->db->or_like('penyimpanan_rak', $safe_keyword);
-        $this->db->group_end();
-        $query3 = $this->db->get_compiled_select('berkas_umum');
+        // //3. berka umum (5 Kolom) - Kita geser nama_berkas ke kolom 'info' agar urutan SAMA
+        // $this->db->select('id_berkas_umum as id, nama_berkas_umum as judul, keterangan as info, penyimpanan_rak as sub, "berkas" as tipe');
+        // $this->db->group_start();
+        // $this->db->like('nama_berkas_umum', $safe_keyword);
+        // $this->db->or_like('keterangan', $safe_keyword);
+        // $this->db->or_like('penyimpanan_rak', $safe_keyword);
+        // $this->db->group_end();
+        // $query3 = $this->db->get_compiled_select('berkas_umum');
 
         // 4. Nonlits (5 Kolom) - Kita geser register_baru ke kolom 'info' agar urutan SAMA
         $this->db->select('id as id, permohonan_nonlit as judul, register_baru as info, alamat as sub, "nonlit" as tipe');
@@ -796,7 +796,8 @@ class Masalah extends CI_Controller
         $query5 = $this->db->get_compiled_select('db_perkara.t_perkara');
 
         // Eksekusi UNION (Semua sudah 5 kolom dengan urutan: ID, JUDUL, INFO, SUB, TIPE)
-        $sql = "($query1) UNION ($query2) UNION ($query3) UNION ($query4) UNION ($query5) LIMIT 10";
+        // $sql = "($query1) UNION ($query2) UNION ($query3) UNION ($query4) UNION ($query5) LIMIT 10";
+        $sql = "($query4) UNION ($query5) LIMIT 10";
         $all_query = $this->db->query($sql);
 
         if (!$all_query) {
@@ -813,8 +814,8 @@ class Masalah extends CI_Controller
                 $color = 'bg-slate-100 text-slate-600';
                 $link = base_url('masalah/detail/' . $row->id);
 
-                if ($row->tipe == 'lp') $link = base_url('laporan_polisi/detail/' . $row->id);
-                if ($row->tipe == 'berkas') $link = base_url('berkas_umum/detail/' . $row->id);
+                // if ($row->tipe == 'lp') $link = base_url('laporan_polisi/detail/' . $row->id);
+                // if ($row->tipe == 'berkas') $link = base_url('berkas_umum/detail/' . $row->id);
                 if ($row->tipe == 'nonlit') $link = base_url('nonlit/detail/' . $row->id);
                 // if ($row->tipe == 'asing') $link = base_url('perkara_asing/detail/' . $row->id);
                 if ($row->tipe == 'asing') $link = 'https://assistdpbt.surabaya.go.id/asing/perkara/detail_perkara/' . $row->id;

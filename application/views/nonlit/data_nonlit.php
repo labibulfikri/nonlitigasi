@@ -399,18 +399,20 @@
                 </div>
             </div>
 
+            <a href="<?php echo base_url('nonlit/detail/'.'${item.id}') ?>">
             <div class="truncate">
                 <div class="flex items-center gap-2 mb-1">
                     <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${cfg.bg} ${cfg.color} tracking-widest">${cfg.label}</span>
                     <span class="text-[8px] font-bold text-slate-400">ID: #${item.id}</span>
                 </div>
-                <h4 class="font-black text-slate-800 text-sm uppercase truncate group-hover:text-blue-600 transition-colors italic">${item.permohonan_nonlit}</h4>
+                 <h4 class="font-black text-slate-800 text-sm uppercase truncate group-hover:text-blue-600 transition-colors italic">${item.permohonan_nonlit} </h4> 
                 <div class="flex items-center gap-3 mt-1">
                     <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1"><i class="mdi mdi-account-circle-outline text-blue-500"></i> ${item.pic}</span>
                     <span class="text-[10px] font-bold text-slate-400">•</span>
                     <span class="text-[10px] font-bold text-purple-600 flex items-center gap-1 uppercase tracking-tighter"><i class="mdi mdi-archive-outline"></i> RAK: ${item.penyimpanan_rak || '-'}</span>
                 </div>
-            </div>
+                </div>
+                </a>
         </div>
 
         <div class="flex items-center gap-4 shrink-0">
@@ -1224,7 +1226,7 @@ function copyLinkOnly(text) {
         <body>
             <div class="label-strip">
                 <div class="section-status">RAK: ${rak}</div>
-                <div class="section-nopol">${permohonan}</div>
+                <div class="section-nopol"> ${permohonan} </div>
                 <div class="section-judul">${alamat}</div>
             </div>
             <script>
