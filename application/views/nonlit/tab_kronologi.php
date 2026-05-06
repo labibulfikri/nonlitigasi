@@ -1,4 +1,11 @@
+
+          <a href="javascript:void(0)" onclick="history.back()" 
+   class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
+   title="Kembali ke Daftar">
+    <i class="mdi mdi-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
+</a>
 <div class="container mx-auto p-4 mb-20">
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
         <div class="lg:col-span-8 card bg-base-100 shadow-xl border border-base-200">
             <div class="card-body p-4">
@@ -31,6 +38,22 @@
                 </div>
 
                 <div class="card-body p-4 max-h-[600px] overflow-y-auto">
+
+
+                <div class="px-4 pb-4">
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+            <i class="mdi mdi-magnify text-gray-400"></i>
+        </span>
+        <input 
+            type="text" 
+            id="search_berkas" 
+            placeholder="Cari nama berkas..." 
+            class="input input-bordered w-full pl-10 rounded-xl focus:border-primary"
+            onkeyup="filterBerkas()"
+        >
+    </div>
+</div>
                     <?= crsf_ajax() ?>
                     <ul class="menu menu-vertical gap-3" id="menu_berkas">
                         <?php foreach ($lampiran as $key) { ?>
@@ -181,6 +204,50 @@
         </form>
     </div>
 </dialog>
+
+
+<script>
+    $(document).ready(function() {
+    let resultsBox = $('#search_results');
+    let resultsList = $('#results_list');
+    let inputField = $('#global_search');
+
+    // 1. Ambil kata kunci terakhir dari session saat halaman dimuat
+    let lastSearch = sessionStorage.getItem('search_keyword');
+    
+    if (lastSearch) {
+        inputField.val(lastSearch);
+        // Jalankan fungsi pencarian secara otomatis
+        performSearch(lastSearch);
+    }
+
+    inputField.on('keyup', function() {
+        let q = $(this).val();
+        
+        // 2. Simpan kata kunci ke session setiap kali user mengetik
+        sessionStorage.setItem('search_keyword', q);
+        
+        if (q.length > 2) {
+            performSearch(q);
+        } else {
+            resultsBox.addClass('hidden');
+            if (q.length === 0) sessionStorage.removeItem('search_keyword');
+        }
+    });
+
+    function performSearch(q) {
+        $.ajax({
+            url: "<?= base_url('masalah/search_global') ?>",
+            type: "GET",
+            data: { q: q },
+            success: function(res) {
+                resultsList.html(res);
+                resultsBox.removeClass('hidden');
+            }
+        });
+    }
+});
+</script>
 <script>
     function setActiveMenuKronologi(element) {
         const activeEl = $(element);
@@ -360,4 +427,28 @@
             }
         })
     });
+</script>
+
+<script>
+    function filterBerkas() {
+    // Ambil input dan nilai pencarian
+    let input = document.getElementById('search_berkas');
+    let filter = input.value.toUpperCase();
+    let ul = document.getElementById("menu_berkas");
+    let li = ul.getElementsByTagName('li');
+
+    // Looping melalui semua list item
+    for (let i = 0; i < li.length; i++) {
+        // Cari elemen span yang berisi judul_berkas
+        let span = li[i].getElementsByClassName("truncate")[0];
+        let txtValue = span.textContent || span.innerText;
+
+        // Jika teks cocok dengan input, tampilkan. Jika tidak, sembunyikan.
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+}
 </script>

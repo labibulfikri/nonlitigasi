@@ -1,9 +1,15 @@
    
-            <a href="<?= base_url('nonlit') ?>" 
+            <!-- <a href="<?= base_url('nonlit') ?>" 
                class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
                title="Kembali ke Daftar">
                 <i class="mdi mdi-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
-            </a>
+            </a> -->
+
+            <a href="javascript:void(0)" onclick="history.back()" 
+   class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
+   title="Kembali ke Daftar">
+    <i class="mdi mdi-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
+</a>
 <div class="container mx-auto p-4 mb-20 text-base-content">
      
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
@@ -40,7 +46,22 @@
                 </div>
 
                 <div class="card-body p-2 max-h-[500px] overflow-y-auto">
-                    <ul class="menu menu-vertical gap-2" id="menu">
+
+                <div class="px-4 pb-4">
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+            <i class="mdi mdi-magnify text-gray-400"></i>
+        </span>
+        <input 
+            type="text" 
+            id="search_lampiran" 
+            placeholder="Cari nama berkas..." 
+            class="input input-bordered w-full pl-10 rounded-xl focus:border-primary"
+            onkeyup="filterLampiran()"
+        >
+    </div>
+</div>
+                    <ul class="menu menu-vertical gap-2" id="menu_lampiran">
                         <?php foreach ($det as $key) { ?>
                             <li>
                                 <a onclick="setActiveMenu(this)" id="<?= $key->id ?>"
@@ -344,4 +365,77 @@
             }
         });
     });
+</script>
+
+<script>
+    $(document).ready(function() {
+    let resultsBox = $('#search_results');
+    let resultsList = $('#results_list');
+    let inputField = $('#global_search');
+
+    // 1. Ambil kata kunci terakhir dari session saat halaman dimuat
+    let lastSearch = sessionStorage.getItem('search_keyword');
+    
+    if (lastSearch) {
+        inputField.val(lastSearch);
+        // Jalankan fungsi pencarian secara otomatis
+        performSearch(lastSearch);
+    }
+
+    inputField.on('keyup', function() {
+        let q = $(this).val();
+        
+        // 2. Simpan kata kunci ke session setiap kali user mengetik
+        sessionStorage.setItem('search_keyword', q);
+        
+        if (q.length > 2) {
+            performSearch(q);
+        } else {
+            resultsBox.addClass('hidden');
+            if (q.length === 0) sessionStorage.removeItem('search_keyword');
+        }
+    });
+
+    function performSearch(q) {
+        $.ajax({
+            url: "<?= base_url('masalah/search_global') ?>",
+            type: "GET",
+            data: { q: q },
+            success: function(res) {
+                resultsList.html(res);
+                resultsBox.removeClass('hidden');
+            }
+        });
+    }
+});
+</script>
+
+<script>
+    function filterLampiran() {
+    // 1. Ambil input search dan kata kunci
+    let input = document.getElementById('search_lampiran');
+    let filter = input.value.toUpperCase();
+    
+    // 2. Targetkan container list
+    let ul = document.getElementById("menu_lampiran");
+    let li = ul.getElementsByTagName('li');
+
+    // 3. Looping setiap list item
+    for (let i = 0; i < li.length; i++) {
+        // Ambil elemen span yang berisi 'judul_rapat'
+        // Di struktur Anda, judul_rapat adalah span pertama
+        let span = li[i].getElementsByTagName("span")[0];
+        
+        if (span) {
+            let txtValue = span.textContent || span.innerText;
+            
+            // 4. Cek apakah kata kunci ada di dalam judul_rapat
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = ""; // Tampilkan
+            } else {
+                li[i].style.display = "none"; // Sembunyikan
+            }
+        }
+    }
+}
 </script>

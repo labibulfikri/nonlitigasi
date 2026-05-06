@@ -348,7 +348,17 @@
         });
     </script>
 
+
+
     <script>
+
+        $(document).on('keydown', function(e) {
+    // CTRL + K untuk fokus ke pencarian
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        $('#global_search').focus();
+    }
+});
         $(document).ready(function() {
             $('#global_search').on('keyup', function() {
                 let q = $(this).val();

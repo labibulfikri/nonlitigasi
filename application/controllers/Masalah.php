@@ -748,7 +748,7 @@ class Masalah extends CI_Controller
 
     public function search_global()
     {
-        $keyword = trim($this->input->get('q'));
+        $keyword = trim($this->input->get('q', true));
         if (empty($keyword)) return;
 
         $safe_keyword = $this->db->escape_like_str($keyword);
@@ -777,7 +777,18 @@ class Masalah extends CI_Controller
         // $this->db->or_like('penyimpanan_rak', $safe_keyword);
         // $this->db->group_end();
         // $query3 = $this->db->get_compiled_select('berkas_umum');
-
+$this->db->select('id_nonlit as id, judul_rapat as judul, kesimpulan as info, berkas as sub, "berkas_rapat" as tipe');
+        $this->db->group_start();
+        $this->db->like('judul_rapat', $safe_keyword);
+        // $this->db->or_like('kesimpulan', $safe_keyword);
+        $this->db->group_end();
+        $query2 = $this->db->get_compiled_select('nonlit_det');
+$this->db->select('id_nonlit as id, judul_berkas as judul, nama_berkas as info,file_type as sub,  "berkas_lampiran" as tipe');
+        $this->db->group_start();
+        $this->db->like('judul_berkas', $safe_keyword);
+        // $this->db->or_like('nama_berkas', $safe_keyword);
+        $this->db->group_end();
+        $query3 = $this->db->get_compiled_select('berkas_lampiran');
         // 4. Nonlits (5 Kolom) - Kita geser register_baru ke kolom 'info' agar urutan SAMA
         $this->db->select('id as id, permohonan_nonlit as judul, register_baru as info, alamat as sub, "nonlit" as tipe');
         $this->db->group_start();
@@ -797,7 +808,7 @@ class Masalah extends CI_Controller
 
         // Eksekusi UNION (Semua sudah 5 kolom dengan urutan: ID, JUDUL, INFO, SUB, TIPE)
         // $sql = "($query1) UNION ($query2) UNION ($query3) UNION ($query4) UNION ($query5) LIMIT 10";
-        $sql = "($query4) UNION ($query5) LIMIT 10";
+        $sql = "($query2) UNION ($query3) UNION ($query4) UNION ($query5) LIMIT 10";
         $all_query = $this->db->query($sql);
 
         if (!$all_query) {
@@ -816,6 +827,8 @@ class Masalah extends CI_Controller
 
                 // if ($row->tipe == 'lp') $link = base_url('laporan_polisi/detail/' . $row->id);
                 // if ($row->tipe == 'berkas') $link = base_url('berkas_umum/detail/' . $row->id);
+                if ($row->tipe == 'berkas_rapat') $link = base_url('nonlit/detail/' . $row->id);
+                if ($row->tipe == 'berkas_lampiran') $link = base_url('nonlit/tab_kronologi/' . $row->id);
                 if ($row->tipe == 'nonlit') $link = base_url('nonlit/detail/' . $row->id);
                 // if ($row->tipe == 'asing') $link = base_url('perkara_asing/detail/' . $row->id);
                 if ($row->tipe == 'asing') $link = 'https://assistdpbt.surabaya.go.id/asing/perkara/detail_perkara/' . $row->id;

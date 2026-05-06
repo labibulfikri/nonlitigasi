@@ -2,7 +2,14 @@
      .card-row:focus-within {
          z-index: 100;
      }
+/* Dalam file globals.css atau input.css Anda */
+.swal2-styled.swal2-confirm {
+    @apply btn btn-primary border-none !important;
+}
 
+.swal2-styled.swal2-cancel {
+    @apply btn btn-ghost !important;
+}
      /* Memaksa card yang sedang dibuka dropdown-nya untuk berada di paling depan */
      #card-list>div:focus-within {
          z-index: 50 !important;
@@ -141,7 +148,7 @@
 
                  <div class="form-control col-span-full">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Jenis Data</span></label>
-                     <select name="jenis" id="select_jenis" class="select select-bordered bg-blue-50 border-blue-200 focus:ring-2 focus:ring-blue-500 rounded-xl font-bold" required onchange="toggleInstansiTambah()">
+                     <select name="jenis" id="select_jenis" require class="select select-bordered bg-blue-50 border-blue-200 focus:ring-2 focus:ring-blue-500 rounded-xl font-bold" required onchange="toggleInstansiTambah()">
                          <option value="" disabled selected>Pilih Jenis...</option>
                          <option value="nonlit">NON-LITIGASI (KEJAKSAAN)</option>
                          <option value="laporan_polisi">LAPORAN POLISI (KEPOLISIAN)</option>
@@ -185,7 +192,7 @@
                      <div class="relative">
                          <i class="mdi mdi-account-circle absolute left-4 top-3 text-slate-400"></i>
                          <i class="fa fa-picture-o" aria-hidden="true"></i>
-                         <select name="id_pic" id="id_pic" class="select select-bordered w-full pl-10 bg-slate-50 rounded-xl">
+                         <select name="id_pic" id="id_pic" class="select select-bordered w-full pl-10 bg-slate-50 rounded-xl" require>
                              <option disabled selected>Pilih PIC...</option>
                              <?php foreach ($list_pic as $pic) : ?>
                                  <option value="<?= $pic->id ?>"><?= $pic->nama_pic ?></option>
@@ -198,25 +205,25 @@
              
                  <div class="form-control">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Nomor Register Baru</span></label>
-                     <input type="text" name="register_baru" class="input input-bordered bg-slate-50 rounded-xl" placeholder="Masukkan No. Register">
+                     <input type="text" name="register_baru" require class="input input-bordered bg-slate-50 rounded-xl" placeholder="Masukkan No. Register">
                  </div>
                  <div class="form-control">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Luas</span></label>
-                     <input type="text" name="luas" class="input input-bordered bg-slate-50 rounded-xl" placeholder="Luas">
+                     <input type="text" name="luas" require class="input input-bordered bg-slate-50 rounded-xl" placeholder="Luas">
                  </div>
 
                  <div class="form-control">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Penyimpanan Rak</span></label>
                      <div class="relative">
                          <i class="mdi mdi-archive absolute left-4 top-3 text-slate-400"></i>
-                         <input type="text" name="penyimpanan_rak" class="input input-bordered w-full pl-10 bg-slate-50 rounded-xl" placeholder="Contoh: R.01-A">
+                         <input type="text" require name="penyimpanan_rak" class="input input-bordered w-full pl-10 bg-slate-50 rounded-xl" placeholder="Contoh: R.01-A">
                      </div>
                  </div>
 
 
                  <div class="form-control">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Status Perkara</span></label>
-                     <select name="status" class="select select-bordered bg-slate-50 rounded-xl font-bold">
+                     <select name="status" require class="select select-bordered bg-slate-50 rounded-xl font-bold">
                          <option value="proses">PROSES</option>
                          <option value="selesai">SELESAI</option>
                      </select>
@@ -225,7 +232,7 @@
 
              <div class="form-control mt-6">
                  <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Keterangan Detail</span></label>
-                 <textarea name="keterangan" class="textarea textarea-bordered h-24 bg-slate-50 rounded-xl" placeholder="Catatan tambahan..."></textarea>
+                 <textarea name="keterangan" require class="textarea textarea-bordered h-24 bg-slate-50 rounded-xl" placeholder="Catatan tambahan..."></textarea>
              </div>
 
              <div class="modal-action flex gap-3 mt-10">
@@ -720,8 +727,13 @@ var sumber="";
                              title: 'Berhasil!',
                              text: 'Data perkara baru telah berhasil disimpan.',
                              icon: 'success',
-                             theme: 'auto',
-                             confirmButtonColor: '#2563eb', // Warna biru sesuai tema tambah
+                             customClass: {
+                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                cancelButton: 'btn btn-ghost mx-2'
+                                },
+                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                        buttonsStyling: false
+                            
                          }).then(() => {
                              // 4. Refresh data card tanpa reload halaman
                              loadData();
@@ -729,7 +741,12 @@ var sumber="";
                      } else {
                          Swal.fire({
                              title: 'Gagal!',
-                             theme: 'auto',
+                               customClass: {
+                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                cancelButton: 'btn btn-ghost mx-2'
+                                },
+                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                        buttonsStyling: false,
                              text: response.message || 'Gagal menyimpan data perkara baru.',
                              icon: 'error'
                          });
@@ -782,12 +799,16 @@ var sumber="";
                      }
 
                      // 2. Munculkan Alert Berhasil
-                     Swal.fire({
-                         theme: 'auto',
+                     Swal.fire({ 
                          title: 'Berhasil!',
                          text: 'Data perkara telah diperbarui.',
                          icon: 'success',
-                         confirmButtonColor: '#f59e0b', // Warna amber sesuai tema edit
+                           customClass: {
+                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                cancelButton: 'btn btn-ghost mx-2'
+                                },
+                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                        buttonsStyling: false
                      }).then(() => {
                          // 3. Refresh data di Card tanpa reload halaman
                          loadData();
@@ -795,10 +816,16 @@ var sumber="";
                  },
                  error: function(xhr) {
                      Swal.fire({
-                         theme: 'auto',
+                        //  theme: 'auto',
                          title: 'Gagal!',
                          text: 'Terjadi kesalahan saat memperbarui data.',
-                         icon: 'error'
+                         icon: 'error',
+                           customClass: {
+                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                cancelButton: 'btn btn-ghost mx-2'
+                                },
+                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                        buttonsStyling: false
                      });
                  },
                  complete: function() {
@@ -1177,12 +1204,17 @@ containerInstansi.addClass('hidden')
              title: 'Hapus Data?',
              text: "Data yang dihapus tidak dapat dikembalikan!",
              icon: 'warning',
-             theme: 'auto',
+             
              showCancelButton: true,
-             confirmButtonColor: '#ef4444', // warna merah tailwind
-             cancelButtonColor: '#64748b', // warna slate tailwind
+             
              confirmButtonText: 'Ya, Hapus!',
              cancelButtonText: 'Batal',
+               customClass: {
+                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                cancelButton: 'btn btn-ghost mx-2'
+                                },
+                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                        buttonsStyling: false
 
          }).then((result) => {
              if (result.isConfirmed) {
@@ -1197,10 +1229,12 @@ containerInstansi.addClass('hidden')
                          Swal.fire({
                                  title: 'Terhapus!',
                                  text: 'Data perkara telah dihapus.',
-                                 icon: 'success',
-                                 theme: 'auto',
-                                 confirmButtonColor: '#ef4444', // warna merah sesuai tema hapus
-
+                                 icon: 'success',  customClass: {
+                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                cancelButton: 'btn btn-ghost mx-2'
+                                },
+                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                        buttonsStyling: false
                              })
                              .then(() => {
                                  // Reload data tanpa refresh halaman penuh
@@ -1212,7 +1246,12 @@ containerInstansi.addClass('hidden')
                              title: 'Gagal!',
                              text: 'Terjadi kesalahan saat menghapus data.',
                              icon: 'error',
-                             theme: 'auto'
+                               customClass: {
+                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                cancelButton: 'btn btn-ghost mx-2'
+                                },
+                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                        buttonsStyling: false
                          });
                      }
                  });
