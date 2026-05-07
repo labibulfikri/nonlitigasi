@@ -334,9 +334,12 @@
                          <option value="proses">PROSES</option>
                          <option value="selesai">SELESAI</option>
                      </select>
-                 </div>
+                 </div> 
              </div>
-
+<div class="form-control">
+                 <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Keterangan Detail</span></label>
+                 <textarea name="keterangan" id="edit_keterangan"  class="textarea textarea-bordered h-24 bg-slate-50 rounded-xl" placeholder="Catatan tambahan..."></textarea>
+             </div>
              <div class="modal-action flex gap-3 mt-10">
                  <button type="button" onclick="modal_edit.close()" class="btn btn-ghost flex-1 rounded-xl uppercase font-bold">Batal</button>
                  <button type="submit" class="btn btn-warning text-white flex-1 shadow-lg shadow-amber-200 rounded-xl font-bold uppercase italic">
@@ -959,6 +962,7 @@ function copyLinkOnly(text) {
                      $('#edit_luas').val(item.luas);
                      $('#edit_status').val(item.status);
                      $('#edit_bidang').val(item.bidang);
+                     $('#edit_keterangan').val(item.keterangan);
 
                      // 2. Set JENIS DATA dan panggil TOGGLE (Agar container Instansi muncul)
                      $('#edit_jenis').val(item.jenis);

@@ -77,9 +77,9 @@ $db['db_perkara'] = array(
 	// 'hostname' => 'localhost',
 	// 'username' => 'root',
 	// 'password' => '',
-	 'hostname' => '172.17.126.83',
-	 'username' => 'bpkad',
-	 'password' => 'bpkad_123',
+	'hostname' => '172.17.126.83',
+	'username' => 'bpkad',
+	'password' => 'bpkad_123',
 	'database' => 'db_perkara',
 	'dbdriver' => 'mysqli',
 );
@@ -91,7 +91,7 @@ $db['default'] = array(
 	// 'hostname' => 'localhost',
 	// 'username' => 'root',
 	// 'password' => '',
-	// 'database' => 'nonlit',
+	'database' => 'nonlit',
 
 	// 'hostname' => '172.17.126.83',
 	// 'username' => 'bpkad',
