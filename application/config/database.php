@@ -83,6 +83,16 @@ $db['db_perkara'] = array(
 	'database' => 'db_perkara',
 	'dbdriver' => 'mysqli',
 );
+$db['db_sertifikasi'] = array(
+	// 'hostname' => 'localhost',
+	// 'username' => 'root',
+	// 'password' => '',
+	'hostname' => '172.17.126.83',
+	'username' => 'bpkad',
+	'password' => 'bpkad_123',
+	'database' => 'sertifikasi',
+	'dbdriver' => 'mysqli',
+);
 $db['default'] = array(
 	'dsn'	=> '',
 	 'hostname' => '172.17.126.83',

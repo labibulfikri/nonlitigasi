@@ -257,12 +257,13 @@ class Nonlit extends CI_Controller
                 $polygon = [];
                 // echo 'JSON Decode Error: ' . json_last_error_msg();
             }
-
+      $list_pic = $this->m_pic->get_all_pic();
             $data = array(
                 'master' => $fetch,
                 'id' => $id,
                 'det' => $fetch_detail,
                 'list' => $decoded_data,
+                'list_pic' => $list_pic,
                 'polygon' => json_encode($polygon),
                 'masterpage' => 'layout/layout2',
                 // 'navbar2' => 'layout/navbar2',

@@ -33,13 +33,13 @@ class M_peta extends CI_Model
     function getAll()
     {
 
-        $table = "nonlits";
+        $table = "peta_gis";
         $select_column = array(
             "id",
             // "nama_gis",
             // "alamat",
             // "kelurahan",
-            "kordinat"
+            "geometry"
         );
 
         $this->db->select($select_column);

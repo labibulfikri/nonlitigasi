@@ -1,10 +1,4 @@
-   
-            <!-- <a href="<?= base_url('nonlit') ?>" 
-               class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
-               title="Kembali ke Daftar">
-                <i class="mdi mdi-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
-            </a> -->
-
+ 
             <a href="javascript:void(0)" onclick="history.back()" 
    class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
    title="Kembali ke Daftar">
@@ -30,7 +24,7 @@
 
     <div class="tabs tabs-boxed bg-base-200 p-2 mb-8 justify-center lg:justify-start">
         <a class="tab tab-lg flex-1 lg:flex-none font-bold <?= ($this->uri->segment(2) == 'detail') ? 'tab-active btn-primary shadow-lg' : '' ?>"
-            href="<?= base_url('nonlit/detail/' . $id) ?>">Detail Perkara</a>
+            href="<?= base_url('nonlit/detail/' . $id) ?>">Resume Rapat</a>
         <a class="tab tab-lg flex-1 lg:flex-none font-bold <?= ($this->uri->segment(2) == 'tab_kronologi') ? 'tab-active btn-primary shadow-lg' : '' ?>"
             href="<?= base_url('nonlit/tab_kronologi/' . $id) ?>">Berkas Pendukung</a>
     </div>
@@ -110,10 +104,12 @@
                     <input type="text" name="judul_rapat" class="input input-bordered bg-base-200 rounded-xl uppercase" placeholder="Contoh: Rapat Koordinasi" required>
                 </div>
             </div>
-            <div class="form-control mb-6">
-                <label class="label"><span class="label-text font-bold uppercase text-xs">Kesimpulan Rapat</span></label>
-                <textarea name="kesimpulan" class="ckeditor"></textarea>
+            
+            <div class="form-control"> 
+                <label class="label"><span class=" label-text font-bold uppercase text-xs ">Kesimpulan Rapat</span></label>
+                <textarea name="kesimpulan" class="ckeditor rounded-xl border-2 border-amber-200 p-1 bg-amber-50/30 focus-within:border-amber-500 transition-all"></textarea>             
             </div>
+            <br/>
             <div class="form-control mb-8 p-6 border-2 border-dashed border-primary/20 rounded-2xl bg-primary/5">
                 <label class="label"><span class="label-text font-bold uppercase text-xs italic">Upload Berkas (PDF/IMG)</span></label>
                 <input type="file" name="file" class="file-input file-input-bordered file-input-primary w-full rounded-xl" />

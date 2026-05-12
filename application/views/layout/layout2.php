@@ -185,6 +185,7 @@
                             </summary>
                             <ul>
                                 <li><a href="<?= base_url('laporan') ?>">Laporan Nonlit</a></li>
+                                <li><a href="<?= base_url('laporan_pic') ?>">Laporan PIC </a></li>
                                 <!-- <li><a href="<?= base_url('report_lp') ?>">Laporan Polisi</a></li>
                                 <li><a href="<?= base_url('report_masalah') ?>">Laporan Masalah</a></li> -->
                             </ul>

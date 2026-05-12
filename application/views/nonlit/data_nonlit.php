@@ -418,7 +418,7 @@
                     <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${cfg.bg} ${cfg.color} tracking-widest">${cfg.label}</span>
                     <span class="text-[8px] font-bold text-slate-400">ID: #${item.id}</span>
                 </div>
-                 <h4 class="font-black text-slate-800 text-sm uppercase truncate group-hover:text-blue-600 transition-colors italic">${item.permohonan_nonlit} </h4> 
+                 <h4 class="text-sm font-bold text-blue-600 break-words whitespace-normal line-clamp-2">${item.permohonan_nonlit} </h4> 
                 <div class="flex items-center gap-3 mt-1">
                     <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1"><i class="mdi mdi-account-circle-outline text-blue-500"></i> ${item.pic}</span>
                     <span class="text-[10px] font-bold text-slate-400">•</span>
@@ -429,9 +429,19 @@
         </div>
 
         <div class="flex items-center gap-4 shrink-0">
-            <div class="hidden md:block text-right">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Registrasi</p>
-                <p class="text-[10px] font-bold text-slate-700 uppercase">${item.tgl_nonlit}</p>
+           <div class="hidden md:block text-right">
+    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Registrasi</p>
+    <p class="text-[10px] font-bold text-slate-700 uppercase">
+        ${
+            // Cek apakah tipenya 'nonlit' atau 'laporan_polisi'
+            (item.jenis === 'nonlit' || item.jenis === 'laporan_polisi') 
+            // Jika benar, cek lagi apakah tanggalnya ada (tidak null/0000)
+            ? (item.tgl_nonlit && item.tgl_nonlit !== '0000-00-00' ? item.tgl_nonlit : '-')
+            // Jika tipenya 'permasalahan' atau 'data umum', langsung tampilkan '-'
+            : '-'
+        }
+    </p>
+</div>
             </div>
             ${renderActionMenu(item)}
         </div>
@@ -1206,19 +1216,17 @@ containerInstansi.addClass('hidden')
          var token = $('#token').val()
          Swal.fire({
              title: 'Hapus Data?',
-             text: "Data yang dihapus tidak dapat dikembalikan!",
-             icon: 'warning',
-             
-             showCancelButton: true,
-             
-             confirmButtonText: 'Ya, Hapus!',
-             cancelButtonText: 'Batal',
-               customClass: {
-                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
-                                cancelButton: 'btn btn-ghost mx-2'
-                                },
-                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
-                        buttonsStyling: false
+    text: "Data yang dihapus tidak dapat dikembalikan!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Hapus!',
+    cancelButtonText: 'Batal',
+    reverseButtons: true, // Opsional: Batal di kiri, Hapus di kanan
+    customClass: {
+        confirmButton: 'btn btn-error text-white mx-2', // Tambah text-white jika teks hilang
+        cancelButton: 'btn btn-ghost mx-2'
+    },
+    buttonsStyling: false
 
          }).then((result) => {
              if (result.isConfirmed) {
