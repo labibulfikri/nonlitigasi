@@ -56,21 +56,24 @@
 </div>
                     <?= crsf_ajax() ?>
                     <ul class="menu menu-vertical gap-3" id="menu_berkas">
-                        <?php foreach ($lampiran as $key) { ?>
-                            <li>
-                                <a onclick="setActiveMenuKronologi(this)" id="<?= $key->id ?>"
-                                    class="flex items-center gap-4 p-4 border border-base-200 hover:bg-primary hover:text-white transition-all rounded-2xl group shadow-sm">
-                                    <div class="bg-primary group-hover:bg-white/20 p-3 rounded-xl">
-                                        <i class="mdi mdi-file-document-outline text-2xl"></i>
-                                    </div>
-                                    <div class="flex-1 overflow-hidden">
-                                        <span class="font-bold text-black uppercase text-xs block truncate"><?= $key->judul_berkas ?></span>
-                                        <span class="text-black opacity-60">ID Berkas: #<?= $key->id ?></span>
-                                    </div>
-                                </a>
-                            </li>
-                        <?php } ?>
-                    </ul>
+    <?php foreach ($lampiran as $key) { ?>
+        <li>
+            <a onclick="setActiveMenuKronologi(this)" id="<?= $key->id ?>"
+                class="flex items-center gap-4 p-4 border border-base-200 hover:bg-primary hover:text-white transition-all rounded-2xl group shadow-sm">
+                <div class="bg-primary group-hover:bg-white/20 p-3 rounded-xl flex-shrink-0">
+                    <i class="mdi mdi-file-document-outline text-2xl text-white"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <!-- Perubahan di baris bawah ini: menghapus truncate -->
+                    <span class="font-bold text-black uppercase text-xs break-words leading-relaxed">
+                        <?= $key->judul_berkas ?>
+                    </span>
+                    <span class="text-black opacity-60 text-[10px] block mt-1">ID Berkas: #<?= $key->id ?></span>
+                </div>
+            </a>
+        </li>
+    <?php } ?>
+</ul>
                 </div>
             </div>
         </div>

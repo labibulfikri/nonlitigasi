@@ -56,16 +56,24 @@
     </div>
 </div>
                     <ul class="menu menu-vertical gap-2" id="menu_lampiran">
-                        <?php foreach ($det as $key) { ?>
-                            <li>
-                                <a onclick="setActiveMenu(this)" id="<?= $key->id ?>"
-                                    class="flex flex-col items-start p-4 border border-base-200 hover:bg-primary/5 hover:border-primary transition-all rounded-xl group bg-base-100">
-                                    <span class="font-bold uppercase text-xs text-base-content group-hover:text-primary"><?= $key->judul_rapat ?></span>
-                                    <span class="text-[10px] opacity-50 italic"><?= date('d M Y', strtotime($key->tgl_rapat)) ?></span>
-                                </a>
-                            </li>
-                        <?php } ?>
-                    </ul>
+    <?php foreach ($det as $key) { ?>
+        <li>
+            <a onclick="setActiveMenu(this)" id="<?= $key->id ?>"
+                class="flex flex-col items-start p-4 border border-base-200 hover:bg-primary/5 hover:border-primary transition-all rounded-xl group bg-base-100 w-full overflow-hidden">
+                
+                <!-- Judul Rapat dengan word-wrap -->
+                <span class="font-bold uppercase text-xs text-base-content group-hover:text-primary break-words w-full leading-normal">
+                    <?= $key->judul_rapat ?>
+                </span>
+                
+                <!-- Tanggal Rapat -->
+                <span class="text-[10px] opacity-50 italic mt-1">
+                    <?= date('d M Y', strtotime($key->tgl_rapat)) ?>
+                </span>
+            </a>
+        </li>
+    <?php } ?>
+</ul>
                 </div>
             </div>
         </div>
