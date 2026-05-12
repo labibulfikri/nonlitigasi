@@ -46,7 +46,7 @@ public function detail($id) {
         $this->load->model('m_laporan_pic');
         
         // Ambil tahun dari filter jika ada
-        $tahun = $this->input->get('tahun');
+        $tahun = $this->input->get('tahun', true);
         
         // Ambil data project beserta jumlah rapatnya
         // Pastikan model getDetailByPic mendukung filter tahun dan count rapat
