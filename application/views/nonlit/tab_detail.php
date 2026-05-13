@@ -11,74 +11,81 @@
         <h3 class="font-black text-lg uppercase tracking-wider">Informasi Master</h3>
     </div>
 
-    <div class="grid grid-cols-1 gap-4">
-        <div class="flex flex-col md:flex-row gap-4">
-            <div class="stats shadow bg-base-200 border border-base-300 flex-1">
-                <div class="stat p-4">
-                    <div class="stat-title text-[10px] font-bold uppercase text-primary">No. Rak</div>
-                    <div class="stat-value text-xl font-black"><?= $master['penyimpanan_rak'] ?></div>
-                    <div class="stat-desc text-[10px] italic opacity-70">Lokasi Arsip Fisik</div>
+    <!-- Gunakan grid-cols-1 agar setiap elemen mengambil satu baris penuh -->
+    <div class="grid grid-cols-1 gap-3">
+        
+        <!-- CARD NO. RAK -->
+        <div class="stats shadow bg-base-200 border border-base-300 w-full">
+            <div class="stat p-4">
+                <div class="stat-title text-[10px] font-bold uppercase text-primary">No. Rak</div>
+                <div class="stat-value text-xl font-black"><?= $master['penyimpanan_rak'] ?></div>
+                <div class="stat-desc text-[10px] italic opacity-70 tracking-tight">Lokasi fisik di gudang arsip</div>
+            </div>
+        </div>
+
+        <!-- CARD NO. REGISTER (Ganti stats menjadi card agar tidak memotong badge) -->
+        <div class="card bg-base-200 border border-base-300 shadow shadow-sm">
+            <div class="p-4">
+                <label class="text-[10px] font-bold uppercase opacity-60 block mb-2 tracking-widest">
+                    No. Register (Klik untuk Fokus)
+                </label>
+                <!-- Badge akan membungkus (wrap) ke bawah secara otomatis -->
+                <div class="flex flex-wrap gap-2">
+                    <?php 
+                    $regs = array_map('trim', explode(';', $master['register_baru']));
+                    foreach ($regs as $r): ?>
+                        <span class="badge badge-outline h-auto py-1.5 px-3 text-[11px] font-black cursor-pointer border-base-400 hover:bg-primary hover:text-white hover:border-primary transition-all btn-focus-map" 
+                              data-reg="<?= $r ?>">
+                            <?= $r ?>
+                        </span>
+                    <?php endforeach; ?>
                 </div>
             </div>
-            <!-- <div class="stats shadow bg-base-200 border border-base-300 flex-1">
-                <div class="stat p-4">
-                    <div class="stat-title text-[10px] font-bold uppercase opacity-60">No. Register</div>
-                    <div class="stat-value text-xl font-black"><?= $master['register_baru'] ?></div>
-                </div>
-            </div> -->
-
-            <div class="stats shadow bg-base-200 border border-base-300 flex-1">
-    <div class="stat p-4">
-        <div class="stat-title text-[10px] font-bold uppercase opacity-60">No. Register (Klik untuk Fokus)</div>
-        <div class="stat-value text-xl font-black flex flex-wrap gap-2">
-            <?php 
-            $regs = array_map('trim', explode(';', $master['register_baru']));
-            foreach ($regs as $r): ?>
-                <span class="badge badge-outline cursor-pointer hover:bg-blue-600 hover:text-white transition-all btn-focus-map" 
-                      data-reg="<?= $r ?>">
-                    <?= $r ?>
-                </span>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</div>
         </div>
 
+        <!-- PERMOHONAN NON-LITIGASI (Sudah dengan Text Wrap) -->
         <div class="card bg-base-100 border border-base-300 shadow-sm">
             <div class="card-body p-4">
                 <label class="text-[10px] font-bold uppercase opacity-50 tracking-widest">Permohonan Non-Litigasi</label>
-                <p class="font-bold leading-tight uppercase text-primary"><?= $master['permohonan_nonlit'] ?></p>
+                <p class="font-bold leading-tight uppercase text-primary break-words">
+                    <?= $master['permohonan_nonlit'] ?>
+                </p>
             </div>
         </div>
 
-        <div class="flex items-center gap-3 bg-primary/10 p-4 rounded-2xl border border-primary/20">
+        <!-- TEAM PELAKSANA -->
+        <div class="flex items-center gap-3 bg-primary/5 p-4 rounded-2xl border border-primary/10">
             <div class="avatar placeholder">
-                <div class="bg-primary text-primary-content rounded-full w-10">
+                <div class="bg-primary text-primary-content rounded-full w-10 shadow-lg shadow-primary/20">
                     <span class="text-xs font-bold"><?= substr($master['team_nonlit'], 0, 2) ?></span>
                 </div>
             </div>
             <div>
                 <label class="text-[9px] font-bold uppercase text-primary block">Team Pelaksana</label>
-                <span class="font-black text-base-content"><?= $master['team_nonlit'] ?></span>
+                <span class="font-black text-sm text-base-content"><?= $master['team_nonlit'] ?></span>
             </div>
         </div>
 
+        <!-- KETERANGAN DETAIL -->
         <div class="collapse collapse-arrow bg-base-200 rounded-2xl border border-base-300">
             <input type="checkbox" checked />
-            <div class="collapse-title text-xs font-bold uppercase opacity-60">
+            <div class="collapse-title text-[10px] font-bold uppercase opacity-60">
                 Keterangan Detail
             </div>
-            <div class="collapse-content text-sm leading-relaxed opacity-80">
+            <div class="collapse-content text-xs leading-relaxed opacity-80">
                 <p><?= nl2br($master['keterangan']) ?> </p>
             </div>
         </div>
     </div>
-    <br/>
-    <button onclick="edit_data(<?= $master['id'] ?>)" class="btn btn-sm btn-warning text-white shadow-md shadow-amber-100 rounded-lg group">
-    <i class="mdi mdi-pencil-outline transition-transform group-hover:rotate-12"></i>
-    EDIT
-</button>           
+
+    <div class="mt-6 pt-4 border-t border-base-300">
+        <button onclick="edit_data(<?= $master['id'] ?>)" class="btn btn-sm btn-warning text-white shadow-md shadow-amber-100 rounded-lg group px-6">
+            <i class="mdi mdi-pencil-outline transition-transform group-hover:rotate-12 mr-1"></i>
+            EDIT DATA
+        </button>
+    </div>
 </div>
+
  <dialog id="modal_edit" class="modal">
     <div class="modal-box max-w-3xl bg-white p-0 rounded-3xl border-none shadow-2xl">
         <div class="p-6 bg-amber-500 text-white flex justify-between items-center">

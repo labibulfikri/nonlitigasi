@@ -215,7 +215,18 @@
                     }
                 });
             } else {
-                Swal.fire({ title: 'Info', text: 'Aset belum memiliki polygon.', icon: 'warning', customClass: { popup: 'rounded-[24px]' } });
+             Swal.fire({
+                        title: 'Data Spasial Tidak Ada',
+                        text: 'Nomor Register ' + reg + ' tidak ditemukan dalam peta GIS (peta_gis).',
+                        icon: 'warning',
+                        confirmButtonColor: '#FF991C',
+                        confirmButtonText: 'Tutup',
+                        customClass: {
+                popup: 'rounded-[24px]',
+                confirmButton: 'btn btn-primary rounded-xl px-10' // Memaksa style tombol pakai DaisyUI
+            },
+            buttonsStyling: true
+                    });
             }
             $('#autocomplete-list').addClass('hidden');
         });

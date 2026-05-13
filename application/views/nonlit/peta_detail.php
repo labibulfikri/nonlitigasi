@@ -207,8 +207,13 @@
                         title: 'Data Spasial Tidak Ada',
                         text: 'Nomor Register ' + targetReg + ' tidak ditemukan dalam peta GIS (peta_gis).',
                         icon: 'warning',
-                        confirmButtonColor: '#2563eb',
-                        confirmButtonText: 'Tutup'
+                        confirmButtonColor: '#FF991C',
+                        confirmButtonText: 'Tutup',
+                        customClass: {
+                popup: 'rounded-[24px]',
+                confirmButton: 'btn btn-primary rounded-xl px-10' // Memaksa style tombol pakai DaisyUI
+            },
+            buttonsStyling: true
                     });
                 } else {
                     // Alert standar browser sebagai fallback
