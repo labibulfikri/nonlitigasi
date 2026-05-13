@@ -110,19 +110,18 @@
         </div>
     </div>
 </div>
-
 <script>
     $(document).ready(function() {
-        // 1. Inisialisasi Peta
+        // --- 1. INISIALISASI PETA ---
         var map = L.map('map', {
-            zoomControl: false // Kita pindahkan zoom control ke kanan agar bersih
+            zoomControl: false 
         }).setView([-7.2732, 112.7212], 13);
 
         L.control.zoom({
             position: 'bottomright'
         }).addTo(map);
 
-        // 2. Layer Peta
+        // --- 2. LAYER PETA (STREETS & SATELLITE) ---
         let streets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
             maxZoom: 20,
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
@@ -140,60 +139,91 @@
             position: 'topright'
         }).addTo(map);
 
-        // 3. Load GeoJSON Awal
-        var polygons = <?php echo $polygons; ?>;
-        var polygonsLayer = L.geoJSON(polygons, {
-            style: {
-                color: '#3b82f6',
-                weight: 2,
-                fillOpacity: 0.2
+        // --- 3. LOAD & STYLE GEOJSON ---
+        var checkData = <?php echo $polygons; ?>;
+    console.log("Data Peta:", checkData);
+        var polygonsData = <?php echo $polygons; ?>;
+        
+        var polygonsLayer = L.geoJSON(polygonsData, {
+            style: function(feature) {
+                // WARNA MERAH: Jika ada di database nonlit (status_nonlit bermasalah)
+                if (feature.properties.status_nonlit === 'bermasalah' || feature.properties.status === 'bermasalah') {
+                    return { color: 'red', weight: 3, fillOpacity: 0.5 };
+                }
+                // WARNA BIRU: Standar aset sertifikasi
+                return { color: '#3b82f6', weight: 2, fillOpacity: 0.2 };
             },
             onEachFeature: function(feature, layer) {
-                if (feature.properties && feature.properties.ALAMAT) {
-                    let p = feature.properties;
-                    let popupHtml = `
-                        <div class="p-1 min-w-[250px]">
-                            <div class="bg-primary text-white p-3 rounded-t-lg -m-4 mb-2">
-                                <h4 class="font-black text-[10px] uppercase tracking-widest">Informasi Detail Aset</h4>
-                            </div>
-                            <div class="overflow-x-auto mt-4">
-                                <table class="table table-xs w-full">
-                                    <tr><th class="opacity-50">ALAMAT</th><td class="font-bold text-slate-700">${p.ALAMAT}</td></tr>
-                                    <tr><th class="opacity-50">ID ASET</th><td>${p.id_aset}</td></tr>
-                                    <tr><th class="opacity-50">WILAYAH</th><td>${p.KELURAHAN}, ${p.KECAMATAN}</td></tr>
-                                    <tr><th class="opacity-50">SERTIFIKAT</th><td><span class="badge badge-ghost badge-sm font-mono">${p.NO_SERTIFI || '-'}</span></td></tr>
-                                </table>
-                            </div>
-                        </div>
-                    `;
-                    layer.bindPopup(popupHtml);
-                }
+                let p = feature.properties;
+                let popupContent = `
+                    <div class="p-1">
+                        <h5 class="font-bold uppercase text-xs">${p.alamat || 'Tanpa Alamat'}</h5>
+                        <p class="text-[10px] opacity-70">Reg: ${p.register_b || p.register || '-'}</p>
+                        ${p.status === 'bermasalah' ? '<span class="badge badge-error badge-xs mt-2 text-white">MASALAH NONLIT</span>' : ''}
+                    </div>
+                `;
+                layer.bindPopup(popupContent);
             }
         }).addTo(map);
 
-        // 4. Autocomplete Logic
+        // Zoom otomatis ke seluruh wilayah aset di awal
+        if (polygonsData.features.length > 0) {
+            map.fitBounds(polygonsLayer.getBounds());
+        }
+
+        // --- 4. LOGIKA PENCARIAN (FOKUS TANPA HAPUS PETA LAIN) ---
+        $('#searchForm').submit(function(e) {
+            e.preventDefault();
+            var searchVal = $('#search').val().toLowerCase();
+            var found = false;
+
+            polygonsLayer.eachLayer(function(layer) {
+                var prop = layer.feature.properties;
+                
+                // Cari berdasarkan alamat atau nomor register
+                var matchesAlamat = prop.alamat && prop.alamat.toLowerCase().includes(searchVal);
+                var matchesReg = (prop.register_b && prop.register_b.toLowerCase().includes(searchVal)) || 
+                                 (prop.register && prop.register.toLowerCase().includes(searchVal));
+
+                if (matchesAlamat || matchesReg) {
+                    // Fokus ke lokasi
+                    map.fitBounds(layer.getBounds(), { padding: [50, 50], maxZoom: 18 });
+                    layer.openPopup();
+                    
+                    // Efek Highlight (Kuning) selama 3 detik
+                    layer.setStyle({ color: 'yellow', weight: 6, fillOpacity: 0.7 }); 
+                    setTimeout(() => { polygonsLayer.resetStyle(layer); }, 3000);
+                    
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                Swal.fire({ icon: 'info', title: 'Info', text: 'Aset tidak ditemukan di peta.' });
+            }
+        });
+
+        // --- 5. AUTOCOMPLETE LOGIC ---
         $('#search').on('keyup', function() {
             var search = $(this).val();
             var suggBox = $('#suggestions');
 
             if (search.length >= 2) {
                 $.ajax({
-                    url: '<?= base_url('peta/search2'); ?>',
+                    url: '<?= base_url('peta/search'); ?>', // Gunakan endpoint pencarian Anda
                     method: 'POST',
-                    data: {
-                        search: search
-                    },
+                    data: { search: search },
                     dataType: 'json',
                     success: function(data) {
                         suggBox.empty().removeClass('hidden');
                         if (data.length > 0) {
-                            let list = $('<ul class="menu bg-base-100 w-full p-2 rounded-box border border-slate-200"></ul>');
+                            let list = $('<ul class="menu bg-base-100 w-full p-2 rounded-box border border-slate-200 shadow-lg"></ul>');
                             $.each(data, function(key, value) {
                                 list.append(`
                                     <li>
                                         <a class="py-3 hover:bg-slate-50 border-b border-slate-50 last:border-none item-suggestion">
                                             <i class="mdi mdi-map-marker-outline text-primary"></i>
-                                            <span class="text-sm font-medium">${value.permohonan_nonlit}</span>
+                                            <span class="text-sm font-medium">${value.permohonan_nonlit || value.alamat}</span>
                                         </a>
                                     </li>
                                 `);
@@ -209,7 +239,7 @@
             }
         });
 
-        // Click Suggestion
+        // Klik pada hasil saran autocomplete
         $(document).on('click', '.item-suggestion', function() {
             var name = $(this).find('span').text();
             $('#search').val(name);
@@ -217,46 +247,14 @@
             $('#searchForm').submit();
         });
 
-        // Close suggestion when clicking outside
+        // Tutup saran jika klik di luar area
         $(document).on('click', function(e) {
             if (!$(e.target).closest('#searchForm').length) {
                 $('#suggestions').addClass('hidden');
             }
         });
 
-        // 5. Search Submission
-        $('#searchForm').submit(function(e) {
-            e.preventDefault();
-            var searchVal = $('#search').val();
-
-            $.ajax({
-                url: '<?php echo site_url('peta/search'); ?>',
-                type: 'GET',
-                data: {
-                    search: searchVal
-                },
-                success: function(response) {
-                    var result = JSON.parse(response);
-                    polygonsLayer.clearLayers();
-
-                    var geojsonData = {
-                        "type": "FeatureCollection",
-                        "features": result.map(function(record) {
-                            return JSON.parse(record.kordinat);
-                        }).flat()
-                    };
-
-                    polygonsLayer.addData(geojsonData);
-                    if (geojsonData.features.length > 0) {
-                        map.fitBounds(polygonsLayer.getBounds(), {
-                            padding: [50, 50]
-                        });
-                    }
-                }
-            });
-        });
-
-        // Invalidate map size after 500ms for flex layout
+        // Pastikan ukuran peta terhitung ulang (penting untuk layout responsif)
         setTimeout(() => map.invalidateSize(), 500);
     });
 </script>

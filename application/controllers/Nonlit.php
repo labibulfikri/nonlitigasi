@@ -106,27 +106,30 @@ class Nonlit extends CI_Controller
     {
 
         $this->form_validation->set_rules('permohonan_nonlit', 'Permohonan Non-Litigasi Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('status', 'Status Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('bidang', 'Bidang Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('register_baru', 'Nomor Register Baru Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('luas', 'Luas Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('pic', 'Pic Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('penyimpanan_rak', 'Penyimpanan Rak Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('alamat', 'Alamat Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('jenis', 'Jenis Harus Di Isi', 'required');
         // $this->form_validation->set_rules('tgl_nonlit', 'Tanggal Non-Litigasi Harus Di Isi', 'required');
         // $this->form_validation->set_rules('team_nonlit', 'Team Non-Litigasi Harus Di Isi', 'required');
-        $this->form_validation->set_rules('status', 'Status Harus Di Isi', 'required');
-        $this->form_validation->set_rules('bidang', 'Bidang Harus Di Isi', 'required');
         // $this->form_validation->set_rules('keterangan', 'Keterangan Harus Di Isi', 'required');
-        $this->form_validation->set_rules('register_baru', 'Nomor Register Baru Harus Di Isi', 'required');
-        $this->form_validation->set_rules('luas', 'Luas Harus Di Isi', 'required');
-        $this->form_validation->set_rules('pic', 'Pic Harus Di Isi', 'required');
-        $this->form_validation->set_rules('penyimpanan_rak', 'Penyimpanan Rak Harus Di Isi', 'required');
-        $this->form_validation->set_rules('alamat', 'Alamat Harus Di Isi', 'required');
-        $this->form_validation->set_rules('jenis', 'Jenis Harus Di Isi', 'required');
-        // // echo "<script type='text/javascript'>
-        // //     alert(' Harus di isi semua field ');
-        // //     window.location.href ='" . base_url('nonlit') . "';
-        // //     </script>";
+        // echo "<script type='text/javascript'>
+        //     alert(' Harus di isi semua field ');
+        //     window.location.href ='" . base_url('nonlit') . "';
+        //     </script>";
 
         if ($this->form_validation->run() == FALSE) {
             cek_csrf();
             echo json_encode(array('status' => 'gagal', 'message' => 'Harus di isi.'));
         } else {
             cek_csrf();
+$registers = $this->input->post('register_baru', true);
+            // Gabungkan array [123, 456] menjadi string "123; 456"
+    $string_register = is_array($registers) ? implode('; ', $registers) : $registers;
             $data = array(
                 'permohonan_nonlit' => $this->input->post('permohonan_nonlit', TRUE),
                 // 'token' => $this->input->post('token', TRUE),
@@ -136,7 +139,7 @@ class Nonlit extends CI_Controller
                 'keterangan' => $this->input->post('keterangan', TRUE),
                 'team_nonlit' => $this->input->post('team_nonlit', TRUE),
                 'tgl_nonlit' => $this->input->post('tgl_nonlit', TRUE),
-                'register_baru' => $this->input->post('register_baru', TRUE),
+                'register_baru' => $string_register,
                 'luas' => $this->input->post('luas', TRUE),
                 'alamat' => $this->input->post('alamat', TRUE),
                 'pic' => $this->input->post('pic', TRUE),
@@ -161,13 +164,13 @@ class Nonlit extends CI_Controller
         $this->form_validation->set_rules('permohonan_nonlit', ' Permohonan Non-Litigasi Harus Di Isi', 'required');
         // $this->form_validation->set_rules('tgl_nonlit', 'Tanggal Non-Litigasi Harus Di Isi', 'required');
         // $this->form_validation->set_rules('team_nonlit', 'Team Non-Litigasi Harus Di Isi', 'required');
-        $this->form_validation->set_rules('bidang', 'Bidang Harus Di Isi', 'required');
-        $this->form_validation->set_rules('status', 'Status Harus Di Isi', 'required');
-        $this->form_validation->set_rules('register_baru', 'Nomor Register Baru Harus Di Isi', 'required');
-        $this->form_validation->set_rules('pic', 'PIC Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('bidang', 'Bidang Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('status', 'Status Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('register_baru', 'Nomor Register Baru Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('pic', 'PIC Harus Di Isi', 'required');
         // $this->form_validation->set_rules('alamat', 'Alamat Harus Di Isi', 'required');
         // $this->form_validation->set_rules('luas', 'Luas Harus Di Isi', 'required');
-        $this->form_validation->set_rules('penyimpanan_rak', 'Penyimpanan Rak Harus Di Isi', 'required');
+        // $this->form_validation->set_rules('penyimpanan_rak', 'Penyimpanan Rak Harus Di Isi', 'required');
 
 
         if ($this->form_validation->run() == FALSE) {
@@ -176,6 +179,9 @@ class Nonlit extends CI_Controller
         } else {
             cek_csrf();
 
+$registers = $this->input->post('register_baru', true);
+            // Gabungkan array [123, 456] menjadi string "123; 456"
+    $string_register = is_array($registers) ? implode('; ', $registers) : $registers;
 
             date_default_timezone_set('Asia/Jakarta'); // Untuk WIB 
 
@@ -187,7 +193,7 @@ class Nonlit extends CI_Controller
             $bidang = $this->input->post('bidang', TRUE);
             $jenis = $this->input->post('jenis', TRUE);
             $status = $this->input->post('status', TRUE);
-            $register_baru = $this->input->post('register_baru', TRUE);
+            $register_baru = $string_register;
             $keterangan = $this->input->post('keterangan', TRUE);
             $luas = $this->input->post('luas', TRUE);
             $pic = $this->input->post('pic', TRUE);
@@ -227,8 +233,73 @@ class Nonlit extends CI_Controller
         }
     }
 
+public function detail($id)
+{
+    if ($this->session->userdata('status') != 'login') {
+        redirect('auth/logout');
+    } else {
+        // 1. Ambil data utama dari tabel nonlit
+        $fetch = $this->m_nonlit->get_byid_nonlit($id);
+        $fetch_detail = $this->m_nonlit->get_byid($id);
+        
+        // 2. Logika pencarian banyak register ke DB Sertifikasi
+        $features = [];
+        if (!empty($fetch['register_baru'])) {
+            // Pecah string "123; 456" menjadi array ['123', '456']
+            $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
 
-    public function detail($id)
+            // Ambil semua polygon yang cocok dari sertifikasi_v2
+            $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
+            $this->db->from('sertifikasi_v2.peta_gis');
+            $this->db->where_in('register_baru', $reg_array);
+$this->db->where('geometry IS NOT NULL'); // Tambahkan ini 
+            $polygons = $this->db->get()->result_array();
+
+            // Format data menjadi FeatureCollection GeoJSON
+            foreach ($polygons as $poly) {
+                if (!empty($poly['geometry'])) {
+                    $features[] = [
+                        "type" => "Feature",
+                        "properties" => [
+                            "id_aset" => $poly['id_aset'],
+                            "ALAMAT" => $poly['ALAMAT'],
+                            "KELURAHAN" => $poly['KELURAHAN'],
+                            "KECAMATAN" => $poly['KECAMATAN'],
+                            "NO_SERTIFI" => $poly['NO_SERTIFI'],
+                            "register_baru" => $poly['register_baru']
+                        ],
+                        "geometry" => json_decode($poly['geometry'], true)
+                    ];
+                }
+            }
+        }
+
+        $geojson_result = [
+            "type" => "FeatureCollection",
+            "features" => $features
+        ];
+
+        $list_pic = $this->m_pic->get_all_pic();
+        
+        $data = array(
+            'master' => $fetch,
+            'id' => $id,
+            'det' => $fetch_detail,
+            'list_pic' => $list_pic,
+            // Kirim hasil gabungan polygon ke view
+            'polygon' => json_encode($geojson_result), 
+            'masterpage' => 'layout/layout2',
+            'content' => 'nonlit/detail',
+            'peta' => 'nonlit/peta_detail',
+            'footer' => 'layout/footer',
+            'tab' => 'nonlit/tab_detail',
+            'title' => 'Daftar Nonlitigasi'
+        );
+        
+        $this->load->view($data['masterpage'], $data);
+    }
+}
+    public function detail2($id)
     {
 
         if ($this->session->userdata('status') != 'login') {

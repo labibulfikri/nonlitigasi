@@ -95,9 +95,9 @@ $db['db_sertifikasi'] = array(
 );
 $db['default'] = array(
 	'dsn'	=> '',
-	 'hostname' => '172.17.126.83',
-	 'username' => 'bpkad',
-	 'password' => 'bpkad_123',
+		 'hostname' => '172.17.126.83',
+		 'username' => 'bpkad',
+		 'password' => 'bpkad_123',
 	// 'hostname' => 'localhost',
 	// 'username' => 'root',
 	// 'password' => '',

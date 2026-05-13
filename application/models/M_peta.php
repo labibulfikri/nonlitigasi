@@ -8,6 +8,44 @@ class M_peta extends CI_Model
     {
         parent::__construct();
     }
+private function safe_query($sql, $params = []) {
+        $query = $this->db->query($sql, $params);
+        if (!$query) {
+            $error = $this->db->error();
+            log_message('error', 'Query Error: ' . $error['message']);
+            return [];
+        }
+        return $query->result_array();
+    }
+
+    public function get_all_layers() {
+        $db_peta = "sertifikasi_v2"; 
+        $db_nonlit = "nonlit";
+        
+        // Gunakan REGEXP untuk mencocokkan register tunggal di string register_baru (123; 456)
+        $sql_poly = "SELECT s.id_aset, s.alamat, s.register_baru as simbada, s.geometry, n.permohonan_nonlit,
+                    (CASE WHEN n.register_baru REGEXP CONCAT('[[:<:]]', TRIM(s.register_baru), '[[:>:]]') THEN 'bermasalah' ELSE 'aman' END) as status_aset
+                    FROM `$db_peta`.peta_gis s
+                    LEFT JOIN `$db_nonlit`.nonlits n ON n.register_baru REGEXP CONCAT('[[:<:]]', TRIM(s.register_baru), '[[:>:]]')";
+        
+        return [
+            'polygon' => $this->safe_query($sql_poly),
+            'point'   => $this->safe_query("SELECT id, Name, geometry FROM `$db_peta`.peta_point"),
+            'garis'   => $this->safe_query("SELECT id, Name, geometry FROM `$db_peta`.peta_garis")
+        ];
+    }
+
+    public function search_asset($keyword) {
+        $db_peta = "sertifikasi_v2"; 
+        $db_nonlit = "nonlit";
+        $sql = "SELECT s.id_aset, s.alamat, s.register_baru as simbada, IFNULL(s.geometry, n.kordinat) as geometry, 
+                n.permohonan_nonlit, n.register_baru
+                FROM `$db_nonlit`.nonlits n
+                LEFT JOIN `$db_peta`.peta_gis s ON n.register_baru REGEXP CONCAT('[[:<:]]', TRIM(s.register_baru), '[[:>:]]')
+                WHERE n.permohonan_nonlit LIKE ? OR n.register_baru LIKE ? OR s.register_baru LIKE ? OR s.alamat LIKE ? LIMIT 10";
+
+        return $this->safe_query($sql, array_fill(0, 4, "%$keyword%"));
+    }
 
     function by_id($id)
     {
@@ -29,30 +67,85 @@ class M_peta extends CI_Model
         $query = $this->db->get();
         return $query->result_array();
     }
+   public function getAll() {// Nama database sesuai penjelasan Anda
+        $db_peta = "sertifikasi_v2";
+        $db_nonlit = "nonlit";
 
-    function getAll()
-    {
+        $sql = "SELECT 
+                    s.id_aset, 
+                    s.alamat, 
+                    s.register_baru as simbada_sertif, 
+                    s.geometry as geom_sertif,
+                    n.register_baru as simbada_nonlit,
+                    n.kordinat as geom_nonlit, -- Kolom kordinat di tabel nonlits
+                    n.permohonan_nonlit,
+                    (CASE WHEN n.register_baru IS NOT NULL THEN 'bermasalah' ELSE 'aman' END) as status_aset
+                FROM `$db_peta`.peta_gis s
+                LEFT JOIN `$db_nonlit`.nonlits n ON TRIM(s.register_baru) = TRIM(n.register_baru)
+                
+                UNION -- Menggabungkan data yang ada di nonlits tapi tidak ada di peta_gis
+                
+                SELECT 
+                    NULL as id_aset, 
+                    NULL as alamat, 
+                    NULL as simbada_sertif, 
+                    NULL as geom_sertif,
+                    n.register_baru as simbada_nonlit,
+                    n.kordinat as geom_nonlit,
+                    n.permohonan_nonlit,
+                    'bermasalah' as status_aset
+                FROM `$db_nonlit`.nonlits n
+                WHERE n.register_baru NOT IN (SELECT register_baru FROM `$db_peta`.peta_gis WHERE register_baru IS NOT NULL)";
 
-        $table = "peta_gis";
-        $select_column = array(
-            "id",
-            // "nama_gis",
-            // "alamat",
-            // "kelurahan",
-            "geometry"
-        );
+        return $this->db->query($sql)->result_array();
+}
+// public function search_asset($keyword) {
+//     $db_peta = "sertifikasi_v2";
+//     $db_nonlit = "nonlit";
 
-        $this->db->select($select_column);
-        $this->db->from($table);
+//     $sql = "SELECT 
+//                 s.id_aset, 
+//                 s.alamat, 
+//                 s.register_baru as simbada, 
+//                 s.geometry, 
+//                 n.permohonan_nonlit,
+//                 n.register_baru
+//             FROM `$db_peta`.peta_gis s
+//             LEFT JOIN `$db_nonlit`.nonlits n ON TRIM(s.register_baru) = TRIM(n.register_baru)
+//             WHERE (TRIM(s.register_baru) LIKE ? 
+//                OR TRIM(n.register_baru) LIKE ? 
+//                OR s.alamat LIKE ? 
+//                OR n.permohonan_nonlit LIKE ?)
+//             LIMIT 10";
 
-        // $this->db->where('id', $id);
+//     $bind = "%" . trim($keyword) . "%";
+//     $query = $this->db->query($sql, [$bind, $bind, $bind, $bind]);
 
-        $query = $this->db->get();
-        // $a = $this->db->last_query($query);
-        // print_r($a);
-        // exit();
-        return $query->result_array();
-    }
+//     return ($query) ? $query->result_array() : [];
+// }
+
+
+// public function search_asset($keyword) {
+//     $db_peta = "sertifikasi_v2";
+//     $db_nonlit = "nonlit";
+
+//     // Mencari di tabel sertifikasi yang terhubung ke nonlit
+//     // DAN mencari di tabel nonlit yang mungkin belum ada di sertifikasi
+//     $sql = "SELECT 
+//                 s.id_aset, s.alamat, s.register_baru as simbada, 
+//                 IFNULL(s.geometry, n.kordinat) as geometry, 
+//                 n.permohonan_nonlit, n.register_baru
+//             FROM `$db_nonlit`.nonlits n
+//             LEFT JOIN `$db_peta`.peta_gis s ON TRIM(n.register_baru) = TRIM(s.register_b)
+//             WHERE n.permohonan_nonlit LIKE ? 
+//                OR n.register_baru LIKE ? 
+//                OR s.register_baru LIKE ? 
+//                OR s.alamat LIKE ?
+//             LIMIT 10";
+
+//     $bind = "%$keyword%";
+//     return $this->db->query($sql, [$bind, $bind, $bind, $bind])->result_array();
+// }
 
     public function get_by_alamat($alamat)
     {

@@ -122,6 +122,7 @@
     </div>
      
  </div>
+
  <dialog id="modal_tambah" class="modal">
      <div class="modal-box max-w-3xl bg-white p-0 rounded-3xl border-none shadow-2xl">
          <div class="p-6 bg-blue-600 text-white flex justify-between items-center">
@@ -203,10 +204,15 @@
                  </div>
 
              
-                 <div class="form-control">
-                     <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Nomor Register Baru</span></label>
-                     <input type="text" name="register_baru" require class="input input-bordered bg-slate-50 rounded-xl" placeholder="Masukkan No. Register">
-                 </div>
+                <div class="mb-4">
+    <label class="block text-xs font-bold text-slate-700 mb-2 uppercase">Nomor Register Baru</label>
+    <select id="multi-register" name="register_baru[]" multiple="multiple" 
+        class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500">
+    </select>
+    <p class="text-[10px] text-slate-400 mt-1">*Ketik nomor lalu tekan Enter</p>
+</div>
+
+
                  <div class="form-control">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Luas</span></label>
                      <input type="text" name="luas" require class="input input-bordered bg-slate-50 rounded-xl" placeholder="Luas">
@@ -294,11 +300,19 @@
                  </div>
 
 
-                 <div class="form-control col-span-full">
+                 <!-- <div class="form-control col-span-full">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Register Baru</span></label>
                      <input type="text" name="register_baru" id="edit_register_baru" class="input input-bordered bg-slate-50 rounded-xl uppercase font-bold" required>
-                 </div>
-
+                 </div> -->
+<div class="form-control col-span-full">
+    <label class="label">
+        <span class="label-text font-bold text-slate-600 uppercase text-[11px]">Nomor Register Baru</span>
+    </label>
+    <select name="register_baru[]" id="edit_register_baru" multiple="multiple" class="w-full">
+        <!-- Opsi akan diisi secara dinamis melalui JavaScript saat tombol edit diklik -->
+    </select>
+    <p class="text-[10px] text-slate-400 mt-2">*Tekan Enter untuk menambah atau mengubah nomor register</p>
+</div>
 
 
                  <div class="form-control">
@@ -349,6 +363,50 @@
          </form>
      </div>
  </dialog>
+ <script>
+$(document).ready(function() {
+    // Karena DaisyUI menggunakan element <dialog>, kita pantau saat modal dibuka
+    const modalTambah = document.getElementById('modal_tambah');
+    
+    // Observer untuk mendeteksi saat atribut 'open' muncul
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === "open") {
+                if (modalTambah.hasAttribute('open')) {
+                    // Beri sedikit timeout agar render selesai
+                    setTimeout(function() {
+                        $('#multi-register').select2({
+                            tags: true,
+                            tokenSeparators: [',', ';', ' '],
+                            placeholder: "Contoh: 12345",
+                            width: '100%',
+                            // PENTING: dropdownParent harus ke .modal-box
+                            dropdownParent: $('#modal_tambah .modal-box')
+                        });
+                    }, 100);
+                }
+            }
+        });
+    });
+
+    observer.observe(modalTambah, { attributes: true });
+});
+</script>
+
+<style>
+    /* Merapikan tampilan Select2 agar menyatu dengan DaisyUI */
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 5px;
+        min-height: 45px;
+        background-color: #f9fafb;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: #2563eb;
+        outline: none;
+    }
+</style>
  <script>
      // --- 1. VARIABEL GLOBAL ---
      let currentView = 'list';
@@ -953,7 +1011,16 @@ function copyLinkOnly(text) {
              }
          });
      });
-
+const modalUpdate = document.getElementById('modal_edit'); // Sesuaikan ID modal update Anda
+    
+    // Inisialisasi Select2
+    $('#edit_register_baru').select2({
+        tags: true,
+        tokenSeparators: [',', ';', ' '],
+        placeholder: "Masukkan Nomor Register...",
+        width: '100%',
+        dropdownParent: $('#modal_edit .modal-box') // Agar tidak terkunci di modal DaisyUI
+    }); 
      function editData(id) {
          $.ajax({
              url: "<?= base_url('nonlit/get_data_by_id/') ?>" + id,
@@ -962,11 +1029,31 @@ function copyLinkOnly(text) {
              success: function(item) {
                  if (item) {
                      // 1. Isi field teks dasar
-                     $('#edit_id').val(item.id);
+                    //  $('#edit_register_baru').val(item.register_baru);
+// SINKRONISASI SELECT2 REGISTER_BARU
+            let selectElement = $('#edit_register_baru');
+            selectElement.empty(); // Kosongkan opsi lama
+
+            if (item.register_baru) {
+                // Pecah string "123; 456" menjadi array
+                let regs = item.register_baru.split(';').map(item => item.trim());
+                
+                regs.forEach(function(reg) {
+                    if (reg !== "") {
+                        // Buat opsi baru dan tandai sebagai terpilih (selected)
+                        let newOption = new Option(reg, reg, true, true);
+                        selectElement.append(newOption);
+                    }
+                });
+            }
+            
+            // Trigger refresh agar Select2 menampilkan tags yang baru ditambahkan
+            selectElement.trigger('change');
+
+                    $('#edit_id').val(item.id);
                      $('#display_edit_id').text(item.id);
                      $('#edit_permohonan').val(item.permohonan_nonlit);
                      $('#edit_alamat').val(item.alamat);
-                     $('#edit_register_baru').val(item.register_baru);
                      $('#edit_tgl_nonlit').val(item.tgl_nonlit);
                      $('#edit_penyimpanan_rak').val(item.penyimpanan_rak);
                      $('#edit_luas').val(item.luas);

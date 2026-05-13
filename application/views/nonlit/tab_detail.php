@@ -20,12 +20,28 @@
                     <div class="stat-desc text-[10px] italic opacity-70">Lokasi Arsip Fisik</div>
                 </div>
             </div>
-            <div class="stats shadow bg-base-200 border border-base-300 flex-1">
+            <!-- <div class="stats shadow bg-base-200 border border-base-300 flex-1">
                 <div class="stat p-4">
                     <div class="stat-title text-[10px] font-bold uppercase opacity-60">No. Register</div>
                     <div class="stat-value text-xl font-black"><?= $master['register_baru'] ?></div>
                 </div>
-            </div>
+            </div> -->
+
+            <div class="stats shadow bg-base-200 border border-base-300 flex-1">
+    <div class="stat p-4">
+        <div class="stat-title text-[10px] font-bold uppercase opacity-60">No. Register (Klik untuk Fokus)</div>
+        <div class="stat-value text-xl font-black flex flex-wrap gap-2">
+            <?php 
+            $regs = array_map('trim', explode(';', $master['register_baru']));
+            foreach ($regs as $r): ?>
+                <span class="badge badge-outline cursor-pointer hover:bg-blue-600 hover:text-white transition-all btn-focus-map" 
+                      data-reg="<?= $r ?>">
+                    <?= $r ?>
+                </span>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
         </div>
 
         <div class="card bg-base-100 border border-base-300 shadow-sm">
@@ -111,10 +127,20 @@
                     <input type="text" name="alamat" id="edit_alamat" class="input input-bordered bg-slate-50 rounded-xl" placeholder="Masukkan alamat lokasi jika ada">
                 </div>
 
-                <div class="form-control col-span-full">
+                <!-- <div class="form-control col-span-full">
                     <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Register Baru</span></label>
                     <input type="text" name="register_baru" id="edit_register_baru" class="input input-bordered bg-slate-50 rounded-xl uppercase font-bold" required>
-                </div>
+                </div> -->
+
+                <div class="form-control col-span-full">
+    <label class="label">
+        <span class="label-text font-bold text-slate-600 uppercase text-[11px]">Nomor Register Baru</span>
+    </label>
+    <select name="register_baru[]" id="edit_register_baru" multiple="multiple" class="w-full">
+        <!-- Opsi akan diisi secara dinamis melalui JavaScript saat tombol edit diklik -->
+    </select>
+    <p class="text-[10px] text-slate-400 mt-2">*Tekan Enter untuk menambah atau mengubah nomor register</p>
+</div>
 
                 <div class="form-control">
                     <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Bidang</span></label>
@@ -167,15 +193,51 @@
     </div>
 </dialog>
 <script>  
+
+
+$(document).ready(function() {
+    // 1. Inisialisasi awal Select2 pada Modal Update
+    const modalUpdate = document.getElementById('modal_edit'); // Sesuaikan ID modal update Anda
+    
+    // Inisialisasi Select2
+    $('#edit_register_baru').select2({
+        tags: true,
+        tokenSeparators: [',', ';', ' '],
+        placeholder: "Masukkan Nomor Register...",
+        width: '100%',
+        dropdownParent: $('#modal_edit .modal-box') // Agar tidak terkunci di modal DaisyUI
+    });
+});
 function edit_data(id) {
     $.ajax({
         url: "<?= base_url('nonlit/get_data_by_id/') ?>" + id,
         type: "GET",
         dataType: "JSON",
         success: function(data) {
+
+        // SINKRONISASI SELECT2 REGISTER_BARU
+            let selectElement = $('#edit_register_baru');
+            selectElement.empty(); // Kosongkan opsi lama
+
+            if (data.register_baru) {
+                // Pecah string "123; 456" menjadi array
+                let regs = data.register_baru.split(';').map(item => item.trim());
+                
+                regs.forEach(function(reg) {
+                    if (reg !== "") {
+                        // Buat opsi baru dan tandai sebagai terpilih (selected)
+                        let newOption = new Option(reg, reg, true, true);
+                        selectElement.append(newOption);
+                    }
+                });
+            }
+            
+            // Trigger refresh agar Select2 menampilkan tags yang baru ditambahkan
+            selectElement.trigger('change');
             $('#display_edit_id').text(data.id);
             $('#edit_id').val(data.id);
             $('#edit_jenis').val(data.jenis);
+            // $('#edit_register_baru').val(data.register_baru);
             
             // PENTING: Jalankan toggle dan isi nilai instansi
             toggleInstansiUpdate(data.team_nonlit);
@@ -183,7 +245,6 @@ function edit_data(id) {
             $('#edit_tgl_nonlit').val(data.tgl_nonlit);
             $('#edit_permohonan').val(data.permohonan_nonlit);
             $('#edit_alamat').val(data.alamat);
-            $('#edit_register_baru').val(data.register_baru);
             $('#edit_bidang').val(data.bidang);
             if (data.id_pic) {
                 $('#edit_id_pic').val(data.id_pic);
@@ -258,7 +319,10 @@ $('#edit_id_pic').on('change', function() {
 
     // Proses Submit Update
 $(document).ready(function() {
+
+ 
 $('#formUpdate2').on('submit', function(e) {
+      
     e.preventDefault();
     const formData = $(this).serialize();
 

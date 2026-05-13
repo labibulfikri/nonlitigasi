@@ -17,9 +17,104 @@ class Peta extends CI_Controller
         $this->load->helper('security');
         $this->output->set_header('X-Frame-Options: SAMEORIGIN');
     }
-    public function index()
+    
+    public function index() {
+        $raw = $this->get_all_layers();
+        
+        $data['polygons'] = $this->clean_geojson($raw['polygon']);
+        $data['points']   = $this->clean_geojson($raw['point']);
+        $data['lines']    = $this->clean_geojson($raw['garis']);
+        
+        $this->load->view('nonlit/peta_fullscreen', $data);
+    }
+
+    public function get_all_layers() {
+        $db_peta = "sertifikasi_v2"; 
+        $db_nonlit = "nonlit";
+        
+        // Query Polygon dengan pengecekan status masalah
+        $sql_poly = "SELECT s.id_aset, s.alamat, s.register_baru, s.geometry, n.permohonan_nonlit,
+                    (CASE WHEN n.register_baru IS NOT NULL THEN 'bermasalah' ELSE 'aman' END) as status_aset
+                    FROM `$db_peta`.peta_gis s
+                    LEFT JOIN `$db_nonlit`.nonlits n ON n.register_baru REGEXP CONCAT('[[:<:]]', TRIM(s.register_baru), '[[:>:]]')";
+        
+        return [
+            'polygon' => $this->db->query($sql_poly)->result_array(),
+            'point'   => $this->db->query("SELECT id, Name, FolderPath, geometry FROM `$db_peta`.peta_point")->result_array(),
+            'garis'   => $this->db->query("SELECT id, Name, FolderPath, geometry FROM `$db_peta`.peta_garis")->result_array()
+        ];
+    }
+
+    public function ajax_search() {
+        $keyword = $this->input->post('keyword');
+        $db_peta = "sertifikasi_v2"; 
+        $db_nonlit = "nonlit";
+
+        $sql = "SELECT register_baru, permohonan_nonlit FROM `$db_nonlit`.nonlits 
+                WHERE register_baru LIKE ? OR permohonan_nonlit LIKE ? LIMIT 10";
+        $results = $this->db->query($sql, ["%$keyword%", "%$keyword%"])->result_array();
+
+        $dropdown_data = [];
+        foreach ($results as $row) {
+            $regs = array_map('trim', explode(';', $row['register_baru']));
+            foreach ($regs as $r) {
+                if (stripos($r, $keyword) !== false || stripos($row['permohonan_nonlit'], $keyword) !== false) {
+                    // Pastikan nama kolom di peta_gis adalah register_baru
+                    $cek_map = $this->db->get_where("$db_peta.peta_gis", ['register_baru' => $r])->num_rows();
+                    $dropdown_data[] = [
+                        'register' => $r,
+                        'permohonan' => $row['permohonan_nonlit'],
+                        'has_map' => ($cek_map > 0)
+                    ];
+                }
+            }
+        }
+        echo json_encode($dropdown_data);
+    }
+
+    private function clean_geojson($data) {
+        $features = [];
+        foreach ($data as $row) {
+            if (!empty($row['geometry'])) {
+                $decoded = json_decode($row['geometry'], true);
+                $geom = isset($decoded['geometry']) ? $decoded['geometry'] : $decoded;
+
+                if (isset($geom['type']) && isset($geom['coordinates'])) {
+                    if ($geom['type'] === 'Point') {
+                        $geom['coordinates'] = [(float)$geom['coordinates'][0], (float)$geom['coordinates'][1]];
+                    } elseif ($geom['type'] === 'LineString' || $geom['type'] === 'Polygon') {
+                        $geom['coordinates'] = $this->recursive_clean($geom['coordinates']);
+                    }
+                }
+
+                $features[] = [
+                    "type" => "Feature",
+                    "properties" => [
+                        "nama" => $row['Name'] ?? ($row['register_baru'] ?? 'Tanpa Nama'),
+                        "alamat" => $row['alamat'] ?? '',
+                        "folder" => $row['FolderPath'] ?? '',
+                        "simbada" => $row['register_baru'] ?? '',
+                        "status_aset" => $row['status_aset'] ?? (!empty($row['permohonan_nonlit']) ? 'bermasalah' : 'aman')
+                    ],
+                    "geometry" => $geom
+                ];
+            }
+        }
+        return json_encode(["type" => "FeatureCollection", "features" => $features]);
+    }
+
+    private function recursive_clean($coords) {
+        if (!is_array($coords[0])) {
+            return [(float)$coords[0], (float)$coords[1]];
+        }
+        return array_map([$this, 'recursive_clean'], $coords);
+    }
+
+    public function index2()
     {
         $json_string2 = $this->m_peta->getAll();
+       
+
 
         $polygons = [];
         foreach ($json_string2 as $row) {
@@ -51,9 +146,46 @@ class Peta extends CI_Controller
         );
         $this->load->view($data['masterpage'], $data);
     }
-    public function search()
+
+    public function search() {
+    $keyword = $this->input->get('search');
+    $results = $this->m_peta->searchByAlamat($keyword);
+ 
+    $features = [];
+    foreach ($results as $row) {
+        $geometry = null;
+
+        // 1. Cek dulu apakah ada geometri dari tabel Sertifikasi (Simbada)
+        if (!empty($row['geom_sertifikasi'])) {
+            $geometry = json_decode($row['geom_sertifikasi'], true);
+        } 
+        // 2. Jika Sertifikasi kosong, gunakan koordinat dari Nonlit sebagai cadangan
+        elseif (!empty($row['geom_nonlit'])) {
+            $dec = json_decode($row['geom_nonlit'], true);
+            // Jika isi geom_nonlit adalah format Feature lengkap, ambil bagian geometry-nya saja
+            $geometry = (isset($dec['geometry'])) ? $dec['geometry'] : $dec;
+        }
+
+        if ($geometry) {
+            $features[] = [
+                "type" => "Feature",
+                "properties" => [
+                    "id" => $row['id'],
+                    "nama" => $row['permohonan_nonlit'],
+                    "alamat" => $row['alamat'] ?? 'Alamat tidak terdaftar di Simbada',
+                    "register" => $row['register_b'] ?? 'N/A'
+                ],
+                "geometry" => $geometry
+            ];
+        }
+    }
+    
+    header('Content-Type: application/json');
+    echo json_encode($features);
+}
+    public function search3()
     {
-        $search = $this->input->get('search');
+        $search = $this->input->get('search', true);
         $this->load->model('m_peta');
 
         // Ambil data berdasarkan alamat
