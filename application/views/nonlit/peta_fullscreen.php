@@ -170,7 +170,7 @@
             onEachFeature: function(f, l) {
                 l.bindPopup(`<div class="p-4 text-xs font-bold text-blue-600"><i class="mdi mdi-shield-check mr-2"></i> ${f.properties.nama}</div>`);
             }
-        }).addTo(map);
+        });
 
         // 4. Render Batas Pagar (Line)
         var lines = L.geoJSON(<?php echo $lines; ?>, {
@@ -179,7 +179,7 @@
             onEachFeature: function(f, l) {
                 l.bindPopup(`<div class="p-4 text-xs font-bold text-green-600"><i class="mdi mdi-vector-line mr-2"></i> ${f.properties.nama}</div>`);
             }
-        }).addTo(map);
+        });
 
         // 5. Legend Control
         L.control.layers(
@@ -205,17 +205,20 @@
                     data.forEach(item => {
                         let statusColor = item.has_map ? 'bg-green-500' : 'bg-slate-300';
                         list.append(`
-                            <div class="p-4 hover:bg-blue-50/50 cursor-pointer flex items-center gap-4 transition-all select-item group" data-reg="${item.register}" data-map="${item.has_map}">
-                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center ${item.has_map ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'}">
-                                    <i class="mdi ${item.has_map ? 'mdi-map-check' : 'mdi-map-marker-off'} text-xl"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="text-sm font-bold text-slate-800">${item.register}</div>
-                                    <div class="text-[11px] text-slate-500 truncate font-medium">${item.permohonan}</div>
-                                </div>
-                                <div class="w-2 h-2 rounded-full ${statusColor} group-hover:scale-125 transition-transform"></div>
-                            </div>
-                        `);
+    <div class="p-4 hover:bg-blue-50/50 cursor-pointer flex items-center gap-4 transition-all select-item group" data-reg="${item.register}" data-map="${item.has_map}">
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center ${item.has_map ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'}">
+            <i class="mdi ${item.has_map ? 'mdi-map-check' : 'mdi-map-marker-off'} text-xl"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="text-sm font-bold text-slate-800">${item.register}</div>
+            <!-- Perubahan di sini: hapus truncate, tambahkan whitespace-normal -->
+            <div class="text-[11px] text-slate-500 font-medium whitespace-normal break-words leading-tight mt-1">
+                ${item.permohonan}
+            </div>
+        </div>
+        <div class="w-2 h-2 rounded-full ${statusColor} group-hover:scale-125 transition-transform flex-shrink-0"></div>
+    </div>
+`);
                     });
                 } else {
                     list.append('<div class="p-6 text-center text-slate-400 text-sm font-medium italic"><i class="mdi mdi-database-off-outline block text-2xl mb-2"></i> Data tidak ditemukan</div>');
