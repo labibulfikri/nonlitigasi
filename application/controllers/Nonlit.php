@@ -79,6 +79,7 @@ class Nonlit extends CI_Controller
         $sub_array['no']                = $no;
         $sub_array['id']                = $row->id;
         $sub_array['jenis']             = $row->jenis;
+        $sub_array['register_baru']     = $row->register_baru;
         $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit));
         $sub_array['pic']               = $row->pic ?: 'N/A';
         $sub_array['tgl_nonlit']        = date('d-m-Y', strtotime($row->tgl_nonlit));

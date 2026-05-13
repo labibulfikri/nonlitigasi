@@ -480,7 +480,8 @@ $(document).ready(function() {
                 <div class="flex items-center gap-3 mt-1">
                     <span class="text-[10px] font-bold text-slate-500 flex items-center gap-1"><i class="mdi mdi-account-circle-outline text-blue-500"></i> ${item.pic}</span>
                     <span class="text-[10px] font-bold text-slate-400">•</span>
-                    <span class="text-[10px] font-bold text-purple-600 flex items-center gap-1 uppercase tracking-tighter"><i class="mdi mdi-archive-outline"></i> RAK: ${item.penyimpanan_rak || '-'}</span>
+                    <span class="text-[10px] font-bold text-purple-600 flex items-center gap-1 uppercase tracking-tighter"><i class="mdi mdi-archive-outline"></i> RAK: ${item.penyimpanan_rak || '-'} </span> 
+                    <span class="text-[10px] font-bold text-teal-600 flex items-center gap-1 uppercase tracking-tighter"><i class="mdi mdi-archive-outline"></i>  No Register: ${item.register_baru || '-'} </span> 
                 </div>
                 </div>
                 </a>
