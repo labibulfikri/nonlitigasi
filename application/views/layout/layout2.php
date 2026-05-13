@@ -173,7 +173,7 @@
                     </li>
 
                     <li>
-                        <a href="<?= base_url('peta') ?>" class="py-3 <?= $this->uri->segment(1) == 'peta' ? 'active-menu' : '' ?>">
+                        <a target="_blank" href="<?= base_url('peta') ?>" class="py-3 <?= $this->uri->segment(1) == 'peta' ? 'active-menu' : '' ?>">
                             <i class="mdi mdi-map-marker-outline text-xl"></i>
                             <span class="sidebar-text font-bold text-sm ml-1">Peta Digital</span>
                         </a>

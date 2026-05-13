@@ -569,6 +569,7 @@ var sumber="";
 
      }
 
+     // <li><a href="<?= base_url('peta/edit/') ?>${item.id}" class="py-3 text-emerald-600"><i class="mdi mdi-map-marker-path text-lg"></i> Edit Area Peta</a></li>
 
          return `
     <div class="dropdown dropdown-end">
@@ -577,7 +578,6 @@ var sumber="";
         </label>
         <ul tabindex="0" class="dropdown-content z-[50] menu p-2 shadow-2xl bg-base-100 rounded-2xl w-52 border border-slate-100 text-[11px] font-bold uppercase tracking-tighter">
             <li><a href="<?= base_url('nonlit/detail/') ?>${item.id}" class="py-3"><i class="mdi mdi-eye-outline text-blue-500 text-lg"></i> Detail</a></li>
-            <li><a href="<?= base_url('peta/edit/') ?>${item.id}" class="py-3 text-emerald-600"><i class="mdi mdi-map-marker-path text-lg"></i> Edit Area Peta</a></li>
             <li><button onclick="shareFolder('${sumber}', '${item.id}')" class="py-3"><i class="mdi mdi-share-variant text-lg">Share Link</i>
              </button> 
              </li>
