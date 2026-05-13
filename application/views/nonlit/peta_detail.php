@@ -109,16 +109,23 @@
  
     document.addEventListener('DOMContentLoaded', function() {
         // 1. Inisialisasi Peta (Zoom In/Out Aktif)
-        var map = L.map('map3', {
-            scrollWheelZoom: true,
-            zoomControl: true
-        }).setView([-7.2575, 112.7521], 13);
+         var map = L.map('map3', { 
+            zoomControl: false,
+            attributionControl: false 
+        }).setView([-7.2575, 112.7521], 12);
 
-        L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        // --- BASE MAP DENGAN NAMA JALAN ---
+        var googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
             maxZoom: 20, 
             subdomains: ['mt0','mt1','mt2','mt3']
         }).addTo(map);
 
+        var googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20, 
+            subdomains: ['mt0','mt1','mt2','mt3']
+        });
         // 2. Load Data GeoJSON Merah
         var geojsonData = <?php echo $polygon; ?>;
         var geojsonLayer;
