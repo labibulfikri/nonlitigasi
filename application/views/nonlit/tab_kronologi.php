@@ -434,23 +434,27 @@
 
 <script>
     function filterBerkas() {
-    // Ambil input dan nilai pencarian
-    let input = document.getElementById('search_berkas');
-    let filter = input.value.toUpperCase();
-    let ul = document.getElementById("menu_berkas");
-    let li = ul.getElementsByTagName('li');
+    // 1. Ambil nilai dari input pencarian
+    let input = document.getElementById("search_berkas").value.toLowerCase();
+    
+    // 2. Targetkan semua elemen elemen <li> di dalam #menu_berkas
+    let listItems = document.querySelectorAll("#menu_berkas > li");
 
-    // Looping melalui semua list item
-    for (let i = 0; i < li.length; i++) {
-        // Cari elemen span yang berisi judul_berkas
-        let span = li[i].getElementsByClassName("truncate")[0];
-        let txtValue = span.textContent || span.innerText;
+    for (let i = 0; i < listItems.length; i++) {
+        // 3. Ambil elemen tag <span> yang menampung nama judul berkas ($key->judul_berkas)
+        // Kita menggunakan querySelector untuk mengambil span pertama yang berisi teks utama
+        let spanNamaBerkas = listItems[i].querySelector("span.font-bold"); 
 
-        // Jika teks cocok dengan input, tampilkan. Jika tidak, sembunyikan.
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            li[i].style.display = "";
-        } else {
-            li[i].style.display = "none";
+        // 4. VALIDASI: Pastikan elemen span ditemukan sebelum mengambil textContent
+        if (spanNamaBerkas) {
+            let textValue = spanNamaBerkas.textContent || spanNamaBerkas.innerText;
+            
+            // 5. Lakukan penyaringan teks
+            if (textValue.toLowerCase().indexOf(input) > -1) {
+                listItems[i].style.display = ""; // Tampilkan <li> jika cocok
+            } else {
+                listItems[i].style.display = "none"; // Sembunyikan <li> jika tidak cocok
+            }
         }
     }
 }
