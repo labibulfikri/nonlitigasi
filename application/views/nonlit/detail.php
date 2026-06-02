@@ -55,22 +55,31 @@
         >
     </div>
 </div>
-                    <ul class="menu menu-vertical gap-2" id="menu_lampiran">
+               <ul class="menu menu-vertical gap-2" id="menu_lampiran">
     <?php foreach ($det as $key) { ?>
-        <li>
-            <a onclick="setActiveMenu(this)" id="<?= $key->id ?>"
-                class="flex flex-col items-start p-4 border border-base-200 hover:bg-primary/5 hover:border-primary transition-all rounded-xl group bg-base-100 w-full overflow-hidden">
+        <li class="border border-base-200 hover:border-primary bg-base-100 rounded-xl overflow-hidden transition-all shadow-sm">
+            
+            <div onclick="setActiveMenu(this)" id="<?= $key->id ?>"
+                 class="flex flex-col items-start p-4 cursor-pointer group hover:bg-primary/5 transition-all w-full">
                 
-                <!-- Judul Rapat dengan word-wrap -->
                 <span class="font-bold uppercase text-xs text-base-content group-hover:text-primary break-words w-full leading-normal">
                     <?= $key->judul_rapat ?>
                 </span>
                 
-                <!-- Tanggal Rapat -->
-                <span class="text-[10px] opacity-50 italic mt-1">
+                <span class="text-[10px] opacity-50 italic mt-1 block">
                     <?= date('d M Y', strtotime($key->tgl_rapat)) ?>
                 </span>
-            </a>
+            </div>
+
+            <div class="px-4 pb-4 pt-1 bg-base-100">
+                <a href="<?= base_url('assets/berkas_nonlit/' . $key->berkas) ?>" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="flex items-center justify-center gap-1.5 w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center py-2 px-3 rounded-lg text-xs font-semibold shadow-sm transition-all">
+                    <i class="mdi mdi-open-in-new text-sm"></i> Preview Dokumen
+                </a>
+            </div>
+
         </li>
     <?php } ?>
 </ul>

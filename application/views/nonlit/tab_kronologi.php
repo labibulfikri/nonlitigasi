@@ -54,23 +54,33 @@
         >
     </div>
 </div>
-                    <?= crsf_ajax() ?>
-                    <ul class="menu menu-vertical gap-3" id="menu_berkas">
+                  <?= crsf_ajax() ?>
+<ul class="menu menu-vertical gap-3" id="menu_berkas">
     <?php foreach ($lampiran as $key) { ?>
-        <li>
-            <a onclick="setActiveMenuKronologi(this)" id="<?= $key->id ?>"
-                class="flex items-center gap-4 p-4 border border-base-200 hover:bg-primary hover:text-white transition-all rounded-2xl group shadow-sm">
-                <div class="bg-primary group-hover:bg-white/20 p-3 rounded-xl flex-shrink-0">
+        <li class="relative border border-base-200 rounded-2xl shadow-sm p-4 hover:bg-slate-50 transition-all">
+            <div onclick="setActiveMenuKronologi(this)" id="<?= $key->id ?>" class="flex items-start gap-4 cursor-pointer group">
+                
+                <div class="bg-primary p-3 rounded-xl flex-shrink-0">
                     <i class="mdi mdi-file-document-outline text-2xl text-white"></i>
                 </div>
+                
                 <div class="flex-1 min-w-0">
-                    <!-- Perubahan di baris bawah ini: menghapus truncate -->
-                    <span class="font-bold text-black uppercase text-xs break-words leading-relaxed">
+                    <span class="font-bold text-black uppercase text-xs break-words leading-relaxed block">
                         <?= $key->judul_berkas ?>
-                    </span>
+                    </span> 
                     <span class="text-black opacity-60 text-[10px] block mt-1">ID Berkas: #<?= $key->id ?></span>
                 </div>
-            </a>
+            </div>
+
+            <div class="flex gap-2 mt-4 pt-3 border-t border-dashed border-gray-200">
+                <a href="<?= base_url('assets/berkas_lampiran/' . $key->nama_berkas) ?>" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="flex-1 bg-primary text-white text-center justify-center py-2 px-3 rounded-xl flex items-center text-xs font-semibold shadow-sm hover:bg-primary-focus transition-all">
+                    <i class="mdi mdi-eye-outline text-base mr-1.5"></i> Preview Berkas
+                </a>
+                
+                </div>
         </li>
     <?php } ?>
 </ul>

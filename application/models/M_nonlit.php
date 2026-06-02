@@ -261,6 +261,7 @@ class M_nonlit extends CI_Model
             "nonlit_det.judul_rapat",
             "nonlit_det.tgl_rapat",
             "nonlit_det.kesimpulan",
+            "nonlit_det.berkas",
 
         );
         $this->db->select($select_column);
