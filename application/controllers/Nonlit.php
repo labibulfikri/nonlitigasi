@@ -728,7 +728,41 @@ $this->db->where('geometry IS NOT NULL'); // Tambahkan ini
             echo json_encode($response);
         }
     }
-    function upload_berkas_lampiran()
+
+public function upload_berkas_lampiran() {
+    $id_nonlit = $this->input->post('id_nonlit', TRUE);
+    
+    // Konfigurasi Library Upload
+    $config['upload_path']   = './assets/berkas_lampiran/';
+    $config['allowed_types'] = 'pdf|jpg|png';
+    $config['max_size']      = 20480; // 20 MB (Cukup untuk file 15 MB)
+    $config['encrypt_name']  = TRUE;  // Penting untuk keamanan
+
+    $this->load->library('upload', $config);
+
+    if (!$this->upload->do_upload('file')) {
+        // Jika gagal, ambil pesan errornya
+        $error = $this->upload->display_errors();
+        echo "<script>alert('Gagal: $error'); window.history.back();</script>";
+    } else {
+        // Jika sukses, ambil data
+        $upload_data = $this->upload->data();
+        $data = array(
+            "id_nonlit"    => $id_nonlit,
+            "nama_berkas"  => $upload_data['file_name'],
+            "judul_berkas" => $this->input->post('judul_berkas', TRUE),
+            "keterangan"   => $this->input->post('keterangan', TRUE)
+        );
+        
+        $this->m_nonlit->upload_berkas_nonlit($data);
+        
+        echo "<script>
+                alert('Berhasil menambahkan data :)');
+                window.location.href = '" . base_url('nonlit/tab_kronologi/' . $id_nonlit) . "';
+              </script>";
+    }
+}
+    function upload_berkas_lampiran2()
     {
         $this->form_validation->set_rules('id_nonlit', 'Harus Di Isi', 'required');
 
@@ -741,7 +775,8 @@ $this->db->where('geometry IS NOT NULL'); // Tambahkan ini
 
             $config['upload_path'] = './assets/berkas_lampiran/';
             $config['allowed_types'] = 'pdf';
-            $config['max_size'] = 10000;
+            $config['max_size'] = 20480;
+
             $config['file_name'] = 'BERKAS-NONLIT-' . date('dmY') . '-' . substr(
                 md5(rand()),
                 0,
@@ -889,7 +924,7 @@ $this->db->where('geometry IS NOT NULL'); // Tambahkan ini
 
             $config['upload_path'] = './assets/berkas_lampiran/';
             $config['allowed_types'] = 'pdf';
-            $config['max_size'] = 5000;
+            $config['max_size'] = 20480;
             $config['file_name'] = 'NONLIT-' . date('dmY') . '-' . substr(
                 md5(rand()),
                 0,
