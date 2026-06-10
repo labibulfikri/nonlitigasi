@@ -591,7 +591,7 @@ function copyLinkOnly(text) {
                 if (res.lampiran && res.lampiran.length > 0) {
                     res.lampiran.forEach(file => {
                         let fileName = file.nama_file || file.nama_berkas || file.berkas_laporan || file.name_berkas;
-                        let filePath = (sumber === 'UMUM') ? 'assets/berkas_umum/detail/' : (sumber === 'NONLIT' ? 'assets/berkas_nonlit/' : 'assets/upload/');
+                        let filePath = (sumber === 'UMUM') ? 'assets/berkas_umum/detail/' : (sumber === 'NONLIT' ? 'assets/berkas_lampiran/' : 'assets/upload/');
                         // Tombol hapus hanya muncul jika sumbernya UMUM
                         let btnDelete = (sumber === 'UMUM') ? `
                         <button onclick="deleteFile('${file.id_berkas_umum_det}', '${res.data.id_berkas_umum}')" class="btn btn-xs btn-error btn-circle text-white shadow-sm">

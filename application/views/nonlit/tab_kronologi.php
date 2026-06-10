@@ -1,4 +1,19 @@
+<style>
+/* Memaksa tombol untuk selalu terlihat dengan warna yang jelas */
+.swal2-confirm.swal2-styled {
+    background-color: #f87272 !important; /* Warna Merah DaisyUI */
+    color: white !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+}
 
+.swal2-cancel.swal2-styled {
+    background-color: #a6adbb !important; /* Warna Abu-abu DaisyUI */
+    color: white !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+}
+</style>
           <a href="javascript:void(0)" onclick="history.back()" 
    class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
    title="Kembali ke Daftar">
@@ -103,8 +118,9 @@
         </div>
     </div>
 </div>
+
 <dialog id="modal_tambah_lampiran" class="modal">
-    <div class="modal-box max-w-2xl p-0 overflow-hidden rounded-3xl border-none">
+    <div class="modal-box max-w-2xl p-0  rounded-3xl border-none">
         <div class="bg-warning p-6 text-white flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <i class="mdi mdi-file-plus text-2xl"></i>
@@ -125,14 +141,15 @@
             <div class="form-control mb-8">
                 <div class="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-warning/30 rounded-2xl bg-warning/5 hover:bg-warning/10 transition-colors">
                     <i class="mdi mdi-cloud-upload text-4xl text-warning mb-2"></i>
-                    <p class="text-xs text-slate-500 mb-4">Pilih file (PDF, JPG, PNG)</p>
+                    <p class="text-xs text-slate-500 mb-4">Pilih file (PDF) Maksimal File Size 20 MB</p>
                     <input type="file" name="file" class="file-input file-input-bordered file-input-warning w-full rounded-xl" required />
                 </div>
             </div>
 
             <div class="modal-action">
-                <form method="dialog" class="flex-1"><button class="btn btn-ghost w-full rounded-xl uppercase">Batal</button></form>
-                <button type="submit" class="btn btn-warning flex-1 text-white shadow-lg shadow-orange-100 rounded-xl uppercase">Upload Berkas</button>
+            <button type="button" onclick="document.getElementById('modal_tambah_lampiran').close()"
+                    class="btn btn-ghost flex-1 rounded-xl uppercase font-bold text-slate-500">Batal</button>    
+            <button type="submit" class="btn btn-warning flex-1 text-white shadow-lg shadow-orange-100 rounded-xl uppercase">Upload Berkas</button>
             </div>
         </form>
     </div>
@@ -182,13 +199,13 @@
                                 class="file-input file-input-bordered file-input-primary w-full rounded-xl transition-all" />
                         </div>
                         <label class="label">
-                            <span class="label-text-alt text-error italic font-medium">*Kosongkan jika tidak ingin mengganti file</span>
+                            <span class="label-text-alt text-error italic font-medium">*Kosongkan jika tidak ingin mengganti file, Ukuran File Maksimal 20 MB</span>
                         </label>
                     </div>
 
                     <div class="alert alert-info bg-blue-50 border-none rounded-2xl p-4">
                         <i class="mdi mdi-information-outline text-blue-600"></i>
-                        <span class="text-xs text-blue-700 leading-tight">Pastikan format file sesuai (PDF/JPG/PNG) dengan ukuran maksimal yang ditentukan.</span>
+                        <span class="text-xs text-blue-700 leading-tight">Pastikan format file sesuai (PDF) dengan ukuran maksimal yang ditentukan.</span>
                     </div>
                 </div>
 
@@ -218,7 +235,26 @@
     </div>
 </dialog>
 
-
+ <script>
+    // Validasi ukuran file di sisi client (sebelum upload)
+document.querySelector('input[name="new_image"]').addEventListener('change', function() {
+    const maxSizeBytes = 20 * 1024 * 1024; // 20 MB
+    if (this.files[0].size > maxSizeBytes) {
+        alert('File terlalu besar! Maksimal 20 MB.');
+        this.value = ''; 
+    }
+});
+</script>
+    <script>
+document.querySelector('input[name="file"]').addEventListener('change', function() {
+    // 20 MB dalam bytes
+    const maxSizeBytes = 20 * 1024 * 1024; 
+    if (this.files[0].size > maxSizeBytes) {
+        alert('File terlalu besar! Maksimal ukuran file adalah 20 MB.');
+        this.value = ''; // Reset input
+    }
+}); 
+</script>
 <script>
     $(document).ready(function() {
     let resultsBox = $('#search_results');
@@ -392,54 +428,46 @@
         var token = $('#token').val();
 
         Swal.fire({
-            title: 'Konfirmasi',
-            text: "Anda ingin Menghapus Data Lampiran ",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'ya',
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            cancelButtonText: 'Tidak',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.value) {
-                $.ajax({
-                    url: "<?php echo base_url(); ?>nonlit/hapus_lampiran",
-                    method: "POST",
-                    onBeforeOpen: function() {
-                        Swal.fire({
-                            title: 'Menunggu',
-                            html: 'Memproses data',
-                            onOpen: () => {
-                                swal.showLoading()
-                            }
-                        })
-                    },
-                    data: {
-                        id: id,
-                        id_nonlit: id_nonlit,
-                        token: token,
-                    },
-                    success: function(data) {
-                        Swal.fire(
-                            'Berhasil',
-                            'Berhasil Menghapus Data',
-                            'success'
-                        )
-                        window.setTimeout(function() {
-                            location.reload();
-                        }, 1500);
-                    }
-                })
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                Swal.fire(
-                    'Batal',
-                    'Anda membatalkan penghapusan',
-                    'error'
-                )
+    title: 'Konfirmasi Penghapusan',
+    text: "Data yang dihapus tidak dapat dikembalikan!",
+    icon: 'warning', // Gunakan 'icon' bukan 'type' di versi terbaru
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Hapus!',
+  confirmButtonColor: '#f87272', 
+    cancelButtonColor: '#a6adbb',
+    customClass: {
+        // Terapkan class Tailwind agar desain popup sama dengan gambar (rounded besar)
+        popup: 'rounded-3xl shadow-2xl', 
+        // Memaksa padding dan radius DaisyUI/rounded-xl untuk tombol agar solid
+        confirmButton: 'px-6 py-2 rounded-xl text-white font-bold', 
+        cancelButton: 'px-6 py-2 rounded-xl'
+    }
+}).then((result) => {
+    if (result.isConfirmed) { // Gunakan isConfirmed di versi terbaru
+        $.ajax({
+            url: "<?= base_url('nonlit/hapus_lampiran'); ?>",
+            method: "POST",
+            data: { id: id, id_nonlit: id_nonlit, token: token },
+            beforeSend: function() {
+                Swal.fire({
+                    title: 'Memproses...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+            },
+            success: function(data) {
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Data telah dihapus.',
+                    icon: 'success',
+                    confirmButtonColor: '#36d399' // Warna success DaisyUI
+                });
+                window.setTimeout(() => { location.reload(); }, 1500);
             }
-        })
-    });
+        });
+    }
+});
+});
 </script>
 
 <script>

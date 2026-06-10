@@ -57,6 +57,12 @@
                     </div>
                     <div class="divider md:divider-horizontal opacity-30"></div>
                     <div class="flex-1">
+                        <p class="text-[9px] font-black uppercase text-primary tracking-widest mb-1">ID Data</p>
+                        <h2 class="text-lg font-bold text-slate-700 uppercase leading-tight"><?= $result['data']->id ?? '-' ?></h2>
+                    </div>
+                    
+                    <div class="divider md:divider-horizontal opacity-30"></div>
+                    <div class="flex-1">
                         <p class="text-[9px] font-black uppercase text-primary tracking-widest mb-1">Identitas Berkas</p>
                         <h2 class="text-lg font-bold text-slate-700 uppercase leading-tight">
                             <?php
@@ -69,6 +75,31 @@
                         </h2>
                     </div>
                 </div>
+                //detail permalasahan, nonlit, laporan polisi, umum dari jenis sumber, jika sumber asing maka tampilkan detail perkara dari database kedua (db_perkara)
+                <?php
+                    if ($sumber === 'ASING') {
+                        echo '<div class="mb-10 text-left">';
+                        echo '<div class="flex items-center gap-3 mb-6">';
+                        echo '<div class="w-1.5 h-6 bg-primary rounded-full"></div>';
+                        echo '<h4 class="text-xs font-black uppercase text-slate-800 tracking-widest">Detail Perkara</h4>';
+                        echo '</div>';
+                        echo '<div class="text-sm text-slate-600 font-medium bg-slate-50 p-4 rounded-xl shadow-inner italic border border-slate-100">';
+                        echo $result['data']->perkara_detail ?? 'Tidak ada detail perkara yang tersedia.';
+                        echo '</div>';
+                        echo '</div>';
+                    } else {
+                        echo '<div class="mb-10 text-left">';
+                        echo '<div class="flex items-center gap-3 mb-6">';
+                        echo '<div class="w-1.5 h-6 bg-primary rounded-full"></div>';
+                        echo '<h4 class="text-xs font-black uppercase text-slate-800 tracking-widest">Detail Permohonan Nonlitigasi</h4>';
+                        echo '</div>';
+                        echo '<div class="text-sm text-slate-600 font-medium bg-slate-50 p-4 rounded-xl shadow-inner italic border border-slate-100">';
+                        echo $result['data']->permohonan_nonlit ?? 'Tidak ada detail permohonan yang tersedia.';
+                        echo '</div>';
+                        echo '</div>';
+                    }
+                ?>
+
 
                 <?php if (!empty($result['detail_tambahan'])): ?>
                     <div class="mb-10 text-left">
@@ -104,6 +135,22 @@
                                                 </a>
                                             </div>
                                         <?php endif; ?>
+                                        <?php if ($sumber === 'PERMASALAHAN' && !empty($det->berkas)): ?>
+                                            <div class="flex justify-end mt-4">
+                                                <a href="<?= base_url('assets/berkas_nonlit/' . $det->berkas) ?>" target="_blank" 
+                                                   class="btn btn-xs btn-primary rounded-lg px-4 font-black italic uppercase">
+                                                    <i class="mdi mdi-download mr-1 text-sm"></i> Berkas Rapat
+                                                </a>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if ($sumber === 'UMUM' && !empty($det->berkas)): ?>
+                                            <div class="flex justify-end mt-4">
+                                                <a href="<?= base_url('assets/berkas_nonlit/' . $det->berkas) ?>" target="_blank" 
+                                                   class="btn btn-xs btn-primary rounded-lg px-4 font-black italic uppercase">
+                                                    <i class="mdi mdi-download mr-1 text-sm"></i> Berkas Rapat
+                                                </a>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -127,11 +174,16 @@
                                     // Set Path Berdasarkan Sumber
                                     if($sumber === 'ASING') {
                                         $filePath = 'assets/upload/'; // Sesuaikan folder t_upload anda
-                                    } elseif($sumber === 'NONLIT') {
+                                    }  else {
                                         $filePath = 'assets/berkas_lampiran/';
-                                    } else {
-                                        $filePath = 'assets/upload/';
                                     }
+                                    // if($sumber === 'ASING') {
+                                    //     $filePath = 'assets/upload/'; // Sesuaikan folder t_upload anda
+                                    // } elseif($sumber === 'NONLIT') {
+                                    //     $filePath = 'assets/berkas_lampiran/';
+                                    // }   else {
+                                    //     $filePath = 'assets/upload/';
+                                    // }
                                 ?>
                                 <div class="flex items-center p-5 bg-white rounded-[1.8rem] border border-slate-100 hover:border-primary transition-all group shadow-sm hover:shadow-xl hover:-translate-y-1 duration-300">
                                     <div class="p-4 bg-indigo-50 rounded-2xl text-indigo-600 group-hover:bg-primary group-hover:text-white transition-colors duration-300">

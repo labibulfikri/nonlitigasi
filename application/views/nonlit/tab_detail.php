@@ -3,6 +3,21 @@
     .swal2-container {
     z-index: 999999 !important;
 }
+ 
+/* Memaksa tombol untuk selalu terlihat dengan warna yang jelas */
+.swal2-confirm.swal2-styled {
+    background-color: #f87272 !important; /* Warna Merah DaisyUI */
+    color: white !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+}
+
+.swal2-cancel.swal2-styled {
+    background-color: #a6adbb !important; /* Warna Abu-abu DaisyUI */
+    color: white !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+} 
     </style>
 
 <div class="p-2 text-base-content">
@@ -199,6 +214,8 @@
         </form>
     </div>
 </dialog>
+
+
 <script>  
 
 

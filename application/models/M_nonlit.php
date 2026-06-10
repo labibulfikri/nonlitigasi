@@ -493,28 +493,55 @@ class M_nonlit extends CI_Model
     }
 
 
-    function update_nonlit_det($data, $id)
-    {
+   function update_nonlit_det($data, $id)
+{
+    date_default_timezone_set('Asia/Jakarta');
 
-        date_default_timezone_set('Asia/Jakarta'); // Untuk WIB 
-        $exe = $this->db->where('id', $id);
-        $exe = $this->db->update('nonlit_det', $data);
+    // Ambil id_nonlit untuk update tabel induk
+    $id_nonlit = $data['id_nonlit'];
+    unset($data['id_nonlit']); // Hapus agar tidak ikut masuk ke tabel nonlit_det
 
-        if ($exe) {
+    $this->db->where('id', $id);
+    $exe = $this->db->update('nonlit_det', $data);
 
-            $datanya = array(
-                'updated_at' => date('Y-m-d H:i:s'),
-                'updated_by' => $this->session->userdata('id')
-            );
+    if ($exe) {
+        $datanya = array(
+            'updated_at' => date('Y-m-d H:i:s'),
+            'updated_by' => $this->session->userdata('id')
+        );
 
-            $exe2 = $this->db->where('id', $data['id_nonlit']);
-            $exe2 = $this->db->update('nonlits', $datanya);
-            return '1';
-        } else {
-            return '0';
-        }
+        $this->db->where('id', $id_nonlit); // Gunakan variabel yang sudah di-unset
+        $this->db->update('nonlits', $datanya);
+        return '1';
     }
-    function update_nonlit_lampiran($data, $id)
+    return '0';
+}
+
+    public function update_nonlit_lampiran($data, $id) {
+    date_default_timezone_set('Asia/Jakarta');
+    
+    // Update lampiran
+    $this->db->where('id', $id);
+    $exe = $this->db->update('berkas_lampiran', $data);
+
+    if ($exe) {
+        // Update timestamp induk
+        $datanya = [
+            'updated_at' => date('Y-m-d H:i:s'),
+            'updated_by' => $this->session->userdata('id')
+        ];
+        $this->db->where('id', $data['id_nonlit']);
+        $this->db->update('nonlits', $datanya);
+        return '1';
+    }
+    return '0';
+}
+
+public function get_berkas_by_id($id) {
+    return $this->db->get_where('berkas_lampiran', ['id' => $id])->row();
+}
+
+    function update_nonlit_lampiran2($data, $id)
     {
         date_default_timezone_set('Asia/Jakarta'); // Untuk WIB 
 

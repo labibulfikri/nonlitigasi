@@ -129,10 +129,11 @@
             <br/>
             <div class="form-control mb-8 p-6 border-2 border-dashed border-primary/20 rounded-2xl bg-primary/5">
                 <label class="label"><span class="label-text font-bold uppercase text-xs italic">Upload Berkas (PDF/IMG)</span></label>
-                <input type="file" name="file" class="file-input file-input-bordered file-input-primary w-full rounded-xl" />
+                <input type="file" name="file_rapat" class="file-input file-input-bordered file-input-primary w-full rounded-xl" />
             </div>
             <div class="modal-action flex gap-2">
-                <form method="dialog" class="flex-1"><button class="btn btn-ghost w-full rounded-xl">Batal</button></form>
+              <button type="button" onclick="document.getElementById('modal_tambah_rapat').close()"
+                    class="btn btn-ghost flex-1 rounded-xl uppercase font-bold text-slate-500">Batal</button>
                 <button type="submit" class="btn btn-primary flex-[2] shadow-lg rounded-xl uppercase text-white">Simpan Notulensi</button>
             </div>
         </form>
@@ -170,7 +171,7 @@
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold uppercase text-xs text-primary">Ganti Berkas (Opsional)</span></label>
-                        <input type="file" name="new_image" class="file-input file-input-bordered file-input-primary w-full rounded-xl">
+                        <input type="file" name="new_image_rapat" class="file-input file-input-bordered file-input-primary w-full rounded-xl">
                     </div>
                 </div>
                 <div class="space-y-2">
@@ -181,7 +182,8 @@
                 </div>
             </div>
             <div class="modal-action mt-8 flex gap-3 border-t pt-6 border-base-200">
-                <form method="dialog" class="flex-1"><button class="btn btn-ghost w-full rounded-xl">Batal</button></form>
+                <button type="button" onclick="document.getElementById('modal_edit_nonlit_det').close()"
+                    class="btn btn-ghost flex-1 rounded-xl uppercase font-bold text-slate-500">Batal</button>
                 <button type="submit" class="btn btn-primary flex-[2] text-white shadow-lg rounded-xl uppercase font-bold">Simpan Perubahan</button>
             </div>
         </form>
@@ -233,7 +235,7 @@
 
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold uppercase text-xs text-slate-500">Ganti Berkas (PDF/Gambar)</span></label>
-                        <input type="file" name="new_image" class="file-input file-input-bordered file-input-primary w-full rounded-xl">
+                        <input type="file" name="new_image_rapat" class="file-input file-input-bordered file-input-primary w-full rounded-xl">
                         <label class="label"><span class="label-text-alt text-error italic">*Kosongkan jika tidak ingin mengubah berkas</span></label>
                     </div>
                 </div>
@@ -257,6 +259,27 @@
 
 
 
+
+ <script>
+    // Validasi ukuran file di sisi client (sebelum upload)
+document.querySelector('input[name="new_image_rapat"]').addEventListener('change', function() {
+    const maxSizeBytes = 20 * 1024 * 1024; // 20 MB
+    if (this.files[0].size > maxSizeBytes) {
+        alert('File terlalu besar! Maksimal ukuran file adalah 20 MB.');
+        this.value = ''; 
+    }
+});
+</script>
+    <script>
+document.querySelector('input[name="file_rapat"]').addEventListener('change', function() {
+    // 20 MB dalam bytes
+    const maxSizeBytes = 20 * 1024 * 1024; 
+    if (this.files[0].size > maxSizeBytes) {
+        alert('File terlalu besar! Maksimal ukuran file adalah 20 MB.');
+        this.value = ''; // Reset input
+    }
+}); 
+</script>
 <script>
     function setActiveMenu(element) {
         const activeEl = $(element);
@@ -327,7 +350,7 @@
         // Handle Iframe Preview
         const iframe = $('#edit_berkas');
         if (d.berkas) {
-            iframe.attr('src', "<?= base_url() ?>assets/berkas_lampiran/" + d.berkas).show();
+            iframe.attr('src', "<?= base_url() ?>assets/berkas_nonlit/" + d.berkas).show();
         } else {
             iframe.hide();
         }

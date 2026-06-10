@@ -611,7 +611,7 @@ $this->db->where('geometry IS NOT NULL'); // Tambahkan ini
 
         // Cek apakah ada file yang diunggah
         $file_name = null;
-        if (!empty($_FILES['file']['name'])) {
+        if (!empty($_FILES['file_rapat']) && (isset($_FILES['file_rapat']['name']) && $_FILES['file_rapat']['name'] != '')) {
             $config['upload_path']   = './uploads/berkas_rapat/'; // Pastikan folder ini ada
             $config['allowed_types'] = 'pdf|doc|docx|jpg|png';
             $config['max_size']      = 2048; // Maksimal 2MB
@@ -650,83 +650,39 @@ $this->db->where('geometry IS NOT NULL'); // Tambahkan ini
         echo json_encode($response);
     }
 
-    function upload_berkas()
-    {
-        $this->form_validation->set_rules('id_nonlit', 'Harus Di Isi', 'required');
+     function upload_berkas() {
+    $this->form_validation->set_rules('id_nonlit', 'ID Nonlit', 'required');
+    
+    if ($this->form_validation->run() == FALSE) {
+        cek_csrf();
+    } else {
+        cek_csrf();
+        
+        $id_nonlit = $this->input->post('id_nonlit', TRUE);
+        $config['upload_path']   = './assets/berkas_nonlit/';
+        $config['allowed_types'] = 'pdf';
+        $config['max_size']      = 20480; // 20 MB dalam KB
+        $config['encrypt_name']  = TRUE; // Lebih aman
 
-        if ($this->form_validation->run() == FALSE) {
-            cek_csrf();
+        $this->load->library('upload', $config);
+
+        if (!$this->upload->do_upload('file_rapat')) {
+            $error = $this->upload->display_errors('', '');
+            echo "<script>alert('Gagal: $error'); window.history.back();</script>";
         } else {
-            cek_csrf();
-
-            $id_nonlit = $this->input->post('id_nonlit', TRUE);
-
-            $config['upload_path'] = './assets/berkas_nonlit/';
-            $config['allowed_types'] = 'pdf';
-            $config['max_size'] = 10000;
-            $config['file_name'] = 'NONLIT-' . date('dmY') . '-' . substr(
-                md5(rand()),
-                0,
-                10
+            $fileData = $this->upload->data();
+            $data = array(
+                "id_nonlit"    => $id_nonlit,
+                "tgl_rapat"    => $this->input->post('tgl_rapat', TRUE),
+                "judul_rapat"  => $this->input->post('judul_rapat', TRUE),
+                "kesimpulan"   => $this->input->post('kesimpulan', TRUE),
+                "berkas"       => $fileData['file_name']
             );
 
-
-            $this->load->library('upload', $config);
-            if ($this->upload->do_upload('file')) {
-
-                $fileData = $this->upload->data();
-
-                $tgl_rapat = $this->input->post('tgl_rapat', TRUE);
-                $id_nonlit = $this->input->post('id_nonlit', TRUE);
-                $judul_rapat = $this->input->post('judul_rapat', TRUE);
-                $kesimpulan = $this->input->post('kesimpulan', TRUE);
-
-                $data  = array(
-                    "id_nonlit" => $id_nonlit,
-                    "tgl_rapat" => $tgl_rapat,
-                    "judul_rapat" => $judul_rapat,
-                    "kesimpulan" => $kesimpulan,
-                    "berkas" => $this->upload->data('file_name')
-                );
-
-
-                $dt = $this->m_nonlit->upload_nonlit($data);
-
-
-                if ($dt > 1) {
-                    // $response = ['status' => 'success', 'message' => 'Data berhasil ditambahkan'];
-                    echo "<script type='text/javascript'>
-                    alert(' Berhasil ');
-                    window.location.href ='" . base_url('nonlit/detail/' . $id_nonlit) . "';
-        </script>";
-                } else {
-                    // $response = ['status' => 'error', 'message' => 'Gagal menyimpan data'];
-                    echo "<script type='text/javascript'>
-                    alert(' gagal ');
-                    window.location.href ='" . base_url('nonlit/detail/' . $id_nonlit) . "';
-        </script>";
-                }
-            } else {
-                $tgl_rapat = $this->input->post('tgl_rapat', TRUE);
-                $id_nonlit = $this->input->post('id_nonlit', TRUE);
-                $judul_rapat = $this->input->post('judul_rapat', TRUE);
-                $kesimpulan = $this->input->post('kesimpulan', TRUE);
-
-                $data  = array(
-                    "id_nonlit" => $id_nonlit,
-                    "tgl_rapat" => $tgl_rapat,
-                    "judul_rapat" => $judul_rapat,
-                    "kesimpulan" => $kesimpulan
-                );
-                $dt = $this->m_nonlit->upload_nonlit($data);
-                // $response = ['status' => 'success', 'message' => 'Data berhasil ditambahkan'];
-                echo "<script type='text/javascript'>
-                alert(' Berhasil ');
-                window.location.href ='" . base_url('nonlit/detail/' . $id_nonlit) . "';
-    </script>";
-            }
-            echo json_encode($response);
+            $this->m_nonlit->upload_nonlit($data);
+            echo "<script>alert('Berhasil!'); window.location.href='".base_url('nonlit/detail/'.$id_nonlit)."';</script>";
         }
+    }
     }
 
 public function upload_berkas_lampiran() {
@@ -838,8 +794,52 @@ public function upload_berkas_lampiran() {
             }
         }
     }
+function update_nonlit_det() {
+    $this->form_validation->set_rules('id', 'ID', 'required');
+    
+    if ($this->form_validation->run() == FALSE) {
+        cek_csrf();
+    } else {
+        cek_csrf();
 
-    function update_nonlit_det()
+        $id        = $this->input->post('id', TRUE);
+        $id_nonlit = $this->input->post('id_nonlit', TRUE);
+        $old_image = $this->input->post('old_image', TRUE);
+
+        $data = array(
+            'tgl_rapat'   => $this->input->post('tgl_rapat', TRUE),
+            'judul_rapat' => $this->input->post('judul_rapat', TRUE),
+            'kesimpulan'  => $this->input->post('kesimpulan', TRUE),
+            'id_nonlit'   => $id_nonlit
+        );
+
+        // Cek jika ada file baru
+        if (!empty($_FILES['new_image_rapat']['name'])) {
+            $config['upload_path']   = './assets/berkas_nonlit/';
+            $config['allowed_types'] = 'pdf';
+            $config['max_size']      = 20480; // 20 MB
+            $config['encrypt_name']  = TRUE;
+
+            $this->load->library('upload', $config);
+
+            if ($this->upload->do_upload('new_image_rapat')) {
+                // Hapus file lama jika ada
+                if (file_exists("./assets/berkas_nonlit/" . $old_image)) {
+                    unlink("./assets/berkas_nonlit/" . $old_image);
+                }
+                $data['berkas'] = $this->upload->data('file_name');
+            } else {
+                $error = $this->upload->display_errors('', '');
+                echo "<script>alert('Gagal Update: $error'); window.history.back();</script>";
+                return;
+            }
+        }
+
+        $this->m_nonlit->update_nonlit_det($data, $id);
+        echo "<script>alert('Berhasil!'); window.location.href='".base_url('nonlit/detail/'.$id_nonlit)."';</script>";
+    }
+}
+    function update_nonlit_det2()
     {
         date_default_timezone_set('Asia/Jakarta');
         $this->form_validation->set_rules('id', 'harus di isi', 'required');
@@ -911,9 +911,53 @@ public function upload_berkas_lampiran() {
         }
     }
 
+public function update_berkas_lampiran() {
+    $id_berkas = $this->input->post('id', TRUE);
+    $id_nonlit = $this->input->post('id_nonlit', TRUE);
+    $old_image = $this->input->post('old_image', TRUE);
 
+    $nama_berkas_final = $old_image;
 
-    function update_berkas_lampiran()
+    // Cek apakah ada file yang diunggah
+    if (!empty($_FILES['new_image']['name'])) {
+        $config['upload_path']   = './assets/berkas_lampiran/';
+        $config['allowed_types'] = 'pdf|jpg|png';
+        $config['max_size']      = 20480; // 20 MB
+        $config['encrypt_name']  = TRUE;
+
+        $this->load->library('upload', $config);
+
+        if ($this->upload->do_upload('new_image')) {
+            $upload_data = $this->upload->data();
+            $nama_berkas_final = $upload_data['file_name'];
+            
+            // Hapus file lama jika ada
+            if (file_exists('./assets/berkas_lampiran/' . $old_image)) {
+                @unlink('./assets/berkas_lampiran/' . $old_image);
+            }
+        } else {
+            $error = $this->upload->display_errors('', '');
+            echo "<script>alert('Gagal: $error'); window.history.back();</script>";
+            return;
+        }
+    }
+
+    $data = [
+        "judul_berkas" => $this->input->post('judul_berkas', TRUE),
+        "keterangan"   => $this->input->post('keterangan', TRUE),
+        "nama_berkas"  => $nama_berkas_final,
+        "id_nonlit"    => $id_nonlit
+    ];
+
+    $dt = $this->m_nonlit->update_nonlit_lampiran($data, $id_berkas);
+
+    if ($dt == '1') {
+        echo "<script>alert('Berhasil diperbarui!'); window.location.href='".base_url('nonlit/tab_kronologi/'.$id_nonlit)."';</script>";
+    } else {
+        echo "<script>alert('Gagal memperbarui data.'); window.history.back();</script>";
+    }
+}
+    function update_berkas_lampiran2()
     {
 
         $this->form_validation->set_rules('id', 'harus di isi', 'required');
