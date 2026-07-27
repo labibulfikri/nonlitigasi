@@ -60,45 +60,45 @@ class Nonlit extends CI_Controller
     {
         cek_csrf(); // Jika Anda menggunakan fungsi keamanan
 
-    // --- TANGKAP VARIABEL DARI DATATABLES/AJAX POST ---
-    $search = $this->input->post('search')['value'] ?? '';
-    $start  = $this->input->post('start') ?? 0;
-    $length = $this->input->post('length') ?? 10;
+        // --- TANGKAP VARIABEL DARI DATATABLES/AJAX POST ---
+        $search = $this->input->post('search')['value'] ?? '';
+        $start  = $this->input->post('start') ?? 0;
+        $length = $this->input->post('length') ?? 10;
 
-    // --- KIRIM VARIABEL KE MODEL (Baris 67) ---
-    $fetch_data = $this->m_nonlit->make_datatables($search, $start, $length);
-    
-    $stats = $this->m_nonlit->get_count_by_jenis($search);
-    
-    $data = array();
-    $no = $start;
+        // --- KIRIM VARIABEL KE MODEL (Baris 67) ---
+        $fetch_data = $this->m_nonlit->make_datatables($search, $start, $length);
 
-    foreach ($fetch_data as $row) {
-        $no++;
-        $sub_array = array();
-        $sub_array['no']                = $no;
-        $sub_array['id']                = $row->id;
-        $sub_array['jenis']             = $row->jenis;
-        $sub_array['register_baru']     = $row->register_baru;
-        $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit));
-        $sub_array['pic']               = $row->pic ?: 'N/A';
-        $sub_array['tgl_nonlit']        = date('d-m-Y', strtotime($row->tgl_nonlit));
-        $sub_array['status']            = strtolower($row->status);
-       $sub_array['penyimpanan_rak'] = strtoupper($row->penyimpanan_rak ?: '-');
-        // ... (lanjutkan field lainnya seperti sebelumnya)
-        $data[] = $sub_array;
-    }
+        $stats = $this->m_nonlit->get_count_by_jenis($search);
 
-    $output = array(
-        "draw"            => intval($this->input->post("draw")),
-        "recordsTotal"    => $this->m_nonlit->get_all_data(),
-        "recordsFiltered" => $this->m_nonlit->get_filtered_data($search), // --- KIRIM SEARCH KE SINI (Baris 96) ---
-        "data"            => $data,
-        "stats"           => $stats
-    );
+        $data = array();
+        $no = $start;
 
-    header('Content-Type: application/json');
-    echo json_encode($output);
+        foreach ($fetch_data as $row) {
+            $no++;
+            $sub_array = array();
+            $sub_array['no']                = $no;
+            $sub_array['id']                = $row->id;
+            $sub_array['jenis']             = $row->jenis;
+            $sub_array['register_baru']     = $row->register_baru;
+            $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit));
+            $sub_array['pic']               = $row->pic ?: 'N/A';
+            $sub_array['tgl_nonlit']        = date('d-m-Y', strtotime($row->tgl_nonlit));
+            $sub_array['status']            = strtolower($row->status);
+            $sub_array['penyimpanan_rak'] = strtoupper($row->penyimpanan_rak ?: '-');
+            // ... (lanjutkan field lainnya seperti sebelumnya)
+            $data[] = $sub_array;
+        }
+
+        $output = array(
+            "draw"            => intval($this->input->post("draw")),
+            "recordsTotal"    => $this->m_nonlit->get_all_data(),
+            "recordsFiltered" => $this->m_nonlit->get_filtered_data($search), // --- KIRIM SEARCH KE SINI (Baris 96) ---
+            "data"            => $data,
+            "stats"           => $stats
+        );
+
+        header('Content-Type: application/json');
+        echo json_encode($output);
     }
 
 
@@ -128,9 +128,9 @@ class Nonlit extends CI_Controller
             echo json_encode(array('status' => 'gagal', 'message' => 'Harus di isi.'));
         } else {
             cek_csrf();
-$registers = $this->input->post('register_baru', true);
+            $registers = $this->input->post('register_baru', true);
             // Gabungkan array [123, 456] menjadi string "123; 456"
-    $string_register = is_array($registers) ? implode('; ', $registers) : $registers;
+            $string_register = is_array($registers) ? implode('; ', $registers) : $registers;
             $data = array(
                 'permohonan_nonlit' => $this->input->post('permohonan_nonlit', TRUE),
                 // 'token' => $this->input->post('token', TRUE),
@@ -180,9 +180,9 @@ $registers = $this->input->post('register_baru', true);
         } else {
             cek_csrf();
 
-$registers = $this->input->post('register_baru', true);
+            $registers = $this->input->post('register_baru', true);
             // Gabungkan array [123, 456] menjadi string "123; 456"
-    $string_register = is_array($registers) ? implode('; ', $registers) : $registers;
+            $string_register = is_array($registers) ? implode('; ', $registers) : $registers;
 
             date_default_timezone_set('Asia/Jakarta'); // Untuk WIB 
 
@@ -234,72 +234,72 @@ $registers = $this->input->post('register_baru', true);
         }
     }
 
-public function detail($id)
-{
-    if ($this->session->userdata('status') != 'login') {
-        redirect('auth/logout');
-    } else {
-        // 1. Ambil data utama dari tabel nonlit
-        $fetch = $this->m_nonlit->get_byid_nonlit($id);
-        $fetch_detail = $this->m_nonlit->get_byid($id);
-        
-        // 2. Logika pencarian banyak register ke DB Sertifikasi
-        $features = [];
-        if (!empty($fetch['register_baru'])) {
-            // Pecah string "123; 456" menjadi array ['123', '456']
-            $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
+    public function detail($id)
+    {
+        if ($this->session->userdata('status') != 'login') {
+            redirect('auth/logout');
+        } else {
+            // 1. Ambil data utama dari tabel nonlit
+            $fetch = $this->m_nonlit->get_byid_nonlit($id);
+            $fetch_detail = $this->m_nonlit->get_byid($id);
 
-            // Ambil semua polygon yang cocok dari sertifikasi_v2
-            $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
-            $this->db->from('sertifikasi_v2.peta_gis');
-            $this->db->where_in('register_baru', $reg_array);
-$this->db->where('geometry IS NOT NULL'); // Tambahkan ini 
-            $polygons = $this->db->get()->result_array();
+            // 2. Logika pencarian banyak register ke DB Sertifikasi
+            $features = [];
+            if (!empty($fetch['register_baru'])) {
+                // Pecah string "123; 456" menjadi array ['123', '456']
+                $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
 
-            // Format data menjadi FeatureCollection GeoJSON
-            foreach ($polygons as $poly) {
-                if (!empty($poly['geometry'])) {
-                    $features[] = [
-                        "type" => "Feature",
-                        "properties" => [
-                            "id_aset" => $poly['id_aset'],
-                            "ALAMAT" => $poly['ALAMAT'],
-                            "KELURAHAN" => $poly['KELURAHAN'],
-                            "KECAMATAN" => $poly['KECAMATAN'],
-                            "NO_SERTIFI" => $poly['NO_SERTIFI'],
-                            "register_baru" => $poly['register_baru']
-                        ],
-                        "geometry" => json_decode($poly['geometry'], true)
-                    ];
+                // Ambil semua polygon yang cocok dari sertifikasi_v2
+                $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
+                $this->db->from('sertifikasi_v2.peta_gis');
+                $this->db->where_in('register_baru', $reg_array);
+                $this->db->where('geometry IS NOT NULL'); // Tambahkan ini 
+                $polygons = $this->db->get()->result_array();
+
+                // Format data menjadi FeatureCollection GeoJSON
+                foreach ($polygons as $poly) {
+                    if (!empty($poly['geometry'])) {
+                        $features[] = [
+                            "type" => "Feature",
+                            "properties" => [
+                                "id_aset" => $poly['id_aset'],
+                                "ALAMAT" => $poly['ALAMAT'],
+                                "KELURAHAN" => $poly['KELURAHAN'],
+                                "KECAMATAN" => $poly['KECAMATAN'],
+                                "NO_SERTIFI" => $poly['NO_SERTIFI'],
+                                "register_baru" => $poly['register_baru']
+                            ],
+                            "geometry" => json_decode($poly['geometry'], true)
+                        ];
+                    }
                 }
             }
+
+            $geojson_result = [
+                "type" => "FeatureCollection",
+                "features" => $features
+            ];
+
+            $list_pic = $this->m_pic->get_all_pic();
+
+            $data = array(
+                'master' => $fetch,
+                'id' => $id,
+                'det' => $fetch_detail,
+                'list_pic' => $list_pic,
+                // Kirim hasil gabungan polygon ke view
+                'polygon' => json_encode($geojson_result),
+                'masterpage' => 'layout/layout2',
+                'content' => 'nonlit/detail',
+                'peta' => 'nonlit/peta_detail',
+                'footer' => 'layout/footer',
+                'tab' => 'nonlit/tab_detail',
+                'title' => 'Daftar Nonlitigasi'
+            );
+
+            $this->load->view($data['masterpage'], $data);
         }
-
-        $geojson_result = [
-            "type" => "FeatureCollection",
-            "features" => $features
-        ];
-
-        $list_pic = $this->m_pic->get_all_pic();
-        
-        $data = array(
-            'master' => $fetch,
-            'id' => $id,
-            'det' => $fetch_detail,
-            'list_pic' => $list_pic,
-            // Kirim hasil gabungan polygon ke view
-            'polygon' => json_encode($geojson_result), 
-            'masterpage' => 'layout/layout2',
-            'content' => 'nonlit/detail',
-            'peta' => 'nonlit/peta_detail',
-            'footer' => 'layout/footer',
-            'tab' => 'nonlit/tab_detail',
-            'title' => 'Daftar Nonlitigasi'
-        );
-        
-        $this->load->view($data['masterpage'], $data);
     }
-}
     public function detail2($id)
     {
 
@@ -329,7 +329,7 @@ $this->db->where('geometry IS NOT NULL'); // Tambahkan ini
                 $polygon = [];
                 // echo 'JSON Decode Error: ' . json_last_error_msg();
             }
-      $list_pic = $this->m_pic->get_all_pic();
+            $list_pic = $this->m_pic->get_all_pic();
             $data = array(
                 'master' => $fetch,
                 'id' => $id,
@@ -362,37 +362,79 @@ $this->db->where('geometry IS NOT NULL'); // Tambahkan ini
             $id = $id;
             $lampiran = $this->m_nonlit->berkas_lampiran_by_id($id);
 
-            $fetch_detail = $this->m_nonlit->get_byid($id);
             $fetch = $this->m_nonlit->get_byid_nonlit($id);
+            $fetch_detail = $this->m_nonlit->get_byid($id);
             // $list = $this->m_peta->by_id($id);
 
-            $json_string2 = $this->m_peta->get_geojson($id);
-            // Pastikan $json_string2 tidak null dan memiliki key 'kordinat'
-            $json_string = isset($json_string2['kordinat']) ? $json_string2['kordinat'] : '{}';
+            // $json_string2 = $this->m_peta->get_geojson($id);
+            // // Pastikan $json_string2 tidak null dan memiliki key 'kordinat'
+            // $json_string = isset($json_string2['kordinat']) ? $json_string2['kordinat'] : '{}';
 
-            // Decode JSON string ke array
-            $decoded_data = json_decode($json_string, true);
+            // // Decode JSON string ke array
+            // $decoded_data = json_decode($json_string, true);
 
-            // Periksa jika decoding berhasil
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_data)) {
-                // Memastikan format data GeoJSON
-                $polygon = isset($decoded_data['geometry']['coordinates']) ? $decoded_data : [];
-            } else {
-                $polygon = [];
-                // echo 'JSON Decode Error: ' . json_last_error_msg();
+            // // Periksa jika decoding berhasil
+            // if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_data)) {
+            //     // Memastikan format data GeoJSON
+            //     $polygon = isset($decoded_data['geometry']['coordinates']) ? $decoded_data : [];
+            // } else {
+            //     $polygon = [];
+            //     // echo 'JSON Decode Error: ' . json_last_error_msg();
+            // }
+
+
+            // 2. Logika pencarian banyak register ke DB Sertifikasi
+            $features = [];
+            if (!empty($fetch['register_baru'])) {
+                // Pecah string "123; 456" menjadi array ['123', '456']
+                $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
+
+                // Ambil semua polygon yang cocok dari sertifikasi_v2
+                $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
+                $this->db->from('sertifikasi_v2.peta_gis');
+                $this->db->where_in('register_baru', $reg_array);
+                $this->db->where('geometry IS NOT NULL'); // Tambahkan ini 
+                $polygons = $this->db->get()->result_array();
+
+                // Format data menjadi FeatureCollection GeoJSON
+                foreach ($polygons as $poly) {
+                    if (!empty($poly['geometry'])) {
+                        $features[] = [
+                            "type" => "Feature",
+                            "properties" => [
+                                "id_aset" => $poly['id_aset'],
+                                "ALAMAT" => $poly['ALAMAT'],
+                                "KELURAHAN" => $poly['KELURAHAN'],
+                                "KECAMATAN" => $poly['KECAMATAN'],
+                                "NO_SERTIFI" => $poly['NO_SERTIFI'],
+                                "register_baru" => $poly['register_baru']
+                            ],
+                            "geometry" => json_decode($poly['geometry'], true)
+                        ];
+                    }
+                }
             }
 
+            $geojson_result = [
+                "type" => "FeatureCollection",
+                "features" => $features
+            ];
+
+            $list_pic = $this->m_pic->get_all_pic();
+
+
             $data = array(
+                'master' => $fetch,
+                'id' => $id,
+                'lampiran' => $lampiran,
+                'det' => $fetch_detail,
+                'list_pic' => $list_pic,
+                'polygon' => json_encode($geojson_result),
                 'masterpage' => 'layout/layout2',
                 'navbar2' => 'layout/navbar2',
                 'navbar_bawah' => 'layout/navbar_bawah2',
                 'content' => 'nonlit/tab_kronologi',
                 'footer' => 'layout/footer',
-                'master' => $fetch,
-                'id' => $id,
-                'lampiran' => $lampiran,
-                'list' => $decoded_data,
-                'polygon' => json_encode($polygon),
                 'peta' => 'nonlit/peta_detail',
                 'title' => 'Daftar Nonlitigasi',
                 'tab' => 'nonlit/tab_detail'
@@ -650,74 +692,76 @@ $this->db->where('geometry IS NOT NULL'); // Tambahkan ini
         echo json_encode($response);
     }
 
-     function upload_berkas() {
-    $this->form_validation->set_rules('id_nonlit', 'ID Nonlit', 'required');
-    
-    if ($this->form_validation->run() == FALSE) {
-        cek_csrf();
-    } else {
-        cek_csrf();
-        
+    function upload_berkas()
+    {
+        $this->form_validation->set_rules('id_nonlit', 'ID Nonlit', 'required');
+
+        if ($this->form_validation->run() == FALSE) {
+            cek_csrf();
+        } else {
+            cek_csrf();
+
+            $id_nonlit = $this->input->post('id_nonlit', TRUE);
+            $config['upload_path']   = './assets/berkas_nonlit/';
+            $config['allowed_types'] = 'pdf';
+            $config['max_size']      = 20480; // 20 MB dalam KB
+            $config['encrypt_name']  = TRUE; // Lebih aman
+
+            $this->load->library('upload', $config);
+
+            if (!$this->upload->do_upload('file_rapat')) {
+                $error = $this->upload->display_errors('', '');
+                echo "<script>alert('Gagal: $error'); window.history.back();</script>";
+            } else {
+                $fileData = $this->upload->data();
+                $data = array(
+                    "id_nonlit"    => $id_nonlit,
+                    "tgl_rapat"    => $this->input->post('tgl_rapat', TRUE),
+                    "judul_rapat"  => $this->input->post('judul_rapat', TRUE),
+                    "kesimpulan"   => $this->input->post('kesimpulan', TRUE),
+                    "berkas"       => $fileData['file_name']
+                );
+
+                $this->m_nonlit->upload_nonlit($data);
+                echo "<script>alert('Berhasil!'); window.location.href='" . base_url('nonlit/detail/' . $id_nonlit) . "';</script>";
+            }
+        }
+    }
+
+    public function upload_berkas_lampiran()
+    {
         $id_nonlit = $this->input->post('id_nonlit', TRUE);
-        $config['upload_path']   = './assets/berkas_nonlit/';
-        $config['allowed_types'] = 'pdf';
-        $config['max_size']      = 20480; // 20 MB dalam KB
-        $config['encrypt_name']  = TRUE; // Lebih aman
+
+        // Konfigurasi Library Upload
+        $config['upload_path']   = './assets/berkas_lampiran/';
+        $config['allowed_types'] = 'pdf|jpg|png';
+        $config['max_size']      = 20480; // 20 MB (Cukup untuk file 15 MB)
+        $config['encrypt_name']  = TRUE;  // Penting untuk keamanan
 
         $this->load->library('upload', $config);
 
-        if (!$this->upload->do_upload('file_rapat')) {
-            $error = $this->upload->display_errors('', '');
+        if (!$this->upload->do_upload('file')) {
+            // Jika gagal, ambil pesan errornya
+            $error = $this->upload->display_errors();
             echo "<script>alert('Gagal: $error'); window.history.back();</script>";
         } else {
-            $fileData = $this->upload->data();
+            // Jika sukses, ambil data
+            $upload_data = $this->upload->data();
             $data = array(
                 "id_nonlit"    => $id_nonlit,
-                "tgl_rapat"    => $this->input->post('tgl_rapat', TRUE),
-                "judul_rapat"  => $this->input->post('judul_rapat', TRUE),
-                "kesimpulan"   => $this->input->post('kesimpulan', TRUE),
-                "berkas"       => $fileData['file_name']
+                "nama_berkas"  => $upload_data['file_name'],
+                "judul_berkas" => $this->input->post('judul_berkas', TRUE),
+                "keterangan"   => $this->input->post('keterangan', TRUE)
             );
 
-            $this->m_nonlit->upload_nonlit($data);
-            echo "<script>alert('Berhasil!'); window.location.href='".base_url('nonlit/detail/'.$id_nonlit)."';</script>";
-        }
-    }
-    }
+            $this->m_nonlit->upload_berkas_nonlit($data);
 
-public function upload_berkas_lampiran() {
-    $id_nonlit = $this->input->post('id_nonlit', TRUE);
-    
-    // Konfigurasi Library Upload
-    $config['upload_path']   = './assets/berkas_lampiran/';
-    $config['allowed_types'] = 'pdf|jpg|png';
-    $config['max_size']      = 20480; // 20 MB (Cukup untuk file 15 MB)
-    $config['encrypt_name']  = TRUE;  // Penting untuk keamanan
-
-    $this->load->library('upload', $config);
-
-    if (!$this->upload->do_upload('file')) {
-        // Jika gagal, ambil pesan errornya
-        $error = $this->upload->display_errors();
-        echo "<script>alert('Gagal: $error'); window.history.back();</script>";
-    } else {
-        // Jika sukses, ambil data
-        $upload_data = $this->upload->data();
-        $data = array(
-            "id_nonlit"    => $id_nonlit,
-            "nama_berkas"  => $upload_data['file_name'],
-            "judul_berkas" => $this->input->post('judul_berkas', TRUE),
-            "keterangan"   => $this->input->post('keterangan', TRUE)
-        );
-        
-        $this->m_nonlit->upload_berkas_nonlit($data);
-        
-        echo "<script>
+            echo "<script>
                 alert('Berhasil menambahkan data :)');
                 window.location.href = '" . base_url('nonlit/tab_kronologi/' . $id_nonlit) . "';
               </script>";
+        }
     }
-}
     function upload_berkas_lampiran2()
     {
         $this->form_validation->set_rules('id_nonlit', 'Harus Di Isi', 'required');
@@ -794,51 +838,52 @@ public function upload_berkas_lampiran() {
             }
         }
     }
-function update_nonlit_det() {
-    $this->form_validation->set_rules('id', 'ID', 'required');
-    
-    if ($this->form_validation->run() == FALSE) {
-        cek_csrf();
-    } else {
-        cek_csrf();
+    function update_nonlit_det()
+    {
+        $this->form_validation->set_rules('id', 'ID', 'required');
 
-        $id        = $this->input->post('id', TRUE);
-        $id_nonlit = $this->input->post('id_nonlit', TRUE);
-        $old_image = $this->input->post('old_image', TRUE);
+        if ($this->form_validation->run() == FALSE) {
+            cek_csrf();
+        } else {
+            cek_csrf();
 
-        $data = array(
-            'tgl_rapat'   => $this->input->post('tgl_rapat', TRUE),
-            'judul_rapat' => $this->input->post('judul_rapat', TRUE),
-            'kesimpulan'  => $this->input->post('kesimpulan', TRUE),
-            'id_nonlit'   => $id_nonlit
-        );
+            $id        = $this->input->post('id', TRUE);
+            $id_nonlit = $this->input->post('id_nonlit', TRUE);
+            $old_image = $this->input->post('old_image', TRUE);
 
-        // Cek jika ada file baru
-        if (!empty($_FILES['new_image_rapat']['name'])) {
-            $config['upload_path']   = './assets/berkas_nonlit/';
-            $config['allowed_types'] = 'pdf';
-            $config['max_size']      = 20480; // 20 MB
-            $config['encrypt_name']  = TRUE;
+            $data = array(
+                'tgl_rapat'   => $this->input->post('tgl_rapat', TRUE),
+                'judul_rapat' => $this->input->post('judul_rapat', TRUE),
+                'kesimpulan'  => $this->input->post('kesimpulan', TRUE),
+                'id_nonlit'   => $id_nonlit
+            );
 
-            $this->load->library('upload', $config);
+            // Cek jika ada file baru
+            if (!empty($_FILES['new_image_rapat']['name'])) {
+                $config['upload_path']   = './assets/berkas_nonlit/';
+                $config['allowed_types'] = 'pdf';
+                $config['max_size']      = 20480; // 20 MB
+                $config['encrypt_name']  = TRUE;
 
-            if ($this->upload->do_upload('new_image_rapat')) {
-                // Hapus file lama jika ada
-                if (file_exists("./assets/berkas_nonlit/" . $old_image)) {
-                    unlink("./assets/berkas_nonlit/" . $old_image);
+                $this->load->library('upload', $config);
+
+                if ($this->upload->do_upload('new_image_rapat')) {
+                    // Hapus file lama jika ada
+                    if (file_exists("./assets/berkas_nonlit/" . $old_image)) {
+                        unlink("./assets/berkas_nonlit/" . $old_image);
+                    }
+                    $data['berkas'] = $this->upload->data('file_name');
+                } else {
+                    $error = $this->upload->display_errors('', '');
+                    echo "<script>alert('Gagal Update: $error'); window.history.back();</script>";
+                    return;
                 }
-                $data['berkas'] = $this->upload->data('file_name');
-            } else {
-                $error = $this->upload->display_errors('', '');
-                echo "<script>alert('Gagal Update: $error'); window.history.back();</script>";
-                return;
             }
-        }
 
-        $this->m_nonlit->update_nonlit_det($data, $id);
-        echo "<script>alert('Berhasil!'); window.location.href='".base_url('nonlit/detail/'.$id_nonlit)."';</script>";
+            $this->m_nonlit->update_nonlit_det($data, $id);
+            echo "<script>alert('Berhasil!'); window.location.href='" . base_url('nonlit/detail/' . $id_nonlit) . "';</script>";
+        }
     }
-}
     function update_nonlit_det2()
     {
         date_default_timezone_set('Asia/Jakarta');
@@ -911,52 +956,53 @@ function update_nonlit_det() {
         }
     }
 
-public function update_berkas_lampiran() {
-    $id_berkas = $this->input->post('id', TRUE);
-    $id_nonlit = $this->input->post('id_nonlit', TRUE);
-    $old_image = $this->input->post('old_image', TRUE);
+    public function update_berkas_lampiran()
+    {
+        $id_berkas = $this->input->post('id', TRUE);
+        $id_nonlit = $this->input->post('id_nonlit', TRUE);
+        $old_image = $this->input->post('old_image', TRUE);
 
-    $nama_berkas_final = $old_image;
+        $nama_berkas_final = $old_image;
 
-    // Cek apakah ada file yang diunggah
-    if (!empty($_FILES['new_image']['name'])) {
-        $config['upload_path']   = './assets/berkas_lampiran/';
-        $config['allowed_types'] = 'pdf|jpg|png';
-        $config['max_size']      = 20480; // 20 MB
-        $config['encrypt_name']  = TRUE;
+        // Cek apakah ada file yang diunggah
+        if (!empty($_FILES['new_image']['name'])) {
+            $config['upload_path']   = './assets/berkas_lampiran/';
+            $config['allowed_types'] = 'pdf|jpg|png';
+            $config['max_size']      = 20480; // 20 MB
+            $config['encrypt_name']  = TRUE;
 
-        $this->load->library('upload', $config);
+            $this->load->library('upload', $config);
 
-        if ($this->upload->do_upload('new_image')) {
-            $upload_data = $this->upload->data();
-            $nama_berkas_final = $upload_data['file_name'];
-            
-            // Hapus file lama jika ada
-            if (file_exists('./assets/berkas_lampiran/' . $old_image)) {
-                @unlink('./assets/berkas_lampiran/' . $old_image);
+            if ($this->upload->do_upload('new_image')) {
+                $upload_data = $this->upload->data();
+                $nama_berkas_final = $upload_data['file_name'];
+
+                // Hapus file lama jika ada
+                if (file_exists('./assets/berkas_lampiran/' . $old_image)) {
+                    @unlink('./assets/berkas_lampiran/' . $old_image);
+                }
+            } else {
+                $error = $this->upload->display_errors('', '');
+                echo "<script>alert('Gagal: $error'); window.history.back();</script>";
+                return;
             }
+        }
+
+        $data = [
+            "judul_berkas" => $this->input->post('judul_berkas', TRUE),
+            "keterangan"   => $this->input->post('keterangan', TRUE),
+            "nama_berkas"  => $nama_berkas_final,
+            "id_nonlit"    => $id_nonlit
+        ];
+
+        $dt = $this->m_nonlit->update_nonlit_lampiran($data, $id_berkas);
+
+        if ($dt == '1') {
+            echo "<script>alert('Berhasil diperbarui!'); window.location.href='" . base_url('nonlit/tab_kronologi/' . $id_nonlit) . "';</script>";
         } else {
-            $error = $this->upload->display_errors('', '');
-            echo "<script>alert('Gagal: $error'); window.history.back();</script>";
-            return;
+            echo "<script>alert('Gagal memperbarui data.'); window.history.back();</script>";
         }
     }
-
-    $data = [
-        "judul_berkas" => $this->input->post('judul_berkas', TRUE),
-        "keterangan"   => $this->input->post('keterangan', TRUE),
-        "nama_berkas"  => $nama_berkas_final,
-        "id_nonlit"    => $id_nonlit
-    ];
-
-    $dt = $this->m_nonlit->update_nonlit_lampiran($data, $id_berkas);
-
-    if ($dt == '1') {
-        echo "<script>alert('Berhasil diperbarui!'); window.location.href='".base_url('nonlit/tab_kronologi/'.$id_nonlit)."';</script>";
-    } else {
-        echo "<script>alert('Gagal memperbarui data.'); window.history.back();</script>";
-    }
-}
     function update_berkas_lampiran2()
     {
 
@@ -1114,41 +1160,41 @@ public function update_berkas_lampiran() {
 
 
     public function generate_share_link()
-{
-    // Validasi CSRF manual jika Anda tidak menggunakan sistem otomatis CI
-    $token_post = $this->input->post('token');
-    if ($token_post !== $this->session->userdata('csrf_token')) {
-        echo json_encode(['status' => false, 'msg' => 'Invalid CSRF Token']);
-        return;
-    }
+    {
+        // Validasi CSRF manual jika Anda tidak menggunakan sistem otomatis CI
+        $token_post = $this->input->post('token');
+        if ($token_post !== $this->session->userdata('csrf_token')) {
+            echo json_encode(['status' => false, 'msg' => 'Invalid CSRF Token']);
+            return;
+        }
 
-    $id_data = $this->input->post('id_data');
-    $sumber  = $this->input->post('sumber'); // e.g., 'nonlit'
-    $durasi  = 24; // Default 24 jam, atau ambil dari post jika ada
+        $id_data = $this->input->post('id_data');
+        $sumber  = $this->input->post('sumber'); // e.g., 'nonlit'
+        $durasi  = 24; // Default 24 jam, atau ambil dari post jika ada
 
-    $token_publik = bin2hex(random_bytes(32));
-    $expired = date('Y-m-d H:i:s', strtotime("+$durasi hours"));
+        $token_publik = bin2hex(random_bytes(32));
+        $expired = date('Y-m-d H:i:s', strtotime("+$durasi hours"));
 
-    $insert = $this->db->insert('share_links', [
-        'sumber'     => $sumber,
-        'id_data'    => $id_data,
-        'token'      => $token_publik,
-        'expired_at' => $expired
-    ]);
-
-    if ($insert) {
-        // Regenerasi CSRF Token agar bisa digunakan untuk request berikutnya
-        $new_csrf = hash('sha1', time() . mt_rand());
-        $this->session->set_userdata('csrf_token', $new_csrf);
-
-        echo json_encode([
-            'status'    => true,
-            'url'       => base_url("public_access/view/$token_publik"),
-            'expired'   => date('d M Y, H:i', strtotime($expired)) . ' WIB',
-            'new_token' => $new_csrf
+        $insert = $this->db->insert('share_links', [
+            'sumber'     => $sumber,
+            'id_data'    => $id_data,
+            'token'      => $token_publik,
+            'expired_at' => $expired
         ]);
-    } else {
-        echo json_encode(['status' => false, 'msg' => 'Gagal membuat link']);
+
+        if ($insert) {
+            // Regenerasi CSRF Token agar bisa digunakan untuk request berikutnya
+            $new_csrf = hash('sha1', time() . mt_rand());
+            $this->session->set_userdata('csrf_token', $new_csrf);
+
+            echo json_encode([
+                'status'    => true,
+                'url'       => base_url("public_access/view/$token_publik"),
+                'expired'   => date('d M Y, H:i', strtotime($expired)) . ' WIB',
+                'new_token' => $new_csrf
+            ]);
+        } else {
+            echo json_encode(['status' => false, 'msg' => 'Gagal membuat link']);
+        }
     }
-}
 }
