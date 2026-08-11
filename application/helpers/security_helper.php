@@ -44,53 +44,96 @@ if (!function_exists('cek_csrf')) {
         }
     }
 }
-function encrypt_url($string)
-{
 
-    $output = false;
-    /*
-    * read security.ini file & get encryption_key | iv | encryption_mechanism value for generating encryption code
-    */
-    $security       = parse_ini_file("security.ini");
-    $secret_key     = $security["encryption_key"];
-    $secret_iv      = $security["iv"];
-    $encrypt_method = $security["encryption_mechanism"];
+// function encrypt_url($string)
+// {
 
-    // hash
-    $key    = hash("sha256", $secret_key);
+//     $output = false;
+//     /*
+//     * read security.ini file & get encryption_key | iv | encryption_mechanism value for generating encryption code
+//     */
+//     $security       = parse_ini_file("security.ini");
+//     $secret_key     = $security["encryption_key"];
+//     $secret_iv      = $security["iv"];
+//     $encrypt_method = $security["encryption_mechanism"];
 
-    // iv – encrypt method AES-256-CBC expects 16 bytes – else you will get a warning
-    $iv     = substr(hash("sha256", $secret_iv), 0, 16);
+//     // hash
+//     $key    = hash("sha256", $secret_key);
 
-    //do the encryption given text/string/number
-    $result = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
-    $output = base64_encode($result);
-    return $output;
+//     // iv ï¿½ encrypt method AES-256-CBC expects 16 bytes ï¿½ else you will get a warning
+//     $iv     = substr(hash("sha256", $secret_iv), 0, 16);
+
+//     //do the encryption given text/string/number
+//     $result = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
+//     $output = base64_encode($result);
+//     return $output;
+// }
+
+
+
+// function decrypt_url($string)
+// {
+
+//     $output = false;
+//     /*
+//     * read security.ini file & get encryption_key | iv | encryption_mechanism value for generating encryption code
+//     */
+
+//     $security       = parse_ini_file("security.ini");
+//     $secret_key     = $security["encryption_key"];
+//     $secret_iv      = $security["iv"];
+//     $encrypt_method = $security["encryption_mechanism"];
+
+//     // hash
+//     $key    = hash("sha256", $secret_key);
+
+//     // iv ï¿½ encrypt method AES-256-CBC expects 16 bytes ï¿½ else you will get a warning
+//     $iv = substr(hash("sha256", $secret_iv), 0, 16);
+
+//     //do the decryption given text/string/number
+
+//     $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+//     return $output;
+// }
+if (!function_exists('encrypt_url')) {
+    function encrypt_url($string)
+    {
+        if (empty($string)) return '';
+
+        $secret_key = 'GantiDenganKeyRahasia32Karakter!';
+        $secret_iv  = 'GantiWithIV16Chr!';
+        $method     = "AES-256-CBC";
+
+        $key = hash('sha256', $secret_key);
+        $iv  = substr(hash('sha256', $secret_iv), 0, 16);
+
+        $output = openssl_encrypt($string, $method, $key, 0, $iv);
+
+        // Base64 ke URL-safe string
+        $base64 = base64_encode($output);
+        return str_replace(array('+', '/', '='), array('-', '_', '~'), $base64);
+    }
 }
 
+if (!function_exists('decrypt_url')) {
+    function decrypt_url($string)
+    {
+        if (empty($string)) return false;
 
+        // Clean string dari URL Encoding browser
+        $string = rawurldecode($string);
 
-function decrypt_url($string)
-{
+        // Kembalikan URL-safe string ke Base64 standar
+        $base64 = str_replace(array('-', '_', '~'), array('+', '/', '='), $string);
+        $decoded = base64_decode($base64);
 
-    $output = false;
-    /*
-    * read security.ini file & get encryption_key | iv | encryption_mechanism value for generating encryption code
-    */
+        $secret_key = 'GantiDenganKeyRahasia32Karakter!';
+        $secret_iv  = 'GantiWithIV16Chr!';
+        $method     = "AES-256-CBC";
 
-    $security       = parse_ini_file("security.ini");
-    $secret_key     = $security["encryption_key"];
-    $secret_iv      = $security["iv"];
-    $encrypt_method = $security["encryption_mechanism"];
+        $key = hash('sha256', $secret_key);
+        $iv  = substr(hash('sha256', $secret_iv), 0, 16);
 
-    // hash
-    $key    = hash("sha256", $secret_key);
-
-    // iv – encrypt method AES-256-CBC expects 16 bytes – else you will get a warning
-    $iv = substr(hash("sha256", $secret_iv), 0, 16);
-
-    //do the decryption given text/string/number
-
-    $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
-    return $output;
+        return openssl_decrypt($decoded, $method, $key, 0, $iv);
+    }
 }

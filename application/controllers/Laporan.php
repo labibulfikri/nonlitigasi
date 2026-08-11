@@ -118,7 +118,7 @@ class Laporan extends CI_Controller
             // Tombol Aksi Detail
             $row['action'] = '
             <div class="flex justify-end">
-                <a href="' . base_url('nonlit/detail/' . $field->id) . '" class="btn btn-sm btn-ghost bg-slate-50 hover:bg-slate-900 hover:text-white rounded-xl shadow-none border-none group">
+                <a href="' . base_url('nonlit/detail/' . encrypt_url($field->id)) . '" class="btn btn-sm btn-ghost bg-slate-50 hover:bg-slate-900 hover:text-white rounded-xl shadow-none border-none group">
                     <i class="fa-solid fa-eye text-indigo-500 group-hover:text-white mr-2"></i> Detail
                 </a>
             </div>';

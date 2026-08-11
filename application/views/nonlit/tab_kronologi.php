@@ -40,8 +40,8 @@
     </div>
 
     <div class="tabs tabs-boxed bg-base-200 p-2 mb-8 justify-center lg:justify-start">
-        <a class="tab tab-lg flex-1 lg:flex-none font-bold" href="<?= base_url('nonlit/detail/' . $id) ?>">Resume Rapat</a>
-        <a class="tab tab-lg flex-1 lg:flex-none font-bold tab-active btn-primary shadow-lg" href="<?= base_url('nonlit/tab_kronologi/' . $id) ?>">Berkas Pendukung</a>
+        <a class="tab tab-lg flex-1 lg:flex-none font-bold" href="<?= base_url('nonlit/detail/' . encrypt_url($id)) ?>">Resume Rapat</a>
+        <a class="tab tab-lg flex-1 lg:flex-none font-bold tab-active btn-primary shadow-lg" href="<?= base_url('nonlit/tab_kronologi/' . encrypt_url($id)) ?>">Berkas Pendukung</a>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">

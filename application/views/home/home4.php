@@ -7,7 +7,7 @@
             <h1 class="text-4xl font-black text-slate-900 tracking-tighter uppercase italic">BPKAD <span class="text-blue-600"> Pemerintah Kota Surabaya</span></h1>
             <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.4em] mt-2 flex items-center gap-3">
                 <span class="w-12 h-[3px] bg-slate-900"></span>
-                
+
             </p>
         </div>
 
@@ -120,11 +120,11 @@
 
             <div class="relative w-full md:w-64">
                 <i class="mdi mdi-magnify absolute left-3 top-2.5 text-slate-400"></i>
-                <input type="text" id="search-modal" placeholder="Cari di tabel ini..." 
-                       class="input input-bordered input-sm w-full pl-10 rounded-xl font-bold text-xs focus:ring-2 focus:ring-blue-500 bg-slate-50 border-none">
+                <input type="text" id="search-modal" placeholder="Cari di tabel ini..."
+                    class="input input-bordered input-sm w-full pl-10 rounded-xl font-bold text-xs focus:ring-2 focus:ring-blue-500 bg-slate-50 border-none">
             </div>
         </div>
-        
+
         <div class="overflow-x-auto max-h-[50vh] scrollbar-thin">
             <table class="table table-zebra w-full" id="table-modal-data">
                 <thead>
@@ -138,7 +138,7 @@
                     </tr>
                 </thead>
                 <tbody id="table_detail_body" class="font-bold text-[11px] uppercase">
-                    </tbody>
+                </tbody>
             </table>
         </div>
 
@@ -151,55 +151,62 @@
 </dialog>
 
 <script>
-let charts = {};
-Chart.register(ChartDataLabels);
+    let charts = {};
+    Chart.register(ChartDataLabels);
 
-$(document).ready(function() {
-    initCharts();
-    refreshDashboard();
-}); 
+    $(document).ready(function() {
+        initCharts();
+        refreshDashboard();
+    });
 
- $(document).ready(function() {
-    $("#search-modal").on("keyup", function() {
-        var value = $(this).val().toLowerCase();
-        $("#table_detail_body tr").filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    $(document).ready(function() {
+        $("#search-modal").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#table_detail_body tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
         });
     });
-});
-// Fitur Search di Modal
-$(document).ready(function() {
-    $("#search-modal").on("keyup", function() {
-        let value = $(this).val().toLowerCase();
-        $("#table_detail_body tr").each(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    // Fitur Search di Modal
+    $(document).ready(function() {
+        $("#search-modal").on("keyup", function() {
+            let value = $(this).val().toLowerCase();
+            $("#table_detail_body tr").each(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
         });
     });
-});
 
-function showDetailModalInstansi(instansi, status, jenis) {
-    const tahun = $('#f-tahun').val();
-    const token = $('#token').val();
-    
-    $('#search-modal').val(''); // Reset search
-    $('#table_detail_body').html('<tr><td colspan="5" class="text-center py-20"><span class="loading loading-spinner text-primary"></span></td></tr>');
-    
-    $('#modal_title').text(`${jenis.replace('_', ' ').toUpperCase()} : ${instansi}`);
-    modal_detail_chart.showModal();
+    function showDetailModalInstansi(instansi, status, jenis) {
+        const tahun = $('#f-tahun').val();
+        const token = $('#token').val();
 
-    $.ajax({
-        url: "<?= base_url('home/get_detail_instansi') ?>",
-        type: "POST",
-        data: { instansi, status, jenis, tahun, token },
-        dataType: "json",
-        success: function(res) {
-            let html = '';
-            if (res.length > 0) {
-                res.forEach((i, idx) => {
-                    const badgeSt = i.status === 'selesai' ? 'bg-emerald-500 shadow-emerald-100' : 'bg-amber-400 shadow-amber-100';
-                    const teamLabel = i.team_nonlit ? i.team_nonlit.replace('_', ' ').toUpperCase() : 'INTERNAL BPKAD';
+        $('#search-modal').val(''); // Reset search
+        $('#table_detail_body').html('<tr><td colspan="5" class="text-center py-20"><span class="loading loading-spinner text-primary"></span></td></tr>');
 
-                    html += `
+        $('#modal_title').text(`${jenis.replace('_', ' ').toUpperCase()} : ${instansi}`);
+        modal_detail_chart.showModal();
+
+        $.ajax({
+            url: "<?= base_url('home/get_detail_instansi') ?>",
+            type: "POST",
+            data: {
+                instansi,
+                status,
+                jenis,
+                tahun,
+                token
+            },
+            dataType: "json",
+            success: function(res) {
+                let html = '';
+                if (res.length > 0) {
+                    res.forEach((i, idx) => {
+                        const badgeSt = i.status === 'selesai' ? 'bg-emerald-500 shadow-emerald-100' : 'bg-amber-400 shadow-amber-100';
+                        const teamLabel = i.team_nonlit ? i.team_nonlit.replace('_', ' ').toUpperCase() : 'INTERNAL BPKAD';
+                        const targetId = i.encrypted_id ? i.encrypted_id : i.id;
+                        const detailUrl = "<?= base_url('nonlit/detail/') ?>" + targetId;
+                        html += `
                     <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                         <td class="text-slate-300 font-mono text-[10px]">${idx + 1}</td>
                         <td class="max-w-sm">
@@ -219,106 +226,141 @@ function showDetailModalInstansi(instansi, status, jenis) {
                         </td>
 
                         <td class="text-center">
-            <a href="<?= base_url('nonlit/detail/') ?>${i.id}" 
+            <a href="${detailUrl}" 
                class="btn btn-square btn-sm rounded-xl bg-white border-slate-200 hover:bg-slate-900 hover:text-white transition-all shadow-sm group">
                 <i class="mdi mdi-eye-outline text-lg group-hover:scale-110"></i>
             </a>
         </td>
                     </tr>`;
-                });
-            } else {
-                html = '<tr><td colspan="5" class="text-center py-20 font-black text-slate-200 uppercase italic tracking-widest">Tidak ada data ditemukan</td></tr>';
+                    });
+                } else {
+                    html = '<tr><td colspan="5" class="text-center py-20 font-black text-slate-200 uppercase italic tracking-widest">Tidak ada data ditemukan</td></tr>';
+                }
+                $('#table_detail_body').html(html);
             }
-            $('#table_detail_body').html(html);
-        }
-    });
-}
+        });
+    }
 
-function updateBarInstansi(chartObj, dbData) {
-    // Ambil nama instansi untuk label bawah (X-Axis)
-    const labels = dbData.map(item => item.instansi.replace('_', ' ').toUpperCase());
-    const proses = dbData.map(item => parseInt(item.proses));
-    const selesai = dbData.map(item => parseInt(item.selesai));
+    function updateBarInstansi(chartObj, dbData) {
+        // Ambil nama instansi untuk label bawah (X-Axis)
+        const labels = dbData.map(item => item.instansi.replace('_', ' ').toUpperCase());
+        const proses = dbData.map(item => parseInt(item.proses));
+        const selesai = dbData.map(item => parseInt(item.selesai));
 
-    chartObj.data.labels = labels;
-    chartObj.data.datasets[0].data = proses;
-    chartObj.data.datasets[1].data = selesai;
-    chartObj.update();
-}
- 
-// Sesuaikan fungsi refreshDashboard
-function refreshDashboard() {
-    const tahun = $('#f-tahun').val();
-    const status = $('#f-status').val();
-    const token = $('#token').val();
+        chartObj.data.labels = labels;
+        chartObj.data.datasets[0].data = proses;
+        chartObj.data.datasets[1].data = selesai;
+        chartObj.update();
+    }
 
-    $.ajax({
-        url: "<?= base_url('home/get_chart_data') ?>",
-        type: "POST",
-        data: { tahun, status, token },
-        dataType: "json",
-        success: function(res) {
-            $('#card-total').text(res.totals);
-            $('#card-proses').text(res.count_proses);
-            $('#card-selesai').text(res.count_selesai);
+    // Sesuaikan fungsi refreshDashboard
+    function refreshDashboard() {
+        const tahun = $('#f-tahun').val();
+        const status = $('#f-status').val();
+        const token = $('#token').val();
 
-            // Update menggunakan fungsi instansi yang baru
-            updateBarInstansi(charts.lp, res.bar_lp);
-            updateBarInstansi(charts.nonlit, res.bar_nonlit);
-            updateBarInstansi(charts.masalah, res.bar_masalah);
-        }
-    });
-}
+        $.ajax({
+            url: "<?= base_url('home/get_chart_data') ?>",
+            type: "POST",
+            data: {
+                tahun,
+                status,
+                token
+            },
+            dataType: "json",
+            success: function(res) {
+                $('#card-total').text(res.totals);
+                $('#card-proses').text(res.count_proses);
+                $('#card-selesai').text(res.count_selesai);
 
-// Sesuaikan initCharts agar label awalnya kosong
-function initCharts() {
-    Chart.register(ChartDataLabels);
+                // Update menggunakan fungsi instansi yang baru
+                updateBarInstansi(charts.lp, res.bar_lp);
+                updateBarInstansi(charts.nonlit, res.bar_nonlit);
+                updateBarInstansi(charts.masalah, res.bar_masalah);
+            }
+        });
+    }
 
-    const chartConfig = (jenis, colorProses, colorSelesai) => ({
-        type: 'bar',
-        data: {
-            labels: [], // Kosongkan, akan diisi dinamis dari database
-            datasets: [
-                { label: 'proses', data: [], backgroundColor: colorProses, borderRadius: 5 },
-                { label: 'selesai', data: [], backgroundColor: colorSelesai, borderRadius: 5 }
-            ]
-        },
-        options: {
-            maintainAspectRatio: false,
-            indexAxis: 'y', // OPSIONAL: Ubah ke 'y' jika ingin bar horizontal agar nama instansi tidak bertumpuk
-            plugins: {
-                legend: { display: false },
-                datalabels: {
-                    anchor: 'end', align: 'right', color: '#64748b', font: { weight: 'bold', size: 10 },
-                    formatter: (v, ctx) => {
-                        let dataset = ctx.chart.data.datasets;
-                        if (ctx.datasetIndex === dataset.length - 1) {
-                            let total = (dataset[0].data[ctx.dataIndex] || 0) + (dataset[1].data[ctx.dataIndex] || 0);
-                            return total > 0 ? total : '';
+    // Sesuaikan initCharts agar label awalnya kosong
+    function initCharts() {
+        Chart.register(ChartDataLabels);
+
+        const chartConfig = (jenis, colorProses, colorSelesai) => ({
+            type: 'bar',
+            data: {
+                labels: [], // Kosongkan, akan diisi dinamis dari database
+                datasets: [{
+                        label: 'proses',
+                        data: [],
+                        backgroundColor: colorProses,
+                        borderRadius: 5
+                    },
+                    {
+                        label: 'selesai',
+                        data: [],
+                        backgroundColor: colorSelesai,
+                        borderRadius: 5
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                indexAxis: 'y', // OPSIONAL: Ubah ke 'y' jika ingin bar horizontal agar nama instansi tidak bertumpuk
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'right',
+                        color: '#64748b',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: (v, ctx) => {
+                            let dataset = ctx.chart.data.datasets;
+                            if (ctx.datasetIndex === dataset.length - 1) {
+                                let total = (dataset[0].data[ctx.dataIndex] || 0) + (dataset[1].data[ctx.dataIndex] || 0);
+                                return total > 0 ? total : '';
+                            }
+                            return '';
                         }
-                        return '';
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        beginAtZero: true
+                    },
+                    y: {
+                        stacked: true,
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                weight: 'bold',
+                                size: 10
+                            }
+                        }
+                    }
+                },
+                onClick: (e, activeEls, chart) => {
+                    if (activeEls.length > 0) {
+                        const idx = activeEls[0].index;
+                        const instansiName = chart.data.labels[idx];
+                        const datasetIdx = activeEls[0].datasetIndex;
+                        const statusClicked = chart.data.datasets[datasetIdx].label;
+
+                        showDetailModalInstansi(instansiName, statusClicked, jenis);
                     }
                 }
-            },
-            scales: {
-                x: { stacked: true, beginAtZero: true },
-                y: { stacked: true, grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
-            },
-            onClick: (e, activeEls, chart) => {
-                if (activeEls.length > 0) {
-                    const idx = activeEls[0].index;
-                    const instansiName = chart.data.labels[idx];
-                    const datasetIdx = activeEls[0].datasetIndex;
-                    const statusClicked = chart.data.datasets[datasetIdx].label;
-                    
-                    showDetailModalInstansi(instansiName, statusClicked, jenis);
-                }
             }
-        }
-    });
+        });
 
-    charts.lp = new Chart(document.getElementById('chartLP'), chartConfig('laporan_polisi', '#fca5a5', '#ef4444'));
-    charts.nonlit = new Chart(document.getElementById('chartNonlit'), chartConfig('nonlit', '#93c5fd', '#3b82f6'));
-    charts.masalah = new Chart(document.getElementById('chartMasalah'), chartConfig('permasalahan', '#fcd34d', '#f59e0b'));
-}
+        charts.lp = new Chart(document.getElementById('chartLP'), chartConfig('laporan_polisi', '#fca5a5', '#ef4444'));
+        charts.nonlit = new Chart(document.getElementById('chartNonlit'), chartConfig('nonlit', '#93c5fd', '#3b82f6'));
+        charts.masalah = new Chart(document.getElementById('chartMasalah'), chartConfig('permasalahan', '#fcd34d', '#f59e0b'));
+    }
 </script>

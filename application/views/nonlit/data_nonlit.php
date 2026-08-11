@@ -2,14 +2,16 @@
      .card-row:focus-within {
          z-index: 100;
      }
-/* Dalam file globals.css atau input.css Anda */
-.swal2-styled.swal2-confirm {
-    @apply btn btn-primary border-none !important;
-}
 
-.swal2-styled.swal2-cancel {
-    @apply btn btn-ghost !important;
-}
+     /* Dalam file globals.css atau input.css Anda */
+     .swal2-styled.swal2-confirm {
+         @apply btn btn-primary border-none !important;
+     }
+
+     .swal2-styled.swal2-cancel {
+         @apply btn btn-ghost !important;
+     }
+
      /* Memaksa card yang sedang dibuka dropdown-nya untuk berada di paling depan */
      #card-list>div:focus-within {
          z-index: 50 !important;
@@ -82,10 +84,10 @@
              </div>
          </div>
      </div>
-     
-       <div id="csrf-holder">
-            <?= crsf_ajax() ?>
-        </div>
+
+     <div id="csrf-holder">
+         <?= crsf_ajax() ?>
+     </div>
      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
          <div>
              <h1 class="text-2xl font-black text-slate-800 tracking-tight uppercase italic">Master Permasalahan</h1>
@@ -119,8 +121,8 @@
      </div>
 
      <div id="pagination-container" class="mt-10 flex justify-center pb-20">
-    </div>
-     
+     </div>
+
  </div>
 
  <dialog id="modal_tambah" class="modal">
@@ -158,7 +160,7 @@
                      </select>
                  </div>
 
-                     <div class="form-control hidden" id="container_tanggal_tambah">
+                 <div class="form-control hidden" id="container_tanggal_tambah">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Tanggal Non-Litigasi</span></label>
                      <input type="date" name="tgl_nonlit" class="input input-bordered bg-slate-50 rounded-xl">
                  </div>
@@ -203,14 +205,14 @@
                      </div>
                  </div>
 
-             
-                <div class="mb-4">
-    <label class="block text-xs font-bold text-slate-700 mb-2 uppercase">Nomor Register Baru</label>
-    <select id="multi-register" name="register_baru[]" multiple="multiple" 
-        class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500">
-    </select>
-    <p class="text-[10px] text-slate-400 mt-1">*Ketik nomor lalu tekan Enter</p>
-</div>
+
+                 <div class="mb-4">
+                     <label class="block text-xs font-bold text-slate-700 mb-2 uppercase">Nomor Register Baru</label>
+                     <select id="multi-register" name="register_baru[]" multiple="multiple"
+                         class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500">
+                     </select>
+                     <p class="text-[10px] text-slate-400 mt-1">*Ketik nomor lalu tekan Enter</p>
+                 </div>
 
 
                  <div class="form-control">
@@ -268,9 +270,9 @@
              <input type="hidden" name="id" id="edit_id">
 
              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
 
-                
+
+
                  <div class="form-control col-span-full">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Jenis Data</span></label>
                      <select name="jenis" id="edit_jenis" class="select select-bordered bg-amber-50 border-amber-200 focus:ring-2 focus:ring-amber-500 rounded-xl font-bold" required onchange="toggleInstansiUpdate()">
@@ -280,7 +282,7 @@
                          <option value="data_umum">DATA UMUM</option>
                      </select>
                  </div>
- <div class="form-control hidden" id="container_tanggal_update">
+                 <div class="form-control hidden" id="container_tanggal_update">
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Tanggal</span></label>
                      <input type="date" name="tgl_nonlit" id="edit_tgl_nonlit" class="input input-bordered bg-slate-50 rounded-xl">
                  </div>
@@ -304,15 +306,15 @@
                      <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Register Baru</span></label>
                      <input type="text" name="register_baru" id="edit_register_baru" class="input input-bordered bg-slate-50 rounded-xl uppercase font-bold" required>
                  </div> -->
-<div class="form-control col-span-full">
-    <label class="label">
-        <span class="label-text font-bold text-slate-600 uppercase text-[11px]">Nomor Register Baru</span>
-    </label>
-    <select name="register_baru[]" id="edit_register_baru" multiple="multiple" class="w-full">
-        <!-- Opsi akan diisi secara dinamis melalui JavaScript saat tombol edit diklik -->
-    </select>
-    <p class="text-[10px] text-slate-400 mt-2">*Tekan Enter untuk menambah atau mengubah nomor register</p>
-</div>
+                 <div class="form-control col-span-full">
+                     <label class="label">
+                         <span class="label-text font-bold text-slate-600 uppercase text-[11px]">Nomor Register Baru</span>
+                     </label>
+                     <select name="register_baru[]" id="edit_register_baru" multiple="multiple" class="w-full">
+                         <!-- Opsi akan diisi secara dinamis melalui JavaScript saat tombol edit diklik -->
+                     </select>
+                     <p class="text-[10px] text-slate-400 mt-2">*Tekan Enter untuk menambah atau mengubah nomor register</p>
+                 </div>
 
 
                  <div class="form-control">
@@ -348,11 +350,11 @@
                          <option value="proses">PROSES</option>
                          <option value="selesai">SELESAI</option>
                      </select>
-                 </div> 
+                 </div>
              </div>
-<div class="form-control">
+             <div class="form-control">
                  <label class="label"><span class="label-text font-bold text-slate-600 uppercase text-[11px]">Keterangan Detail</span></label>
-                 <textarea name="keterangan" id="edit_keterangan"  class="textarea textarea-bordered h-24 bg-slate-50 rounded-xl" placeholder="Catatan tambahan..."></textarea>
+                 <textarea name="keterangan" id="edit_keterangan" class="textarea textarea-bordered h-24 bg-slate-50 rounded-xl" placeholder="Catatan tambahan..."></textarea>
              </div>
              <div class="modal-action flex gap-3 mt-10">
                  <button type="button" onclick="modal_edit.close()" class="btn btn-ghost flex-1 rounded-xl uppercase font-bold">Batal</button>
@@ -364,49 +366,52 @@
      </div>
  </dialog>
  <script>
-$(document).ready(function() {
-    // Karena DaisyUI menggunakan element <dialog>, kita pantau saat modal dibuka
-    const modalTambah = document.getElementById('modal_tambah');
-    
-    // Observer untuk mendeteksi saat atribut 'open' muncul
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === "open") {
-                if (modalTambah.hasAttribute('open')) {
-                    // Beri sedikit timeout agar render selesai
-                    setTimeout(function() {
-                        $('#multi-register').select2({
-                            tags: true,
-                            tokenSeparators: [',', ';', ' '],
-                            placeholder: "Contoh: 12345",
-                            width: '100%',
-                            // PENTING: dropdownParent harus ke .modal-box
-                            dropdownParent: $('#modal_tambah .modal-box')
-                        });
-                    }, 100);
-                }
-            }
-        });
-    });
+     $(document).ready(function() {
+         // Karena DaisyUI menggunakan element <dialog>, kita pantau saat modal dibuka
+         const modalTambah = document.getElementById('modal_tambah');
 
-    observer.observe(modalTambah, { attributes: true });
-});
-</script>
+         // Observer untuk mendeteksi saat atribut 'open' muncul
+         const observer = new MutationObserver(function(mutations) {
+             mutations.forEach(function(mutation) {
+                 if (mutation.attributeName === "open") {
+                     if (modalTambah.hasAttribute('open')) {
+                         // Beri sedikit timeout agar render selesai
+                         setTimeout(function() {
+                             $('#multi-register').select2({
+                                 tags: true,
+                                 tokenSeparators: [',', ';', ' '],
+                                 placeholder: "Contoh: 12345",
+                                 width: '100%',
+                                 // PENTING: dropdownParent harus ke .modal-box
+                                 dropdownParent: $('#modal_tambah .modal-box')
+                             });
+                         }, 100);
+                     }
+                 }
+             });
+         });
 
-<style>
-    /* Merapikan tampilan Select2 agar menyatu dengan DaisyUI */
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 5px;
-        min-height: 45px;
-        background-color: #f9fafb;
-    }
-    .select2-container--default.select2-container--focus .select2-selection--multiple {
-        border-color: #2563eb;
-        outline: none;
-    }
-</style>
+         observer.observe(modalTambah, {
+             attributes: true
+         });
+     });
+ </script>
+
+ <style>
+     /* Merapikan tampilan Select2 agar menyatu dengan DaisyUI */
+     .select2-container--default .select2-selection--multiple {
+         border: 1px solid #e5e7eb;
+         border-radius: 0.75rem;
+         padding: 5px;
+         min-height: 45px;
+         background-color: #f9fafb;
+     }
+
+     .select2-container--default.select2-container--focus .select2-selection--multiple {
+         border-color: #2563eb;
+         outline: none;
+     }
+ </style>
  <script>
      // --- 1. VARIABEL GLOBAL ---
      let currentView = 'list';
@@ -455,10 +460,10 @@ $(document).ready(function() {
 
      // --- 3. FUNGSI RENDER (LIST VIEW) ---
      function renderListView(item) {
-        const cfg = getJenisConfig(item.jenis);
-    const statusClass = item.status.toLowerCase() === 'selesai' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';
+         const cfg = getJenisConfig(item.jenis);
+         const statusClass = item.status.toLowerCase() === 'selesai' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';
 
-    return `
+         return `
     <div class="group bg-white rounded-2xl border border-slate-200 p-3 mb-3 flex items-center justify-between hover:shadow-xl hover:border-blue-400 transition-all duration-300">
         <div class="flex items-center gap-5 flex-grow truncate">
             <div class="relative shrink-0">
@@ -469,8 +474,8 @@ $(document).ready(function() {
                     <i class="mdi ${item.status.toLowerCase() === 'selesai' ? 'mdi-check-bold' : 'mdi-clock-outline'} text-[10px]"></i>
                 </div>
             </div>
-
-            <a href="<?php echo base_url('nonlit/detail/'.'${item.id}') ?>">
+            <a h  
+            <a href="<?php echo base_url('nonlit/detail/' . '${item.encrypted_id}') ?>">
             <div class="truncate">
                 <div class="flex items-center gap-2 mb-1">
                     <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-md ${cfg.bg} ${cfg.color} tracking-widest">${cfg.label}</span>
@@ -510,9 +515,9 @@ $(document).ready(function() {
      // --- 4. FUNGSI RENDER (GRID VIEW) ---
      function renderGridView(item) {
          const cfg = getJenisConfig(item.jenis);
-    const isSelesai = item.status.toLowerCase() === 'selesai';
-    
-    return `  
+         const isSelesai = item.status.toLowerCase() === 'selesai';
+
+         return `  
     <div class="group bg-white rounded-[2.5rem] border border-slate-200 p-1 flex flex-col hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 relative">
         <div class="p-5 flex flex-col h-full">
             <div class="flex justify-between items-start mb-6">
@@ -527,7 +532,7 @@ $(document).ready(function() {
                 </div>
             </div>
 
-            <a href="<?php echo base_url('nonlit/detail/'.'${item.id}')?>">
+            <a href="<?php echo base_url('nonlit/detail/' . '${item.id}') ?>">
             <div class="mb-6">
                 <p class="text-[9px] font-black ${cfg.color} uppercase tracking-[0.2em] mb-1">${cfg.label}</p>
                 <h4 class="font-black text-slate-800 text-sm uppercase leading-tight line-clamp-3 min-h-[3rem] italic group-hover:text-blue-600 transition-colors">
@@ -556,21 +561,24 @@ $(document).ready(function() {
             <span class="text-[9px] font-black text-slate-500 uppercase tracking-tighter">#${item.id}</span>
         </div>
         </div> 
-     `;}
+     `;
+     }
 
      // --- 5. FUNGSI DROPDOWN AKSI ---
      function renderActionMenu(item) {
-var sumber="";
-     if (item.jenis === "nonlit"){
-        sumber = "NONLIT";
-     }else if (item.jenis === "laporan_polisi"){
-         sumber = "LAPORAN_POLISI";
-}else {
-         sumber = "PERMASALAHAN";
+         var sumber = "";
+         if (item.jenis === "nonlit") {
+             sumber = "NONLIT";
+         } else if (item.jenis === "laporan_polisi") {
+             sumber = "LAPORAN_POLISI";
+         } else {
+             sumber = "PERMASALAHAN";
 
-     }
+         }
 
-     // <li><a href="<?= base_url('peta/edit/') ?>${item.id}" class="py-3 text-emerald-600"><i class="mdi mdi-map-marker-path text-lg"></i> Edit Area Peta</a></li>
+         const targetId = item.encrypted_id ? item.encrypted_id : item.id;
+         const baseUrl = "<?= base_url('nonlit/detail/') ?>";
+         // <li><a href="<?= base_url('peta/edit/') ?>${item.id}" class="py-3 text-emerald-600"><i class="mdi mdi-map-marker-path text-lg"></i> Edit Area Peta</a></li>
 
          return `
     <div class="dropdown dropdown-end">
@@ -578,7 +586,9 @@ var sumber="";
             <i class="mdi mdi-dots-vertical text-xl"></i>
         </label>
         <ul tabindex="0" class="dropdown-content z-[50] menu p-2 shadow-2xl bg-base-100 rounded-2xl w-52 border border-slate-100 text-[11px] font-bold uppercase tracking-tighter">
-            <li><a href="<?= base_url('nonlit/detail/') ?>${item.id}" class="py-3"><i class="mdi mdi-eye-outline text-blue-500 text-lg"></i> Detail</a></li>
+            <li>
+            <a href="${baseUrl}${targetId}" class="py-3"><i class="mdi mdi-eye-outline text-blue-500 text-lg"></i> Detailnya</a>
+            </li>
             <li><button onclick="shareFolder('${sumber}', '${item.id}')" class="py-3"><i class="mdi mdi-share-variant text-lg">Share Link</i>
              </button> 
              </li>
@@ -588,8 +598,8 @@ var sumber="";
             <li><button onclick="hapusData(${item.id})" class="py-3 text-red-500"><i class="mdi mdi-trash-can-outline text-lg"></i> Hapus Permanen</button></li>
             </ul>
             </div>`;
-        }
-        // <li><button onclick="shareFolder(${item.id})" class="py-3 text-indigo-600"><i class="mdi mdi-share-variant text-lg"></i> Bagikan Link</button></li>
+     }
+     // <li><button onclick="shareFolder(${item.id})" class="py-3 text-indigo-600"><i class="mdi mdi-share-variant text-lg"></i> Bagikan Link</button></li>
 
      // --- 6. FUNGSI RENDER CARDS (YANG ERROR TADI) ---
      function renderCards(data) {
@@ -623,18 +633,18 @@ var sumber="";
                  globalData = response.data;
                  renderCards(response.data); // PASTI TERDEFINISI KARENA ADA DI ATAS
 
-               // 2. Render Pagination (PENTING: Ambil keyword search dari input)
-    const currentSearch = $('#search-input').val();
-    renderPagination(response.recordsFiltered, page, currentSearch);
+                 // 2. Render Pagination (PENTING: Ambil keyword search dari input)
+                 const currentSearch = $('#search-input').val();
+                 renderPagination(response.recordsFiltered, page, currentSearch);
 
-    // 3. Update Stats Card
-    $('#total-count').text(response.recordsFiltered);
-    if (response.stats) {
-        $('#count-nonlit').text(response.stats.nonlit);
-        $('#count-lp').text(response.stats.laporan_polisi);
-        $('#count-masalah').text(response.stats.permasalahan);
-        $('#count-umum').text(response.stats.data_umum);
-    }
+                 // 3. Update Stats Card
+                 $('#total-count').text(response.recordsFiltered);
+                 if (response.stats) {
+                     $('#count-nonlit').text(response.stats.nonlit);
+                     $('#count-lp').text(response.stats.laporan_polisi);
+                     $('#count-masalah').text(response.stats.permasalahan);
+                     $('#count-umum').text(response.stats.data_umum);
+                 }
              },
              error: function(xhr) {
                  console.error("AJAX Error: ", xhr.responseText);
@@ -644,52 +654,52 @@ var sumber="";
 
      function renderPagination(totalRecords, currentPage, search) {
          const limit = 10; // Sesuaikan dengan length di ajax
-    const totalPages = Math.ceil(totalRecords / limit);
-    let html = '';
+         const totalPages = Math.ceil(totalRecords / limit);
+         let html = '';
 
-    if (totalPages > 1) {
-        html += `<div class="join bg-white p-1 rounded-2xl shadow-sm border border-slate-200">`;
-        
-        // Tombol Previous
-        if (currentPage > 1) {
-            html += `<button onclick="loadData(${currentPage - 1}, '${search}')" class="btn btn-sm join-item rounded-xl btn-ghost"><i class="mdi mdi-chevron-left"></i></button>`;
-        }
+         if (totalPages > 1) {
+             html += `<div class="join bg-white p-1 rounded-2xl shadow-sm border border-slate-200">`;
 
-        // Looping Halaman
-        for (let i = 1; i <= totalPages; i++) {
-            // Logika sederhana: tampilkan semua jika halaman sedikit, atau gunakan limit jika banyak
-            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                const activeClass = (i === currentPage) ? 'btn-primary text-white shadow-md' : 'btn-ghost text-slate-500';
-                html += `<button onclick="loadData(${i}, '${search}')" class="btn btn-sm join-item rounded-xl px-4 ${activeClass}">${i}</button>`;
-            } else if (i === currentPage - 2 || i === currentPage + 2) {
-                html += `<button class="btn btn-sm join-item btn-disabled">...</button>`;
-            }
-        }
+             // Tombol Previous
+             if (currentPage > 1) {
+                 html += `<button onclick="loadData(${currentPage - 1}, '${search}')" class="btn btn-sm join-item rounded-xl btn-ghost"><i class="mdi mdi-chevron-left"></i></button>`;
+             }
 
-        // Tombol Next
-        if (currentPage < totalPages) {
-            html += `<button onclick="loadData(${currentPage + 1}, '${search}')" class="btn btn-sm join-item rounded-xl btn-ghost"><i class="mdi mdi-chevron-right"></i></button>`;
-        }
+             // Looping Halaman
+             for (let i = 1; i <= totalPages; i++) {
+                 // Logika sederhana: tampilkan semua jika halaman sedikit, atau gunakan limit jika banyak
+                 if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                     const activeClass = (i === currentPage) ? 'btn-primary text-white shadow-md' : 'btn-ghost text-slate-500';
+                     html += `<button onclick="loadData(${i}, '${search}')" class="btn btn-sm join-item rounded-xl px-4 ${activeClass}">${i}</button>`;
+                 } else if (i === currentPage - 2 || i === currentPage + 2) {
+                     html += `<button class="btn btn-sm join-item btn-disabled">...</button>`;
+                 }
+             }
 
-        html += `</div>`;
-    }
+             // Tombol Next
+             if (currentPage < totalPages) {
+                 html += `<button onclick="loadData(${currentPage + 1}, '${search}')" class="btn btn-sm join-item rounded-xl btn-ghost"><i class="mdi mdi-chevron-right"></i></button>`;
+             }
 
-    // Masukkan ke container
-    $('#pagination-container').html(html);
-}
+             html += `</div>`;
+         }
+
+         // Masukkan ke container
+         $('#pagination-container').html(html);
+     }
 
      // --- 8. INITIALIZE ---
      $(document).ready(function() {
          loadData();
          // Trigger untuk Modal Tambah
-    $('#select_jenis').on('change', function() {
-        toggleInstansiTambah();
-    });
+         $('#select_jenis').on('change', function() {
+             toggleInstansiTambah();
+         });
 
-    // Trigger untuk Modal Edit
-    $('#edit_jenis').on('change', function() {
-        toggleInstansiUpdate();
-    });
+         // Trigger untuk Modal Edit
+         $('#edit_jenis').on('change', function() {
+             toggleInstansiUpdate();
+         });
      });
 
      // --- 9. VIEW SWITCHER ---
@@ -748,9 +758,9 @@ var sumber="";
              $('#count-umum').text(umum);
          }
 
-          
 
- 
+
+
          // Event Pencarian
          $('#search-input').on('keyup', function() {
              searchQuery = $(this).val();
@@ -800,12 +810,12 @@ var sumber="";
                              text: 'Data perkara baru telah berhasil disimpan.',
                              icon: 'success',
                              customClass: {
-                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
-                                cancelButton: 'btn btn-ghost mx-2'
-                                },
-                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
-                        buttonsStyling: false
-                            
+                                 confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                 cancelButton: 'btn btn-ghost mx-2'
+                             },
+                             // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                             buttonsStyling: false
+
                          }).then(() => {
                              // 4. Refresh data card tanpa reload halaman
                              loadData();
@@ -813,12 +823,12 @@ var sumber="";
                      } else {
                          Swal.fire({
                              title: 'Gagal!',
-                               customClass: {
-                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
-                                cancelButton: 'btn btn-ghost mx-2'
-                                },
-                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
-                        buttonsStyling: false,
+                             customClass: {
+                                 confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                 cancelButton: 'btn btn-ghost mx-2'
+                             },
+                             // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                             buttonsStyling: false,
                              text: response.message || 'Gagal menyimpan data perkara baru.',
                              icon: 'error'
                          });
@@ -871,16 +881,16 @@ var sumber="";
                      }
 
                      // 2. Munculkan Alert Berhasil
-                     Swal.fire({ 
+                     Swal.fire({
                          title: 'Berhasil!',
                          text: 'Data perkara telah diperbarui.',
                          icon: 'success',
-                           customClass: {
-                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
-                                cancelButton: 'btn btn-ghost mx-2'
-                                },
-                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
-                        buttonsStyling: false
+                         customClass: {
+                             confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                             cancelButton: 'btn btn-ghost mx-2'
+                         },
+                         // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                         buttonsStyling: false
                      }).then(() => {
                          // 3. Refresh data di Card tanpa reload halaman
                          loadData();
@@ -888,16 +898,16 @@ var sumber="";
                  },
                  error: function(xhr) {
                      Swal.fire({
-                        //  theme: 'auto',
+                         //  theme: 'auto',
                          title: 'Gagal!',
                          text: 'Terjadi kesalahan saat memperbarui data.',
                          icon: 'error',
-                           customClass: {
-                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
-                                cancelButton: 'btn btn-ghost mx-2'
-                                },
-                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
-                        buttonsStyling: false
+                         customClass: {
+                             confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                             cancelButton: 'btn btn-ghost mx-2'
+                         },
+                         // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                         buttonsStyling: false
                      });
                  },
                  complete: function() {
@@ -913,39 +923,39 @@ var sumber="";
  </script>
 
 
-<script> 
-function updateTokenGlobal(newToken) {
-        if (newToken) {
-            $('#token').val(newToken);
-            $('input[name="token"]').val(newToken);
-            console.log("CSRF Token Synchronized");
-        }
-    }
+ <script>
+     function updateTokenGlobal(newToken) {
+         if (newToken) {
+             $('#token').val(newToken);
+             $('input[name="token"]').val(newToken);
+             console.log("CSRF Token Synchronized");
+         }
+     }
 
 
-function shareFolder(sumber, id) {
-        const currentToken = $('#token').val();// Ambil token CSRF yang ada di hidden input
+     function shareFolder(sumber, id) {
+         const currentToken = $('#token').val(); // Ambil token CSRF yang ada di hidden input
 
-    $.ajax({
-        url: "<?= base_url('nonlit/generate_share_link') ?>",
-        type: "POST",
-        data: {
-            sumber: sumber,
-                id_data: id,
-                durasi: 24, // Misal default 24 jam
-                token: currentToken
-        },
-        dataType: "json",
-        success: function(res) {
-            if (res.status) {
-                // Update CSRF token di halaman agar tidak expired
-                $('#token').val(res.new_token);
+         $.ajax({
+             url: "<?= base_url('nonlit/generate_share_link') ?>",
+             type: "POST",
+             data: {
+                 sumber: sumber,
+                 id_data: id,
+                 durasi: 24, // Misal default 24 jam
+                 token: currentToken
+             },
+             dataType: "json",
+             success: function(res) {
+                 if (res.status) {
+                     // Update CSRF token di halaman agar tidak expired
+                     $('#token').val(res.new_token);
 
-                // Tampilkan Link dengan UI yang Cantik
-                Swal.fire({
-                    title: '<strong>Link Berhasil Dibuat!</strong>',
-                    icon: 'success',
-                    html: `
+                     // Tampilkan Link dengan UI yang Cantik
+                     Swal.fire({
+                         title: '<strong>Link Berhasil Dibuat!</strong>',
+                         icon: 'success',
+                         html: `
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Link Aktif Sampai: <br><span class="text-indigo-600">${res.expired}</span></p>
                         <div class="relative group mt-4">
                             <input type="text" id="link_publik" value="${res.url}" readonly 
@@ -955,49 +965,49 @@ function shareFolder(sumber, id) {
                             </button>
                         </div>
                     `,
-                    showCloseButton: true,
-                    showConfirmButton: true,
-                    confirmButtonText: '<i class="mdi mdi-share-variant"></i> Bagikan Sekarang',
-                    confirmButtonColor: '#4f46e5',
-                    customClass: {
-                        popup: 'rounded-[2.5rem] p-10',
-                        confirmButton: 'rounded-2xl font-black italic uppercase text-xs px-8'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Jalankan Native Share Browser
-                        if (navigator.share) {
-                            navigator.share({
-                                title: 'Laporan BPKAD',
-                                text: 'Berikut link akses publik untuk laporan perkara:',
-                                url: res.url,
-                            });
-                        } else {
-                            copyLinkOnly(res.url);
-                        }
-                    }
-                });
-            }
-        }
-    });
-}
+                         showCloseButton: true,
+                         showConfirmButton: true,
+                         confirmButtonText: '<i class="mdi mdi-share-variant"></i> Bagikan Sekarang',
+                         confirmButtonColor: '#4f46e5',
+                         customClass: {
+                             popup: 'rounded-[2.5rem] p-10',
+                             confirmButton: 'rounded-2xl font-black italic uppercase text-xs px-8'
+                         }
+                     }).then((result) => {
+                         if (result.isConfirmed) {
+                             // Jalankan Native Share Browser
+                             if (navigator.share) {
+                                 navigator.share({
+                                     title: 'Laporan BPKAD',
+                                     text: 'Berikut link akses publik untuk laporan perkara:',
+                                     url: res.url,
+                                 });
+                             } else {
+                                 copyLinkOnly(res.url);
+                             }
+                         }
+                     });
+                 }
+             }
+         });
+     }
 
-function copyLinkOnly(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        // Tampilkan toast kecil
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000
-        });
-        Toast.fire({
-            icon: 'success',
-            title: 'Link berhasil disalin!'
-        });
-    });
-}
-</script>
+     function copyLinkOnly(text) {
+         navigator.clipboard.writeText(text).then(() => {
+             // Tampilkan toast kecil
+             const Toast = Swal.mixin({
+                 toast: true,
+                 position: 'top-end',
+                 showConfirmButton: false,
+                 timer: 2000
+             });
+             Toast.fire({
+                 icon: 'success',
+                 title: 'Link berhasil disalin!'
+             });
+         });
+     }
+ </script>
 
  <script>
      $(document).ready(function() {
@@ -1012,16 +1022,17 @@ function copyLinkOnly(text) {
              }
          });
      });
-const modalUpdate = document.getElementById('modal_edit'); // Sesuaikan ID modal update Anda
-    
-    // Inisialisasi Select2
-    $('#edit_register_baru').select2({
-        tags: true,
-        tokenSeparators: [',', ';', ' '],
-        placeholder: "Masukkan Nomor Register...",
-        width: '100%',
-        dropdownParent: $('#modal_edit .modal-box') // Agar tidak terkunci di modal DaisyUI
-    }); 
+     const modalUpdate = document.getElementById('modal_edit'); // Sesuaikan ID modal update Anda
+
+     // Inisialisasi Select2
+     $('#edit_register_baru').select2({
+         tags: true,
+         tokenSeparators: [',', ';', ' '],
+         placeholder: "Masukkan Nomor Register...",
+         width: '100%',
+         dropdownParent: $('#modal_edit .modal-box') // Agar tidak terkunci di modal DaisyUI
+     });
+
      function editData(id) {
          $.ajax({
              url: "<?= base_url('nonlit/get_data_by_id/') ?>" + id,
@@ -1030,28 +1041,28 @@ const modalUpdate = document.getElementById('modal_edit'); // Sesuaikan ID modal
              success: function(item) {
                  if (item) {
                      // 1. Isi field teks dasar
-                    //  $('#edit_register_baru').val(item.register_baru);
-// SINKRONISASI SELECT2 REGISTER_BARU
-            let selectElement = $('#edit_register_baru');
-            selectElement.empty(); // Kosongkan opsi lama
+                     //  $('#edit_register_baru').val(item.register_baru);
+                     // SINKRONISASI SELECT2 REGISTER_BARU
+                     let selectElement = $('#edit_register_baru');
+                     selectElement.empty(); // Kosongkan opsi lama
 
-            if (item.register_baru) {
-                // Pecah string "123; 456" menjadi array
-                let regs = item.register_baru.split(';').map(item => item.trim());
-                
-                regs.forEach(function(reg) {
-                    if (reg !== "") {
-                        // Buat opsi baru dan tandai sebagai terpilih (selected)
-                        let newOption = new Option(reg, reg, true, true);
-                        selectElement.append(newOption);
-                    }
-                });
-            }
-            
-            // Trigger refresh agar Select2 menampilkan tags yang baru ditambahkan
-            selectElement.trigger('change');
+                     if (item.register_baru) {
+                         // Pecah string "123; 456" menjadi array
+                         let regs = item.register_baru.split(';').map(item => item.trim());
 
-                    $('#edit_id').val(item.id);
+                         regs.forEach(function(reg) {
+                             if (reg !== "") {
+                                 // Buat opsi baru dan tandai sebagai terpilih (selected)
+                                 let newOption = new Option(reg, reg, true, true);
+                                 selectElement.append(newOption);
+                             }
+                         });
+                     }
+
+                     // Trigger refresh agar Select2 menampilkan tags yang baru ditambahkan
+                     selectElement.trigger('change');
+
+                     $('#edit_id').val(item.id);
                      $('#display_edit_id').text(item.id);
                      $('#edit_permohonan').val(item.permohonan_nonlit);
                      $('#edit_alamat').val(item.alamat);
@@ -1090,48 +1101,48 @@ const modalUpdate = document.getElementById('modal_edit'); // Sesuaikan ID modal
      }
 
      function toggleInstansiTambah() {
-    const jenis = $('#select_jenis').val(); // ID select di modal tambah
-    const container = $('#container_instansi');
-    const selectInstansi = $('#select_instansi');
-    const labelInstansi = $('#label_instansi');
-const containerTanggal = $('#container_tanggal_tambah');
-    selectInstansi.empty();
+         const jenis = $('#select_jenis').val(); // ID select di modal tambah
+         const container = $('#container_instansi');
+         const selectInstansi = $('#select_instansi');
+         const labelInstansi = $('#label_instansi');
+         const containerTanggal = $('#container_tanggal_tambah');
+         selectInstansi.empty();
 
-    if (jenis === 'nonlit') { 
+         if (jenis === 'nonlit') {
 
-    containerTanggal.removeClass('hidden');
-        container.removeClass('hidden');
-        labelInstansi.text("PILIH KEJAKSAAN (TEAM NON-LITIGASI)");
-        selectInstansi.append(`
+             containerTanggal.removeClass('hidden');
+             container.removeClass('hidden');
+             labelInstansi.text("PILIH KEJAKSAAN (TEAM NON-LITIGASI)");
+             selectInstansi.append(`
             <option value="" disabled selected>Pilih Kejaksaan...</option>
             <option value="kejati">KEJAKSAAN TINGGI JAWA TIMUR</option>
             <option value="kejari_sby">KEJAKSAAN NEGERI SURABAYA</option>
             <option value="kejari_perak">KEJAKSAAN NEGERI TANJUNG PERAK</option>
         `);
-    } else if (jenis === 'laporan_polisi') {
-        containerTanggal.removeClass('hidden'); 
-        container.removeClass('hidden');
-        labelInstansi.text("PILIH KEPOLISIAN (WILAYAH)");
-        selectInstansi.append(`
+         } else if (jenis === 'laporan_polisi') {
+             containerTanggal.removeClass('hidden');
+             container.removeClass('hidden');
+             labelInstansi.text("PILIH KEPOLISIAN (WILAYAH)");
+             selectInstansi.append(`
             <option value="" disabled selected>Pilih Kepolisian...</option>
             <option value="polda">POLDA JAWA TIMUR</option>
             <option value="polrestabes">POLRESTABES SURABAYA</option>
             <option value="polres_perak">POLRES TANJUNG PERAK</option>
         `);
-    }else if (jenis === "permasalahan"){
-        containerTanggal.addClass('hidden');
-        container.addClass('hidden');
+         } else if (jenis === "permasalahan") {
+             containerTanggal.addClass('hidden');
+             container.addClass('hidden');
 
-    }
-     else {
-        container.addClass('hidden');
-     containerTanggal.addClass('hidden');
-        // containerTanggal.classList.add('hidden');
+         } else {
+             container.addClass('hidden');
+             containerTanggal.addClass('hidden');
+             // containerTanggal.classList.add('hidden');
 
-    }
-}
+         }
+     }
+
      function toggleInstansiUpdate(selectedValue = null) {
-        const containerTanggal = $('#container_tanggal_update');
+         const containerTanggal = $('#container_tanggal_update');
          const jenis = $('#edit_jenis').val();
          const containerInstansi = $('#container_instansi_update');
          const selectInstansi = $('#edit_team_nonlit');
@@ -1140,8 +1151,8 @@ const containerTanggal = $('#container_tanggal_tambah');
          selectInstansi.empty();
 
          if (jenis === 'nonlit') {
-            containerTanggal.removeClass('hidden')
-            containerInstansi.removeClass('hidden') 
+             containerTanggal.removeClass('hidden')
+             containerInstansi.removeClass('hidden')
              labelInstansi.text("PILIH KEJAKSAAN (TEAM NON-LITIGASI)");
              selectInstansi.append(`
             <option value="kejati">KEJAKSAAN TINGGI JAWA TIMUR</option>
@@ -1149,21 +1160,20 @@ const containerTanggal = $('#container_tanggal_tambah');
             <option value="kejari_perak">KEJAKSAAN NEGERI TANJUNG PERAK</option>
         `);
          } else if (jenis === 'laporan_polisi') {
-                  containerTanggal.removeClass('hidden')
-            containerInstansi.removeClass('hidden')  
+             containerTanggal.removeClass('hidden')
+             containerInstansi.removeClass('hidden')
              labelInstansi.text("PILIH KEPOLISIAN (WILAYAH)");
              selectInstansi.append(`
             <option value="polda">POLDA JAWA TIMUR</option>
             <option value="polrestabes">POLRESTABES SURABAYA</option>
             <option value="polres_perak">POLRES TANJUNG PERAK</option>
         `);
-         } else if (jenis === "permasalahan"){
-containerInstansi.addClass('hidden')
-      containerTanggal.addClass('hidden')
-         }
-         else {
-            containerTanggal.addClass('hidden');
-            containerInstansi.addClass('hidden')
+         } else if (jenis === "permasalahan") {
+             containerInstansi.addClass('hidden')
+             containerTanggal.addClass('hidden')
+         } else {
+             containerTanggal.addClass('hidden');
+             containerInstansi.addClass('hidden')
          }
 
          if (selectedValue) {
@@ -1304,17 +1314,17 @@ containerInstansi.addClass('hidden')
          var token = $('#token').val()
          Swal.fire({
              title: 'Hapus Data?',
-    text: "Data yang dihapus tidak dapat dikembalikan!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Ya, Hapus!',
-    cancelButtonText: 'Batal',
-    reverseButtons: true, // Opsional: Batal di kiri, Hapus di kanan
-    customClass: {
-        confirmButton: 'btn btn-error text-white mx-2', // Tambah text-white jika teks hilang
-        cancelButton: 'btn btn-ghost mx-2'
-    },
-    buttonsStyling: false
+             text: "Data yang dihapus tidak dapat dikembalikan!",
+             icon: 'warning',
+             showCancelButton: true,
+             confirmButtonText: 'Ya, Hapus!',
+             cancelButtonText: 'Batal',
+             reverseButtons: true, // Opsional: Batal di kiri, Hapus di kanan
+             customClass: {
+                 confirmButton: 'btn btn-error text-white mx-2', // Tambah text-white jika teks hilang
+                 cancelButton: 'btn btn-ghost mx-2'
+             },
+             buttonsStyling: false
 
          }).then((result) => {
              if (result.isConfirmed) {
@@ -1329,12 +1339,13 @@ containerInstansi.addClass('hidden')
                          Swal.fire({
                                  title: 'Terhapus!',
                                  text: 'Data perkara telah dihapus.',
-                                 icon: 'success',  customClass: {
-                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
-                                cancelButton: 'btn btn-ghost mx-2'
-                                },
-                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
-                        buttonsStyling: false
+                                 icon: 'success',
+                                 customClass: {
+                                     confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                     cancelButton: 'btn btn-ghost mx-2'
+                                 },
+                                 // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                                 buttonsStyling: false
                              })
                              .then(() => {
                                  // Reload data tanpa refresh halaman penuh
@@ -1346,12 +1357,12 @@ containerInstansi.addClass('hidden')
                              title: 'Gagal!',
                              text: 'Terjadi kesalahan saat menghapus data.',
                              icon: 'error',
-                               customClass: {
-                                confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
-                                cancelButton: 'btn btn-ghost mx-2'
-                                },
-                        // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
-                        buttonsStyling: false
+                             customClass: {
+                                 confirmButton: 'btn btn-error mx-2', // Menggunakan class DaisyUI
+                                 cancelButton: 'btn btn-ghost mx-2'
+                             },
+                             // Penting: Matikan styling bawaan tombol SweetAlert agar class Tailwind bekerja
+                             buttonsStyling: false
                          });
                      }
                  });

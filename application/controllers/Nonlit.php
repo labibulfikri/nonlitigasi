@@ -78,6 +78,7 @@ class Nonlit extends CI_Controller
             $sub_array = array();
             $sub_array['no']                = $no;
             $sub_array['id']                = $row->id;
+            $sub_array['encrypted_id']      = encrypt_url($row->id);
             $sub_array['jenis']             = $row->jenis;
             $sub_array['register_baru']     = $row->register_baru;
             $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit));
@@ -234,72 +235,75 @@ class Nonlit extends CI_Controller
         }
     }
 
-    public function detail($id)
-    {
-        if ($this->session->userdata('status') != 'login') {
-            redirect('auth/logout');
-        } else {
-            // 1. Ambil data utama dari tabel nonlit
-            $fetch = $this->m_nonlit->get_byid_nonlit($id);
-            $fetch_detail = $this->m_nonlit->get_byid($id);
+    // public function detail($id = null)
+    // {
+    //     if ($this->session->userdata('status') != 'login') {
+    //         redirect('auth/logout');
+    //     } else {
 
-            // 2. Logika pencarian banyak register ke DB Sertifikasi
-            $features = [];
-            if (!empty($fetch['register_baru'])) {
-                // Pecah string "123; 456" menjadi array ['123', '456']
-                $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
+    //         $id = decrypt_url($id); // Dekripsi ID sebelum digunakan
 
-                // Ambil semua polygon yang cocok dari sertifikasi_v2
-                $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
-                $this->db->from('sertifikasi_v2.peta_gis');
-                $this->db->where_in('register_baru', $reg_array);
-                $this->db->where('geometry IS NOT NULL'); // Tambahkan ini 
-                $polygons = $this->db->get()->result_array();
+    //         // 1. Ambil data utama dari tabel nonlit
+    //         $fetch = $this->m_nonlit->get_byid_nonlit($id);
+    //         $fetch_detail = $this->m_nonlit->get_byid($id);
 
-                // Format data menjadi FeatureCollection GeoJSON
-                foreach ($polygons as $poly) {
-                    if (!empty($poly['geometry'])) {
-                        $features[] = [
-                            "type" => "Feature",
-                            "properties" => [
-                                "id_aset" => $poly['id_aset'],
-                                "ALAMAT" => $poly['ALAMAT'],
-                                "KELURAHAN" => $poly['KELURAHAN'],
-                                "KECAMATAN" => $poly['KECAMATAN'],
-                                "NO_SERTIFI" => $poly['NO_SERTIFI'],
-                                "register_baru" => $poly['register_baru']
-                            ],
-                            "geometry" => json_decode($poly['geometry'], true)
-                        ];
-                    }
-                }
-            }
+    //         // 2. Logika pencarian banyak register ke DB Sertifikasi
+    //         $features = [];
+    //         if (!empty($fetch['register_baru'])) {
+    //             // Pecah string "123; 456" menjadi array ['123', '456']
+    //             $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
 
-            $geojson_result = [
-                "type" => "FeatureCollection",
-                "features" => $features
-            ];
+    //             // Ambil semua polygon yang cocok dari sertifikasi_v2
+    //             $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
+    //             $this->db->from('sertifikasi_v2.peta_gis');
+    //             $this->db->where_in('register_baru', $reg_array);
+    //             $this->db->where('geometry IS NOT NULL'); // Tambahkan ini 
+    //             $polygons = $this->db->get()->result_array();
 
-            $list_pic = $this->m_pic->get_all_pic();
+    //             // Format data menjadi FeatureCollection GeoJSON
+    //             foreach ($polygons as $poly) {
+    //                 if (!empty($poly['geometry'])) {
+    //                     $features[] = [
+    //                         "type" => "Feature",
+    //                         "properties" => [
+    //                             "id_aset" => $poly['id_aset'],
+    //                             "ALAMAT" => $poly['ALAMAT'],
+    //                             "KELURAHAN" => $poly['KELURAHAN'],
+    //                             "KECAMATAN" => $poly['KECAMATAN'],
+    //                             "NO_SERTIFI" => $poly['NO_SERTIFI'],
+    //                             "register_baru" => $poly['register_baru']
+    //                         ],
+    //                         "geometry" => json_decode($poly['geometry'], true)
+    //                     ];
+    //                 }
+    //             }
+    //         }
 
-            $data = array(
-                'master' => $fetch,
-                'id' => $id,
-                'det' => $fetch_detail,
-                'list_pic' => $list_pic,
-                // Kirim hasil gabungan polygon ke view
-                'polygon' => json_encode($geojson_result),
-                'masterpage' => 'layout/layout2',
-                'content' => 'nonlit/detail',
-                'peta' => 'nonlit/peta_detail',
-                'footer' => 'layout/footer',
-                'tab' => 'nonlit/tab_detail',
-                'title' => 'Daftar Nonlitigasi'
-            );
+    //         $geojson_result = [
+    //             "type" => "FeatureCollection",
+    //             "features" => $features
+    //         ];
 
-            $this->load->view($data['masterpage'], $data);
-        }
-    }
+    //         $list_pic = $this->m_pic->get_all_pic();
+
+    //         $data = array(
+    //             'master' => $fetch,
+    //             'id' => $id,
+    //             'det' => $fetch_detail,
+    //             'list_pic' => $list_pic,
+    //             // Kirim hasil gabungan polygon ke view
+    //             'polygon' => json_encode($geojson_result),
+    //             'masterpage' => 'layout/layout2',
+    //             'content' => 'nonlit/detail',
+    //             'peta' => 'nonlit/peta_detail',
+    //             'footer' => 'layout/footer',
+    //             'tab' => 'nonlit/tab_detail',
+    //             'title' => 'Daftar Nonlitigasi'
+    //         );
+
+    //         $this->load->view($data['masterpage'], $data);
+    //     }
+    // }
     public function detail2($id)
     {
 
@@ -351,52 +355,134 @@ class Nonlit extends CI_Controller
     }
 
 
-    public function tab_kronologi($id)
+    // public function tab_kronologi($id = null)
+    // {
+
+    //     if ($this->session->userdata('status') != 'login') {
+
+    //         redirect('auth/logout');
+    //     } else {
+
+    //         $id = decrypt_url($id);
+
+    //         $lampiran = $this->m_nonlit->berkas_lampiran_by_id($id);
+
+    //         $fetch = $this->m_nonlit->get_byid_nonlit($id);
+    //         $fetch_detail = $this->m_nonlit->get_byid($id);
+    //         // $list = $this->m_peta->by_id($id);
+
+    //         // $json_string2 = $this->m_peta->get_geojson($id);
+    //         // // Pastikan $json_string2 tidak null dan memiliki key 'kordinat'
+    //         // $json_string = isset($json_string2['kordinat']) ? $json_string2['kordinat'] : '{}';
+
+    //         // // Decode JSON string ke array
+    //         // $decoded_data = json_decode($json_string, true);
+
+    //         // // Periksa jika decoding berhasil
+    //         // if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_data)) {
+    //         //     // Memastikan format data GeoJSON
+    //         //     $polygon = isset($decoded_data['geometry']['coordinates']) ? $decoded_data : [];
+    //         // } else {
+    //         //     $polygon = [];
+    //         //     // echo 'JSON Decode Error: ' . json_last_error_msg();
+    //         // }
+
+
+    //         // 2. Logika pencarian banyak register ke DB Sertifikasi
+    //         $features = [];
+    //         if (!empty($fetch['register_baru'])) {
+    //             // Pecah string "123; 456" menjadi array ['123', '456']
+    //             $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
+
+    //             // Ambil semua polygon yang cocok dari sertifikasi_v2
+    //             $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
+    //             $this->db->from('sertifikasi_v2.peta_gis');
+    //             $this->db->where_in('register_baru', $reg_array);
+    //             $this->db->where('geometry IS NOT NULL'); // Tambahkan ini 
+    //             $polygons = $this->db->get()->result_array();
+
+    //             // Format data menjadi FeatureCollection GeoJSON
+    //             foreach ($polygons as $poly) {
+    //                 if (!empty($poly['geometry'])) {
+    //                     $features[] = [
+    //                         "type" => "Feature",
+    //                         "properties" => [
+    //                             "id_aset" => $poly['id_aset'],
+    //                             "ALAMAT" => $poly['ALAMAT'],
+    //                             "KELURAHAN" => $poly['KELURAHAN'],
+    //                             "KECAMATAN" => $poly['KECAMATAN'],
+    //                             "NO_SERTIFI" => $poly['NO_SERTIFI'],
+    //                             "register_baru" => $poly['register_baru']
+    //                         ],
+    //                         "geometry" => json_decode($poly['geometry'], true)
+    //                     ];
+    //                 }
+    //             }
+    //         }
+
+    //         $geojson_result = [
+    //             "type" => "FeatureCollection",
+    //             "features" => $features
+    //         ];
+
+    //         $list_pic = $this->m_pic->get_all_pic();
+
+
+    //         $data = array(
+    //             'master' => $fetch,
+    //             'id' => $id,
+    //             'lampiran' => $lampiran,
+    //             'det' => $fetch_detail,
+    //             'list_pic' => $list_pic,
+    //             'polygon' => json_encode($geojson_result),
+    //             'masterpage' => 'layout/layout2',
+    //             'navbar2' => 'layout/navbar2',
+    //             'navbar_bawah' => 'layout/navbar_bawah2',
+    //             'content' => 'nonlit/tab_kronologi',
+    //             'footer' => 'layout/footer',
+    //             'peta' => 'nonlit/peta_detail',
+    //             'title' => 'Daftar Nonlitigasi',
+    //             'tab' => 'nonlit/tab_detail'
+    //         );
+    //         $this->load->view($data['masterpage'], $data);
+    //     }
+    // }
+
+
+    public function tab_kronologi($encrypted_id = null)
     {
-
         if ($this->session->userdata('status') != 'login') {
-
             redirect('auth/logout');
-        } else {
+        }
 
-            $id = $id;
-            $lampiran = $this->m_nonlit->berkas_lampiran_by_id($id);
+        // 1. Dekripsi ID & Validasi
+        $id = decrypt_url($encrypted_id);
+        if (!$id || !is_numeric($id)) {
+            show_404(); // Cegah eksekusi jika ID invalid/gagal dekripsi
+        }
 
-            $fetch = $this->m_nonlit->get_byid_nonlit($id);
-            $fetch_detail = $this->m_nonlit->get_byid($id);
-            // $list = $this->m_peta->by_id($id);
+        // 2. Ambil data dari DB
+        $fetch = $this->m_nonlit->get_byid_nonlit($id);
+        $fetch_detail = $this->m_nonlit->get_byid($id);
+        $lampiran = $this->m_nonlit->berkas_lampiran_by_id($id);
 
-            // $json_string2 = $this->m_peta->get_geojson($id);
-            // // Pastikan $json_string2 tidak null dan memiliki key 'kordinat'
-            // $json_string = isset($json_string2['kordinat']) ? $json_string2['kordinat'] : '{}';
+        // Bikin proteksi jika data tidak ditemukan di DB
+        if (empty($fetch)) {
+            show_404();
+        }
 
-            // // Decode JSON string ke array
-            // $decoded_data = json_decode($json_string, true);
+        // 3. Logika pencarian polygon register
+        $features = [];
+        if (!empty($fetch['register_baru'])) {
+            $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
 
-            // // Periksa jika decoding berhasil
-            // if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_data)) {
-            //     // Memastikan format data GeoJSON
-            //     $polygon = isset($decoded_data['geometry']['coordinates']) ? $decoded_data : [];
-            // } else {
-            //     $polygon = [];
-            //     // echo 'JSON Decode Error: ' . json_last_error_msg();
-            // }
+            $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
+            $this->db->from('sertifikasi_v2.peta_gis');
+            $this->db->where_in('register_baru', $reg_array);
+            $this->db->where('geometry IS NOT NULL');
+            $polygons = $this->db->get()->result_array();
 
-
-            // 2. Logika pencarian banyak register ke DB Sertifikasi
-            $features = [];
-            if (!empty($fetch['register_baru'])) {
-                // Pecah string "123; 456" menjadi array ['123', '456']
-                $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
-
-                // Ambil semua polygon yang cocok dari sertifikasi_v2
-                $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
-                $this->db->from('sertifikasi_v2.peta_gis');
-                $this->db->where_in('register_baru', $reg_array);
-                $this->db->where('geometry IS NOT NULL'); // Tambahkan ini 
-                $polygons = $this->db->get()->result_array();
-
-                // Format data menjadi FeatureCollection GeoJSON
+            if (!empty($polygons)) {
                 foreach ($polygons as $poly) {
                     if (!empty($poly['geometry'])) {
                         $features[] = [
@@ -414,35 +500,111 @@ class Nonlit extends CI_Controller
                     }
                 }
             }
-
-            $geojson_result = [
-                "type" => "FeatureCollection",
-                "features" => $features
-            ];
-
-            $list_pic = $this->m_pic->get_all_pic();
-
-
-            $data = array(
-                'master' => $fetch,
-                'id' => $id,
-                'lampiran' => $lampiran,
-                'det' => $fetch_detail,
-                'list_pic' => $list_pic,
-                'polygon' => json_encode($geojson_result),
-                'masterpage' => 'layout/layout2',
-                'navbar2' => 'layout/navbar2',
-                'navbar_bawah' => 'layout/navbar_bawah2',
-                'content' => 'nonlit/tab_kronologi',
-                'footer' => 'layout/footer',
-                'peta' => 'nonlit/peta_detail',
-                'title' => 'Daftar Nonlitigasi',
-                'tab' => 'nonlit/tab_detail'
-            );
-            $this->load->view($data['masterpage'], $data);
         }
+
+        $geojson_result = [
+            "type" => "FeatureCollection",
+            "features" => $features
+        ];
+
+        $list_pic = $this->m_pic->get_all_pic();
+
+        $data = array(
+            'master' => $fetch,
+            'id' => $id,
+            'encrypted_id' => $encrypted_id, // Kirim juga encrypted_id jika dibutuhkan view
+            'lampiran' => $lampiran,
+            'det' => $fetch_detail,
+            'list_pic' => $list_pic,
+            'polygon' => json_encode($geojson_result),
+            'masterpage' => 'layout/layout2',
+            'navbar2' => 'layout/navbar2',
+            'navbar_bawah' => 'layout/navbar_bawah2',
+            'content' => 'nonlit/tab_kronologi',
+            'footer' => 'layout/footer',
+            'peta' => 'nonlit/peta_detail',
+            'title' => 'Daftar Nonlitigasi',
+            'tab' => 'nonlit/tab_detail'
+        );
+
+        $this->load->view($data['masterpage'], $data);
     }
 
+    public function detail($encrypted_id = null)
+    {
+        if ($this->session->userdata('status') != 'login') {
+            redirect('auth/logout');
+        }
+
+        // 1. Dekripsi ID & Validasi
+        $id = decrypt_url($encrypted_id);
+        if (!$id || !is_numeric($id)) {
+            show_404();
+        }
+
+        // 2. Ambil data utama
+        $fetch = $this->m_nonlit->get_byid_nonlit($id);
+        $fetch_detail = $this->m_nonlit->get_byid($id);
+
+        if (empty($fetch)) {
+            show_404();
+        }
+
+        // 3. Logika polygon register
+        $features = [];
+        if (!empty($fetch['register_baru'])) {
+            $reg_array = array_map('trim', explode(';', $fetch['register_baru']));
+
+            $this->db->select('id_aset, alamat as ALAMAT, kelurahan as KELURAHAN, kecamatan as KECAMATAN, no_sertifi as NO_SERTIFI, register_baru, geometry');
+            $this->db->from('sertifikasi_v2.peta_gis');
+            $this->db->where_in('register_baru', $reg_array);
+            $this->db->where('geometry IS NOT NULL');
+            $polygons = $this->db->get()->result_array();
+
+            if (!empty($polygons)) {
+                foreach ($polygons as $poly) {
+                    if (!empty($poly['geometry'])) {
+                        $features[] = [
+                            "type" => "Feature",
+                            "properties" => [
+                                "id_aset" => $poly['id_aset'],
+                                "ALAMAT" => $poly['ALAMAT'],
+                                "KELURAHAN" => $poly['KELURAHAN'],
+                                "KECAMATAN" => $poly['KECAMATAN'],
+                                "NO_SERTIFI" => $poly['NO_SERTIFI'],
+                                "register_baru" => $poly['register_baru']
+                            ],
+                            "geometry" => json_decode($poly['geometry'], true)
+                        ];
+                    }
+                }
+            }
+        }
+
+        $geojson_result = [
+            "type" => "FeatureCollection",
+            "features" => $features
+        ];
+
+        $list_pic = $this->m_pic->get_all_pic();
+
+        $data = array(
+            'master' => $fetch,
+            'id' => $id,
+            'encrypted_id' => $encrypted_id,
+            'det' => $fetch_detail,
+            'list_pic' => $list_pic,
+            'polygon' => json_encode($geojson_result),
+            'masterpage' => 'layout/layout2',
+            'content' => 'nonlit/detail',
+            'peta' => 'nonlit/peta_detail',
+            'footer' => 'layout/footer',
+            'tab' => 'nonlit/tab_detail',
+            'title' => 'Daftar Nonlitigasi'
+        );
+
+        $this->load->view($data['masterpage'], $data);
+    }
     public function get_content()
     {
         $this->form_validation->set_rules('id', 'ID Harus Di Isi', 'required');
@@ -723,6 +885,7 @@ class Nonlit extends CI_Controller
                 );
 
                 $this->m_nonlit->upload_nonlit($data);
+                $id_nonlit = encrypt_url($id_nonlit); // Enkripsi ID sebelum redirect
                 echo "<script>alert('Berhasil!'); window.location.href='" . base_url('nonlit/detail/' . $id_nonlit) . "';</script>";
             }
         }
@@ -755,7 +918,7 @@ class Nonlit extends CI_Controller
             );
 
             $this->m_nonlit->upload_berkas_nonlit($data);
-
+            $id_nonlit = encrypt_url($id_nonlit); // Enkripsi ID sebelum redirect
             echo "<script>
                 alert('Berhasil menambahkan data :)');
                 window.location.href = '" . base_url('nonlit/tab_kronologi/' . $id_nonlit) . "';
@@ -879,7 +1042,7 @@ class Nonlit extends CI_Controller
                     return;
                 }
             }
-
+            $id_nonlit = encrypt_url($this->input->post('id_nonlit', TRUE));
             $this->m_nonlit->update_nonlit_det($data, $id);
             echo "<script>alert('Berhasil!'); window.location.href='" . base_url('nonlit/detail/' . $id_nonlit) . "';</script>";
         }
@@ -996,7 +1159,7 @@ class Nonlit extends CI_Controller
         ];
 
         $dt = $this->m_nonlit->update_nonlit_lampiran($data, $id_berkas);
-
+        $id_nonlit = encrypt_url($this->input->post('id_nonlit', TRUE));
         if ($dt == '1') {
             echo "<script>alert('Berhasil diperbarui!'); window.location.href='" . base_url('nonlit/tab_kronologi/' . $id_nonlit) . "';</script>";
         } else {

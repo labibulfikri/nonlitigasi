@@ -134,43 +134,64 @@ class Home extends CI_Controller
 
 	// 	echo json_encode($detail);
 	// }
- ///////////
+	///////////
 
- public function get_chart_data() {
-    $tahun  = $this->input->post('tahun');
-    $status = $this->input->post('status');
+	public function get_chart_data()
+	{
+		$tahun  = $this->input->post('tahun');
+		$status = $this->input->post('status');
 
-    echo json_encode([
-        'totals'        => $this->m_home->count_all_dashboard($tahun, $status),
-        'count_proses'  => $this->m_home->count_by_status('proses', $tahun),
-        'count_selesai' => $this->m_home->count_by_status('selesai', $tahun),
-        'bar_lp'        => $this->m_home->get_stats_per_instansi($tahun, 'laporan_polisi', $status),
-        'bar_nonlit'    => $this->m_home->get_stats_per_instansi($tahun, 'nonlit', $status),
-        'bar_masalah'   => $this->m_home->get_stats_per_instansi($tahun, 'permasalahan', $status),
-    ]);
-}
+		echo json_encode([
+			'totals'        => $this->m_home->count_all_dashboard($tahun, $status),
+			'count_proses'  => $this->m_home->count_by_status('proses', $tahun),
+			'count_selesai' => $this->m_home->count_by_status('selesai', $tahun),
+			'bar_lp'        => $this->m_home->get_stats_per_instansi($tahun, 'laporan_polisi', $status),
+			'bar_nonlit'    => $this->m_home->get_stats_per_instansi($tahun, 'nonlit', $status),
+			'bar_masalah'   => $this->m_home->get_stats_per_instansi($tahun, 'permasalahan', $status),
+		]);
+	}
 
 
-public function get_detail_instansi() {
-    $instansi = $this->input->post('instansi');
-    $status   = $this->input->post('status');
-    $jenis    = $this->input->post('jenis');
-    $tahun    = $this->input->post('tahun');
+	public function get_detail_instansi()
+	{
+		$instansi = $this->input->post('instansi');
+		$status   = $this->input->post('status');
+		$jenis    = $this->input->post('jenis');
+		$tahun    = $this->input->post('tahun');
 
-    $list = $this->m_home->get_detail_by_instansi($instansi, $status, $jenis, $tahun);
-    echo json_encode($list);
-}
-    public function get_detail_by_month() {
-    $bulan  = $this->input->post('bulan');
-    $tahun  = $this->input->post('tahun');
-    $status = $this->input->post('status'); // Status hasil klik bar (proses/selesai)
-    $jenis  = $this->input->post('jenis');  // Jenis hasil klik (laporan_polisi/nonlit/permasalahan)
+		$list = $this->m_home->get_detail_by_instansi($instansi, $status, $jenis, $tahun);
+		// echo json_encode($list);
+		// Tambahkan encrypted_id pada setiap baris data
+		$data = array();
+		foreach ($list as $item) {
+			$row = (array) $item;
+			$row['encrypted_id'] = encrypt_url($item->id);
+			$data[] = $row;
+		}
 
-    $list = $this->m_home->get_detail_dashboard($bulan, $tahun, $status, $jenis);
+		echo json_encode($data);
+	}
+	public function get_detail_by_month()
+	{
+		$bulan  = $this->input->post('bulan');
+		$tahun  = $this->input->post('tahun');
+		$status = $this->input->post('status'); // Status hasil klik bar (proses/selesai)
+		$jenis  = $this->input->post('jenis');  // Jenis hasil klik (laporan_polisi/nonlit/permasalahan)
 
-    echo json_encode($list);
-}
- //////////
+		$list = $this->m_home->get_detail_dashboard($bulan, $tahun, $status, $jenis);
+
+		// echo json_encode($list);
+		// Tambahkan encrypted_id pada setiap baris data
+		$data = array();
+		foreach ($list as $item) {
+			$row = (array) $item;
+			$row['encrypted_id'] = encrypt_url($item->id);
+			$data[] = $row;
+		}
+
+		echo json_encode($data);
+	}
+	//////////
 	public function get_data_chart()
 	{
 		cek_csrf();
