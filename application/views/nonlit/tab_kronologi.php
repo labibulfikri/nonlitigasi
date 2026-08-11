@@ -1,22 +1,24 @@
 <style>
-/* Memaksa tombol untuk selalu terlihat dengan warna yang jelas */
-.swal2-confirm.swal2-styled {
-    background-color: #f87272 !important; /* Warna Merah DaisyUI */
-    color: white !important;
-    opacity: 1 !important;
-    display: inline-block !important;
-}
+    /* Memaksa tombol untuk selalu terlihat dengan warna yang jelas */
+    .swal2-confirm.swal2-styled {
+        background-color: #f87272 !important;
+        /* Warna Merah DaisyUI */
+        color: white !important;
+        opacity: 1 !important;
+        display: inline-block !important;
+    }
 
-.swal2-cancel.swal2-styled {
-    background-color: #a6adbb !important; /* Warna Abu-abu DaisyUI */
-    color: white !important;
-    opacity: 1 !important;
-    display: inline-block !important;
-}
+    .swal2-cancel.swal2-styled {
+        background-color: #a6adbb !important;
+        /* Warna Abu-abu DaisyUI */
+        color: white !important;
+        opacity: 1 !important;
+        display: inline-block !important;
+    }
 </style>
-          <a href="javascript:void(0)" onclick="history.back()" 
-   class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
-   title="Kembali ke Daftar">
+<a href="javascript:void(0)" onclick="history.back()"
+    class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
+    title="Kembali ke Daftar">
     <i class="mdi mdi-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
 </a>
 <div class="container mx-auto p-4 mb-20">
@@ -47,6 +49,17 @@
             <div class="card bg-base-100 shadow-lg border border-base-200 sticky top-4">
                 <div class="p-6 border-b border-base-200 flex justify-between items-center bg-slate-50 rounded-t-2xl">
                     <h3 class="font-black text-slate-700 uppercase text-sm tracking-widest">Daftar Lampiran</h3>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <i class="mdi mdi-magnify text-gray-400"></i>
+                        </span>
+                        <input
+                            type="text"
+                            id="search_berkas"
+                            placeholder="Cari nama berkas..."
+                            class="input input-bordered w-full pl-10 rounded-xl focus:border-primary"
+                            onkeyup="filterBerkas()">
+                    </div>
                     <button onclick="modal_tambah_lampiran.showModal()" class="btn btn-circle btn-sm btn-warning shadow-lg">
                         <i class="mdi mdi-plus text-xl text-white"></i>
                     </button>
@@ -55,50 +68,39 @@
                 <div class="card-body p-4 max-h-[600px] overflow-y-auto">
 
 
-                <div class="px-4 pb-4">
-    <div class="relative">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-            <i class="mdi mdi-magnify text-gray-400"></i>
-        </span>
-        <input 
-            type="text" 
-            id="search_berkas" 
-            placeholder="Cari nama berkas..." 
-            class="input input-bordered w-full pl-10 rounded-xl focus:border-primary"
-            onkeyup="filterBerkas()"
-        >
-    </div>
-</div>
-                  <?= crsf_ajax() ?>
-<ul class="menu menu-vertical gap-3" id="menu_berkas">
-    <?php foreach ($lampiran as $key) { ?>
-        <li class="relative border border-base-200 rounded-2xl shadow-sm p-4 hover:bg-slate-50 transition-all">
-            <div onclick="setActiveMenuKronologi(this)" id="<?= $key->id ?>" class="flex items-start gap-4 cursor-pointer group">
-                
-                <div class="bg-primary p-3 rounded-xl flex-shrink-0">
-                    <i class="mdi mdi-file-document-outline text-2xl text-white"></i>
-                </div>
-                
-                <div class="flex-1 min-w-0">
-                    <span class="font-bold text-black uppercase text-xs break-words leading-relaxed block">
-                        <?= $key->judul_berkas ?>
-                    </span> 
-                    <span class="text-black opacity-60 text-[10px] block mt-1">ID Berkas: #<?= $key->id ?></span>
-                </div>
-            </div>
+                    <div class="px-4 pb-4">
 
-            <div class="flex gap-2 mt-4 pt-3 border-t border-dashed border-gray-200">
-                <a href="<?= base_url('assets/berkas_lampiran/' . $key->nama_berkas) ?>" 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   class="flex-1 bg-primary text-white text-center justify-center py-2 px-3 rounded-xl flex items-center text-xs font-semibold shadow-sm hover:bg-primary-focus transition-all">
-                    <i class="mdi mdi-eye-outline text-base mr-1.5"></i> Preview Berkas
-                </a>
-                
-                </div>
-        </li>
-    <?php } ?>
-</ul>
+                    </div>
+                    <?= crsf_ajax() ?>
+                    <ul class="menu menu-vertical gap-3" id="menu_berkas">
+                        <?php foreach ($lampiran as $key) { ?>
+                            <li class="relative border border-base-200 rounded-2xl shadow-sm p-4 hover:bg-slate-50 transition-all">
+                                <div onclick="setActiveMenuKronologi(this)" id="<?= $key->id ?>" class="flex items-start gap-4 cursor-pointer group">
+
+                                    <div class="bg-primary p-3 rounded-xl flex-shrink-0">
+                                        <i class="mdi mdi-file-document-outline text-2xl text-white"></i>
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <span class="font-bold text-black uppercase text-xs break-words leading-relaxed block">
+                                            <?= $key->judul_berkas ?>
+                                        </span>
+                                        <span class="text-black opacity-60 text-[10px] block mt-1">ID Berkas: #<?= $key->id ?></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-2 mt-4 pt-3 border-t border-dashed border-gray-200">
+                                    <a href="<?= base_url('assets/berkas_lampiran/' . $key->nama_berkas) ?>"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="flex-1 bg-primary text-white text-center justify-center py-2 px-3 rounded-xl flex items-center text-xs font-semibold shadow-sm hover:bg-primary-focus transition-all">
+                                        <i class="mdi mdi-eye-outline text-base mr-1.5"></i> Preview Berkas
+                                    </a>
+
+                                </div>
+                            </li>
+                        <?php } ?>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -147,9 +149,9 @@
             </div>
 
             <div class="modal-action">
-            <button type="button" onclick="document.getElementById('modal_tambah_lampiran').close()"
-                    class="btn btn-ghost flex-1 rounded-xl uppercase font-bold text-slate-500">Batal</button>    
-            <button type="submit" class="btn btn-warning flex-1 text-white shadow-lg shadow-orange-100 rounded-xl uppercase">Upload Berkas</button>
+                <button type="button" onclick="document.getElementById('modal_tambah_lampiran').close()"
+                    class="btn btn-ghost flex-1 rounded-xl uppercase font-bold text-slate-500">Batal</button>
+                <button type="submit" class="btn btn-warning flex-1 text-white shadow-lg shadow-orange-100 rounded-xl uppercase">Upload Berkas</button>
             </div>
         </form>
     </div>
@@ -235,67 +237,69 @@
     </div>
 </dialog>
 
- <script>
+<script>
     // Validasi ukuran file di sisi client (sebelum upload)
-document.querySelector('input[name="new_image"]').addEventListener('change', function() {
-    const maxSizeBytes = 20 * 1024 * 1024; // 20 MB
-    if (this.files[0].size > maxSizeBytes) {
-        alert('File terlalu besar! Maksimal 20 MB.');
-        this.value = ''; 
-    }
-});
+    document.querySelector('input[name="new_image"]').addEventListener('change', function() {
+        const maxSizeBytes = 20 * 1024 * 1024; // 20 MB
+        if (this.files[0].size > maxSizeBytes) {
+            alert('File terlalu besar! Maksimal 20 MB.');
+            this.value = '';
+        }
+    });
 </script>
-    <script>
-document.querySelector('input[name="file"]').addEventListener('change', function() {
-    // 20 MB dalam bytes
-    const maxSizeBytes = 20 * 1024 * 1024; 
-    if (this.files[0].size > maxSizeBytes) {
-        alert('File terlalu besar! Maksimal ukuran file adalah 20 MB.');
-        this.value = ''; // Reset input
-    }
-}); 
+<script>
+    document.querySelector('input[name="file"]').addEventListener('change', function() {
+        // 20 MB dalam bytes
+        const maxSizeBytes = 20 * 1024 * 1024;
+        if (this.files[0].size > maxSizeBytes) {
+            alert('File terlalu besar! Maksimal ukuran file adalah 20 MB.');
+            this.value = ''; // Reset input
+        }
+    });
 </script>
 <script>
     $(document).ready(function() {
-    let resultsBox = $('#search_results');
-    let resultsList = $('#results_list');
-    let inputField = $('#global_search');
+        let resultsBox = $('#search_results');
+        let resultsList = $('#results_list');
+        let inputField = $('#global_search');
 
-    // 1. Ambil kata kunci terakhir dari session saat halaman dimuat
-    let lastSearch = sessionStorage.getItem('search_keyword');
-    
-    if (lastSearch) {
-        inputField.val(lastSearch);
-        // Jalankan fungsi pencarian secara otomatis
-        performSearch(lastSearch);
-    }
+        // 1. Ambil kata kunci terakhir dari session saat halaman dimuat
+        let lastSearch = sessionStorage.getItem('search_keyword');
 
-    inputField.on('keyup', function() {
-        let q = $(this).val();
-        
-        // 2. Simpan kata kunci ke session setiap kali user mengetik
-        sessionStorage.setItem('search_keyword', q);
-        
-        if (q.length > 2) {
-            performSearch(q);
-        } else {
-            resultsBox.addClass('hidden');
-            if (q.length === 0) sessionStorage.removeItem('search_keyword');
+        if (lastSearch) {
+            inputField.val(lastSearch);
+            // Jalankan fungsi pencarian secara otomatis
+            performSearch(lastSearch);
         }
-    });
 
-    function performSearch(q) {
-        $.ajax({
-            url: "<?= base_url('masalah/search_global') ?>",
-            type: "GET",
-            data: { q: q },
-            success: function(res) {
-                resultsList.html(res);
-                resultsBox.removeClass('hidden');
+        inputField.on('keyup', function() {
+            let q = $(this).val();
+
+            // 2. Simpan kata kunci ke session setiap kali user mengetik
+            sessionStorage.setItem('search_keyword', q);
+
+            if (q.length > 2) {
+                performSearch(q);
+            } else {
+                resultsBox.addClass('hidden');
+                if (q.length === 0) sessionStorage.removeItem('search_keyword');
             }
         });
-    }
-});
+
+        function performSearch(q) {
+            $.ajax({
+                url: "<?= base_url('masalah/search_global') ?>",
+                type: "GET",
+                data: {
+                    q: q
+                },
+                success: function(res) {
+                    resultsList.html(res);
+                    resultsBox.removeClass('hidden');
+                }
+            });
+        }
+    });
 </script>
 <script>
     function setActiveMenuKronologi(element) {
@@ -428,72 +432,80 @@ document.querySelector('input[name="file"]').addEventListener('change', function
         var token = $('#token').val();
 
         Swal.fire({
-    title: 'Konfirmasi Penghapusan',
-    text: "Data yang dihapus tidak dapat dikembalikan!",
-    icon: 'warning', // Gunakan 'icon' bukan 'type' di versi terbaru
-    showCancelButton: true,
-    confirmButtonText: 'Ya, Hapus!',
-  confirmButtonColor: '#f87272', 
-    cancelButtonColor: '#a6adbb',
-    customClass: {
-        // Terapkan class Tailwind agar desain popup sama dengan gambar (rounded besar)
-        popup: 'rounded-3xl shadow-2xl', 
-        // Memaksa padding dan radius DaisyUI/rounded-xl untuk tombol agar solid
-        confirmButton: 'px-6 py-2 rounded-xl text-white font-bold', 
-        cancelButton: 'px-6 py-2 rounded-xl'
-    }
-}).then((result) => {
-    if (result.isConfirmed) { // Gunakan isConfirmed di versi terbaru
-        $.ajax({
-            url: "<?= base_url('nonlit/hapus_lampiran'); ?>",
-            method: "POST",
-            data: { id: id, id_nonlit: id_nonlit, token: token },
-            beforeSend: function() {
-                Swal.fire({
-                    title: 'Memproses...',
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
+            title: 'Konfirmasi Penghapusan',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning', // Gunakan 'icon' bukan 'type' di versi terbaru
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Hapus!',
+            confirmButtonColor: '#f87272',
+            cancelButtonColor: '#a6adbb',
+            customClass: {
+                // Terapkan class Tailwind agar desain popup sama dengan gambar (rounded besar)
+                popup: 'rounded-3xl shadow-2xl',
+                // Memaksa padding dan radius DaisyUI/rounded-xl untuk tombol agar solid
+                confirmButton: 'px-6 py-2 rounded-xl text-white font-bold',
+                cancelButton: 'px-6 py-2 rounded-xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) { // Gunakan isConfirmed di versi terbaru
+                $.ajax({
+                    url: "<?= base_url('nonlit/hapus_lampiran'); ?>",
+                    method: "POST",
+                    data: {
+                        id: id,
+                        id_nonlit: id_nonlit,
+                        token: token
+                    },
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Memproses...',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    },
+                    success: function(data) {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Data telah dihapus.',
+                            icon: 'success',
+                            confirmButtonColor: '#36d399' // Warna success DaisyUI
+                        });
+                        window.setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    }
                 });
-            },
-            success: function(data) {
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: 'Data telah dihapus.',
-                    icon: 'success',
-                    confirmButtonColor: '#36d399' // Warna success DaisyUI
-                });
-                window.setTimeout(() => { location.reload(); }, 1500);
             }
         });
-    }
-});
-});
+    });
 </script>
 
 <script>
     function filterBerkas() {
-    // 1. Ambil nilai dari input pencarian
-    let input = document.getElementById("search_berkas").value.toLowerCase();
-    
-    // 2. Targetkan semua elemen elemen <li> di dalam #menu_berkas
-    let listItems = document.querySelectorAll("#menu_berkas > li");
+        // 1. Ambil nilai dari input pencarian
+        let input = document.getElementById("search_berkas").value.toLowerCase();
 
-    for (let i = 0; i < listItems.length; i++) {
-        // 3. Ambil elemen tag <span> yang menampung nama judul berkas ($key->judul_berkas)
-        // Kita menggunakan querySelector untuk mengambil span pertama yang berisi teks utama
-        let spanNamaBerkas = listItems[i].querySelector("span.font-bold"); 
+        // 2. Targetkan semua elemen elemen <li> di dalam #menu_berkas
+        let listItems = document.querySelectorAll("#menu_berkas > li");
 
-        // 4. VALIDASI: Pastikan elemen span ditemukan sebelum mengambil textContent
-        if (spanNamaBerkas) {
-            let textValue = spanNamaBerkas.textContent || spanNamaBerkas.innerText;
-            
-            // 5. Lakukan penyaringan teks
-            if (textValue.toLowerCase().indexOf(input) > -1) {
-                listItems[i].style.display = ""; // Tampilkan <li> jika cocok
-            } else {
-                listItems[i].style.display = "none"; // Sembunyikan <li> jika tidak cocok
+        for (let i = 0; i < listItems.length; i++) {
+            // 3. Ambil elemen tag <span> yang menampung nama judul berkas ($key->judul_berkas)
+            // Kita menggunakan querySelector untuk mengambil span pertama yang berisi teks utama
+            let spanNamaBerkas = listItems[i].querySelector("span.font-bold");
+
+            // 4. VALIDASI: Pastikan elemen span ditemukan sebelum mengambil textContent
+            if (spanNamaBerkas) {
+                let textValue = spanNamaBerkas.textContent || spanNamaBerkas.innerText;
+
+                // 5. Lakukan penyaringan teks
+                if (textValue.toLowerCase().indexOf(input) > -1) {
+                    listItems[i].style.display = ""; // Tampilkan <li> jika cocok
+                } else {
+                    listItems[i].style.display = "none"; // Sembunyikan <li> jika tidak cocok
+                }
             }
         }
     }
-}
 </script>
