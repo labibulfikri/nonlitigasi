@@ -110,6 +110,7 @@ class Laporan extends CI_Controller
             $row['team_nonlit'] = !empty($field->team_nonlit) ? strtoupper(str_replace('_', ' ', $field->team_nonlit)) : 'INTERNAL';
 
             $row['pic'] = $field->pic;
+            $row['register_baru'] = $field->register_baru; // Menampilkan register_baru
             $row['tgl_nonlit'] = !empty($field->tgl_nonlit) ? date('d/m/Y', strtotime($field->tgl_nonlit)) : '-';
             $row['bidang'] = '<span class="uppercase font-bold text-[10px] text-slate-500">' . $field->jenis . '</span>';
             $row['status'] = $field->status;

@@ -116,8 +116,9 @@
                         <tr class="text-slate-400 text-[10px] uppercase tracking-[0.2em] border-none italic">
                             <th class="bg-transparent py-4 pl-8">#</th>
                             <th class="bg-transparent py-4">Informasi Perkara</th>
-                            <th class="bg-transparent py-4">Tim Penangan</th>
-                            <th class="bg-transparent py-4">PIC Lapangan</th>
+                            <th class="bg-transparent py-4">SIMBADA</th>
+                            <th class="bg-transparent py-4">Tim Kejaksaan</th>
+                            <th class="bg-transparent py-4">PIC </th>
                             <th class="bg-transparent py-4">Tanggal</th>
                             <th class="bg-transparent py-4 text-center">Status</th>
                             <th class="bg-transparent py-4 pr-8 text-right font-black">Opsi</th>
@@ -227,6 +228,9 @@
                         },
                         {
                             "data": "permohonan_nonlit"
+                        },
+                        {
+                            "data": "register_baru",
                         },
                         {
                             "data": "team_nonlit",
