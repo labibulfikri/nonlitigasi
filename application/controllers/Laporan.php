@@ -38,53 +38,103 @@ class Laporan extends CI_Controller
         }
     }
 
-    public function fetch_nonlit() {
+    // public function fetch_nonlit() {
+    //     $list = $this->m_laporan->get_datatables();
+    //     $data = array();
+    //     $no = $_POST['start'];
+
+    //     foreach ($list as $field) {
+    //         $no++;
+    //         $row = array();
+    //         $row['no'] = $no;
+
+    //         // Format Informasi Perkara + Instansi
+    //         $team_label = !empty($field->team_nonlit) ? strtoupper(str_replace('_', ' ', $field->team_nonlit)) : 'INTERNAL';
+    //         $row['permohonan_nonlit'] = '
+    //             <div class="flex flex-col">
+    //                 <span class="font-black text-slate-700 leading-tight">'.strtoupper($field->permohonan_nonlit).'</span>
+    //                 <div class="flex items-center gap-2 mt-1">
+    //                     <span class="text-[9px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-bold uppercase italic">
+    //                         <i class="fa-solid fa-building-shield mr-1"></i>'.$team_label.'
+    //                     </span>
+    //                 </div>
+    //             </div>';
+
+    //         $row['pic'] = $field->pic;
+    //         $row['tgl_nonlit'] = date('d/m/Y', strtotime($field->tgl_nonlit));
+    //         $row['bidang'] = '<span class="uppercase font-bold text-[10px] text-slate-500">'.$field->jenis.'</span>';
+    //         $row['status'] = $field->status;
+
+    //         // Tombol Aksi Detail
+    //         $row['action'] = '
+    //             <div class="flex justify-end">
+    //                 <a href="'.base_url('nonlit/detail/'.$field->id).'" class="btn btn-sm btn-ghost bg-slate-50 hover:bg-slate-900 hover:text-white rounded-xl shadow-none border-none group">
+    //                     <i class="fa-solid fa-eye text-indigo-500 group-hover:text-white mr-2"></i> Detail
+    //                 </a>
+    //             </div>';
+
+    //         $data[] = $row;
+    //     }
+
+    //     $output = array(
+    //         "draw" => $_POST['draw'],
+    //         "recordsTotal" => $this->m_laporan->count_all(),
+    //         "recordsFiltered" => $this->m_laporan->count_filtered(),
+    //         "data" => $data,
+    //     );
+    //     echo json_encode($output);
+    // }
+
+    public function fetch_nonlit()
+    {
         $list = $this->m_laporan->get_datatables();
         $data = array();
-        $no = $_POST['start'];
+        $no = $this->input->post('start');
 
         foreach ($list as $field) {
             $no++;
             $row = array();
             $row['no'] = $no;
-            
+
             // Format Informasi Perkara + Instansi
             $team_label = !empty($field->team_nonlit) ? strtoupper(str_replace('_', ' ', $field->team_nonlit)) : 'INTERNAL';
             $row['permohonan_nonlit'] = '
-                <div class="flex flex-col">
-                    <span class="font-black text-slate-700 leading-tight">'.strtoupper($field->permohonan_nonlit).'</span>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="text-[9px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-bold uppercase italic">
-                            <i class="fa-solid fa-building-shield mr-1"></i>'.$team_label.'
-                        </span>
-                    </div>
-                </div>';
+            <div class="flex flex-col">
+                <span class="font-black text-slate-700 leading-tight">' . strtoupper($field->permohonan_nonlit) . '</span>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[9px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-bold uppercase italic">
+                        <i class="fa-solid fa-building-shield mr-1"></i>' . $team_label . '
+                    </span>
+                </div>
+            </div>';
+            $row['team_nonlit'] = !empty($field->team_nonlit) ? strtoupper(str_replace('_', ' ', $field->team_nonlit)) : 'INTERNAL';
 
             $row['pic'] = $field->pic;
-            $row['tgl_nonlit'] = date('d/m/Y', strtotime($field->tgl_nonlit));
-            $row['bidang'] = '<span class="uppercase font-bold text-[10px] text-slate-500">'.$field->jenis.'</span>';
+            $row['tgl_nonlit'] = !empty($field->tgl_nonlit) ? date('d/m/Y', strtotime($field->tgl_nonlit)) : '-';
+            $row['bidang'] = '<span class="uppercase font-bold text-[10px] text-slate-500">' . $field->jenis . '</span>';
             $row['status'] = $field->status;
-            
+
             // Tombol Aksi Detail
             $row['action'] = '
-                <div class="flex justify-end">
-                    <a href="'.base_url('nonlit/detail/'.$field->id).'" class="btn btn-sm btn-ghost bg-slate-50 hover:bg-slate-900 hover:text-white rounded-xl shadow-none border-none group">
-                        <i class="fa-solid fa-eye text-indigo-500 group-hover:text-white mr-2"></i> Detail
-                    </a>
-                </div>';
+            <div class="flex justify-end">
+                <a href="' . base_url('nonlit/detail/' . $field->id) . '" class="btn btn-sm btn-ghost bg-slate-50 hover:bg-slate-900 hover:text-white rounded-xl shadow-none border-none group">
+                    <i class="fa-solid fa-eye text-indigo-500 group-hover:text-white mr-2"></i> Detail
+                </a>
+            </div>';
 
             $data[] = $row;
         }
 
         $output = array(
-            "draw" => $_POST['draw'],
+            "draw" => intval($this->input->post('draw')),
             "recordsTotal" => $this->m_laporan->count_all(),
             "recordsFiltered" => $this->m_laporan->count_filtered(),
             "data" => $data,
         );
+
         echo json_encode($output);
     }
- 
+
 
 
     // public function export_excel()
@@ -133,55 +183,101 @@ class Laporan extends CI_Controller
 
     //     $this->load->view('laporan/excel_template', ['data' => $data_laporan]);
     // }
-    
-    public function export_excel() {
-    $tahun  = $this->input->get('tahun');
-    $status = $this->input->get('status');
-    $team   = $this->input->get('team');
-    $pic    = $this->input->get('pic');
 
-    // 1. Ambil data utama dari tabel nonlits
-    $this->db->select('*');
-    $this->db->from('nonlits');
-    
-    if ($tahun && $tahun != 'all') $this->db->where('YEAR(tgl_nonlit)', $tahun);
-    if ($status) $this->db->where('status', $status);
-    if ($team) $this->db->where('team_nonlit', $team);
-    if ($pic) $this->db->where('pic', $pic);
-    
-    $this->db->order_by('tgl_nonlit', 'DESC');
-    $query = $this->db->get();
+    public function export_excel()
+    {
+        $tahun      = $this->input->get('tahun', true);
+        $status     = $this->input->get('status');
+        $team       = $this->input->get('team');
+        $pic        = $this->input->get('pic');
+        $permohonan = $this->input->get('permohonan_nonlit', true);
 
-    if (!$query) {
-        die("Gagal mengambil data: " . $this->db->error()['message']);
+        // 1. Ambil data utama dari tabel nonlits + Join Detail Terakhir
+        $this->db->select('
+        n.*, 
+        d.kesimpulan, 
+        d.tgl_rapat as tgl_progres_terakhir
+    ');
+        $this->db->from('nonlits n');
+
+        // Subquery untuk mengambil ID detail rapat paling baru per nonlit
+        $this->db->join('(
+        SELECT max_det.id_nonlit, max_det.kesimpulan, max_det.tgl_rapat
+        FROM nonlit_det max_det
+        INNER JOIN (
+            SELECT id_nonlit, MAX(id) as max_id 
+            FROM nonlit_det 
+            GROUP BY id_nonlit
+        ) latest ON max_det.id = latest.max_id
+    ) d', 'd.id_nonlit = n.id', 'left');
+
+        // --- FILTER TAHUN ---
+        if ($tahun && $tahun != 'all') {
+            $this->db->where('YEAR(n.tgl_nonlit)', $tahun);
+        }
+
+        // --- FILTER STATUS (Multi-Select Support) ---
+        if (!empty($status)) {
+            if (is_array($status)) {
+                $this->db->where_in('n.status', $status);
+            } else {
+                $this->db->where('n.status', $status);
+            }
+        }
+
+        // --- FILTER TEAM (Multi-Select Support) ---
+        if (!empty($team)) {
+            if (is_array($team)) {
+                $this->db->where_in('n.team_nonlit', $team);
+            } else {
+                $this->db->where('n.team_nonlit', $team);
+            }
+        }
+
+        // --- FILTER PIC (Multi-Select Support) ---
+        if (!empty($pic)) {
+            if (is_array($pic)) {
+                $this->db->where_in('n.pic', $pic);
+            } else {
+                $this->db->where('n.pic', $pic);
+            }
+        }
+
+        // --- FILTER NAMA PERMOHONAN ---
+        if ($permohonan) {
+            $this->db->like('n.permohonan_nonlit', $permohonan);
+        }
+
+        $this->db->order_by('n.tgl_nonlit', 'DESC');
+        $query = $this->db->get();
+
+        if (!$query) {
+            die("Gagal mengambil data: " . $this->db->error()['message']);
+        }
+
+        $result = $query->result_array();
+
+        // Format fallback default jika detail kosong
+        foreach ($result as $key => $val) {
+            if (empty($val['kesimpulan'])) {
+                $result[$key]['kesimpulan'] = '-';
+            }
+            if (empty($val['tgl_progres_terakhir'])) {
+                $result[$key]['tgl_progres_terakhir'] = '-';
+            }
+        }
+
+        $data['data'] = $result;
+
+        // 2. Set Header Download Excel
+        $filename = "Laporan_Nonlit_" . date('Ymd_His') . ".xls";
+        header("Content-type: application/vnd-ms-excel");
+        header("Content-Disposition: attachment; filename=$filename");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
+        $this->load->view('laporan/excel_template', $data);
     }
-
-    $result = $query->result_array();
-
-    // 2. Loop data untuk mengambil detail rapat terbaru dari nonlit_det
-    foreach ($result as $key => $val) {
-        $this->db->select('kesimpulan, tgl_rapat');
-        $this->db->from('nonlit_det');
-        $this->db->where('id_nonlit', $val['id']); // Hubungkan dengan ID nonlit
-        $this->db->order_by('id', 'DESC');        // Ambil data yang paling terakhir diinput
-        $this->db->limit(1);
-        $detail = $this->db->get()->row_array();
-        
-        $result[$key]['kesimpulan'] = $detail['kesimpulan'] ?? '-';
-        $result[$key]['tgl_progres_terakhir'] = $detail['tgl_rapat'] ?? '-';
-    }
-
-    $data['data'] = $result;
-
-    // 3. Set Header Excel
-    $filename = "Laporan_Nonlit_".date('Ymd_His').".xls";
-    header("Content-type: application/vnd-ms-excel");
-    header("Content-Disposition: attachment; filename=$filename");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    $this->load->view('laporan/excel_template', $data);
-}
     public function export_excel2()
     {
         $tahun   = $this->input->get('tahun', true);

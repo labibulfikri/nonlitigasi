@@ -121,71 +121,119 @@ class M_laporan extends CI_Model
     //     $query = $this->db->get();
     //     return $this->db->count_all_results();
     // }
-var $table = 'nonlits';
+    var $table = 'nonlits';
     var $column_order = array(null, 'permohonan_nonlit', 'pic', 'tgl_nonlit', 'jenis', 'status');
     var $column_search = array('permohonan_nonlit', 'pic', 'team_nonlit');
-
-    private function _get_datatables_query() {
+    private function _get_datatables_query()
+    {
         $this->db->from($this->table);
 
         // Filter Tahun
-        $tahun = $this->input->post('tahun');
+        $tahun = $this->input->post('tahun', true);
         if ($tahun && $tahun != 'all') {
             $this->db->where('YEAR(tgl_nonlit)', $tahun);
         }
 
-        // Filter Status
+        // Filter Status (Multi Select)
         $status = $this->input->post('status');
-        if ($status) {
+        if (!empty($status) && is_array($status)) {
+            $this->db->where_in('status', $status);
+        } elseif (!empty($status) && !is_array($status)) {
             $this->db->where('status', $status);
         }
 
-        // Filter Team
+        // Filter Team (Multi Select)
         $team = $this->input->post('team');
-        if ($team) {
+        if (!empty($team) && is_array($team)) {
+            $this->db->where_in('team_nonlit', $team);
+        } elseif (!empty($team) && !is_array($team)) {
             $this->db->where('team_nonlit', $team);
         }
 
-        // Filter PIC
+        // Filter PIC (Multi Select)
         $pic = $this->input->post('pic');
-        if ($pic) {
-            $this->db->where('pic', $pic); 
+        if (!empty($pic) && is_array($pic)) {
+            $this->db->where_in('pic', $pic);
+        } elseif (!empty($pic) && !is_array($pic)) {
+            $this->db->where('pic', $pic);
         }
 
-        // Filter Search Text (Permohonan)
-        $permohonan = $this->input->post('permohonan_nonlit');
+        // Filter Search Text
+        $permohonan = $this->input->post('permohonan_nonlit', true);
         if ($permohonan) {
             $this->db->like('permohonan_nonlit', $permohonan);
         }
 
+        // Sorting
         if (isset($_POST['order'])) {
-            $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+            $columnIndex = $_POST['order']['0']['column'];
+            $columnDir = $_POST['order']['0']['dir'];
+            if (isset($this->column_order[$columnIndex])) {
+                $this->db->order_by($this->column_order[$columnIndex], $columnDir);
+            }
         } else {
             $this->db->order_by('id', 'DESC');
         }
     }
 
-    public function get_datatables() {
+    public function get_datatables()
+    {
         $this->_get_datatables_query();
-        if ($_POST['length'] != -1)
+        if (isset($_POST['length']) && $_POST['length'] != -1) {
             $this->db->limit($_POST['length'], $_POST['start']);
-        return $this->db->get()->result();
+        }
+
+        $query = $this->db->get();
+
+        // Cek jika query gagal untuk menghindari Fatal Error
+        if (!$query) {
+            return array();
+        }
+
+        return $query->result();
     }
 
-    public function count_filtered() {
+    public function count_filtered()
+    {
         $this->_get_datatables_query();
-        return $this->db->get()->num_rows();
+        return $this->db->count_all_results();
     }
 
-    public function count_all() {
+    public function count_all()
+    {
         return $this->db->count_all_results($this->table);
     }
 
-    public function get_list_pic() {
-    $this->db->select('DISTINCT(pic) as nama_pic');
-    $this->db->from('nonlits');
-    $this->db->where('pic !=', '');
-    $this->db->order_by('pic', 'ASC');
-    return $this->db->get()->result();
-}
+    // PERBAIKAN UTAMA: Perhitungan summary langsung lewat agregasi SQL
+    public function get_summary_counts()
+    {
+        $this->_get_datatables_query();
+
+        $this->db->select("
+        COUNT(*) as total,
+        SUM(CASE WHEN LOWER(status) = 'proses' THEN 1 ELSE 0 END) as proses,
+        SUM(CASE WHEN LOWER(status) = 'selesai' THEN 1 ELSE 0 END) as selesai
+    ");
+
+        $query = $this->db->get();
+
+        if ($query && $row = $query->row()) {
+            return [
+                'total'   => (int) $row->total,
+                'proses'  => (int) $row->proses,
+                'selesai' => (int) $row->selesai
+            ];
+        }
+
+        return ['total' => 0, 'proses' => 0, 'selesai' => 0];
+    }
+
+    public function get_list_pic()
+    {
+        $this->db->select('DISTINCT(pic) as nama_pic');
+        $this->db->from('nonlits');
+        $this->db->where('pic !=', '');
+        $this->db->order_by('pic', 'ASC');
+        return $this->db->get()->result();
+    }
 }
