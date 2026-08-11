@@ -129,13 +129,21 @@ class M_laporan extends CI_Model
         $this->db->from($this->table);
 
         // Filter Tahun
+        // $tahun = $this->input->post('tahun', true);
+        // if ($tahun && $tahun != 'all') {
+        //     $this->db->where('YEAR(tgl_nonlit)', $tahun);
+        // }
+
+        // Filter Tahun (Multi-Select Support)
         $tahun = $this->input->post('tahun', true);
-        if ($tahun && $tahun != 'all') {
+        if (!empty($tahun) && is_array($tahun)) {
+            $this->db->where_in('YEAR(tgl_nonlit)', $tahun);
+        } elseif (!empty($tahun) && $tahun != 'all') {
             $this->db->where('YEAR(tgl_nonlit)', $tahun);
         }
 
         // Filter Status (Multi Select)
-        $status = $this->input->post('status');
+        $status = $this->input->post('status', true);
         if (!empty($status) && is_array($status)) {
             $this->db->where_in('status', $status);
         } elseif (!empty($status) && !is_array($status)) {
@@ -143,7 +151,7 @@ class M_laporan extends CI_Model
         }
 
         // Filter Team (Multi Select)
-        $team = $this->input->post('team');
+        $team = $this->input->post('team', true);
         if (!empty($team) && is_array($team)) {
             $this->db->where_in('team_nonlit', $team);
         } elseif (!empty($team) && !is_array($team)) {
@@ -151,7 +159,7 @@ class M_laporan extends CI_Model
         }
 
         // Filter PIC (Multi Select)
-        $pic = $this->input->post('pic');
+        $pic = $this->input->post('pic', true);
         if (!empty($pic) && is_array($pic)) {
             $this->db->where_in('pic', $pic);
         } elseif (!empty($pic) && !is_array($pic)) {

@@ -186,13 +186,13 @@ class Laporan extends CI_Controller
 
     public function export_excel()
     {
-        $tahun      = $this->input->get('tahun', true);
+        $tahun      = $this->input->get('tahun');
         $status     = $this->input->get('status');
         $team       = $this->input->get('team');
         $pic        = $this->input->get('pic');
         $permohonan = $this->input->get('permohonan_nonlit', true);
 
-        // 1. Ambil data utama dari tabel nonlits + Join Detail Terakhir
+        // 1. Query Utama dengan LEFT JOIN
         $this->db->select('
         n.*, 
         d.kesimpulan, 
@@ -200,7 +200,6 @@ class Laporan extends CI_Controller
     ');
         $this->db->from('nonlits n');
 
-        // Subquery untuk mengambil ID detail rapat paling baru per nonlit
         $this->db->join('(
         SELECT max_det.id_nonlit, max_det.kesimpulan, max_det.tgl_rapat
         FROM nonlit_det max_det
@@ -211,12 +210,16 @@ class Laporan extends CI_Controller
         ) latest ON max_det.id = latest.max_id
     ) d', 'd.id_nonlit = n.id', 'left');
 
-        // --- FILTER TAHUN ---
-        if ($tahun && $tahun != 'all') {
-            $this->db->where('YEAR(n.tgl_nonlit)', $tahun);
+        // --- FILTER TAHUN (Multi-Select Support) ---
+        if (!empty($tahun)) {
+            if (is_array($tahun)) {
+                $this->db->where_in('YEAR(n.tgl_nonlit)', $tahun);
+            } elseif ($tahun != 'all') {
+                $this->db->where('YEAR(n.tgl_nonlit)', $tahun);
+            }
         }
 
-        // --- FILTER STATUS (Multi-Select Support) ---
+        // --- FILTER STATUS ---
         if (!empty($status)) {
             if (is_array($status)) {
                 $this->db->where_in('n.status', $status);
@@ -225,7 +228,7 @@ class Laporan extends CI_Controller
             }
         }
 
-        // --- FILTER TEAM (Multi-Select Support) ---
+        // --- FILTER TEAM ---
         if (!empty($team)) {
             if (is_array($team)) {
                 $this->db->where_in('n.team_nonlit', $team);
@@ -234,7 +237,7 @@ class Laporan extends CI_Controller
             }
         }
 
-        // --- FILTER PIC (Multi-Select Support) ---
+        // --- FILTER PIC ---
         if (!empty($pic)) {
             if (is_array($pic)) {
                 $this->db->where_in('n.pic', $pic);
@@ -257,7 +260,6 @@ class Laporan extends CI_Controller
 
         $result = $query->result_array();
 
-        // Format fallback default jika detail kosong
         foreach ($result as $key => $val) {
             if (empty($val['kesimpulan'])) {
                 $result[$key]['kesimpulan'] = '-';

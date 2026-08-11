@@ -77,7 +77,7 @@
             </div>
 
             <!-- Filter Tahun -->
-            <div>
+            <!-- <div>
                 <label class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-2 block tracking-widest">Tahun</label>
                 <select id="nonlit_filter_bytahun" class="select select-bordered w-full rounded-2xl bg-slate-50 border-none font-black text-xs h-12 focus:bg-white focus:ring-4 focus:ring-indigo-50">
                     <option value="all">SEMUA TAHUN</option>
@@ -85,6 +85,17 @@
                     for ($i = date('Y') - 3; $i <= date('Y') + 1; $i++) {
                         $sel = $i == date('Y') ? 'selected' : '';
                         echo "<option value='$i' $sel>$i</option>";
+                    }
+                    ?>
+                </select>
+            </div> -->
+
+            <div>
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-1 mb-2 block tracking-widest">Tahun</label>
+                <select id="nonlit_filter_bytahun" multiple="multiple" class="select-multi w-full rounded-2xl bg-slate-50 border-none font-bold text-xs">
+                    <?php
+                    for ($i = date('Y') - 3; $i <= date('Y') + 1; $i++) {
+                        echo "<option value='$i'>$i</option>";
                     }
                     ?>
                 </select>
