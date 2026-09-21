@@ -151,133 +151,271 @@ class M_arsip_sso extends CI_Model
     /**
      * GET DETAIL DATA & DAFTAR LAMPIRAN BERKAS (Lengkap dengan Riwayat Perkara)
      */
+    // public function get_detail_arsip($sumber, $id)
+    // {
+    //     if ($sumber === 'ASING') {
+    //         // 1. Data Utama Perkara
+    //         $perkara = $this->db->select("
+    //             'ASING' as sumber,
+    //             p.perkara_id as id_data,
+    //             p.perkara_no as nomor,
+    //             p.perkara_penggugat as nama_pihak,
+    //             p.perkara_tergugat as tergugat,
+    //             p.perkara_pihak as para_pihak,
+    //             p.perkara_jenis as jenis_perkara,
+    //             p.perkara_alamat as lokasi,
+    //             p.penyimpanan_rak as id_rak,
+    //             p.perkara_status as status_perkara
+    //         ", FALSE)
+    //             ->from('db_perkara.t_perkara p')
+    //             ->where('p.perkara_id', $id)
+    //             ->get()->row();
+
+    //         if (!$perkara) return null;
+
+    //         // 2. Ambil SELURUH Riwayat Tingkat Putusan (PN, Banding, Kasasi, PK, dll)
+    //         $riwayat = $this->db->select("
+    //             perkaradet_id as id_detail,
+    //             perkaradet_no as nomor_perkara_tingkat,
+    //             perkaradet_tingkat as tingkat_proses,
+    //             perkaradet_status as status_putusan,
+    //             perkaradet_tgl_putusan as tgl_putusan,
+    //             perkaradet_keterangan as amar_putusan,
+    //             perkaradet_pihak as pihak_terkait,
+    //             perkaradet_inkrah as status_inkrah
+    //         ")
+    //             ->from('db_perkara.t_perkara_detail')
+    //             ->where('perkaradet_perkara_id', $id)
+    //             ->order_by('perkaradet_id', 'ASC')
+    //             ->get()->result();
+
+    //         $perkara->riwayat_perkara = $riwayat;
+
+    //         // 3. Ambil SELURUH Berkas Lampiran dari db_perkara.t_upload
+    //         $files = $this->db->select("
+    //             id_berkas,
+    //             name_berkas as nama_file,
+    //             type_file,
+    //             size as ukuran_file,
+    //             CONCAT('" . base_url('uploads/asing/') . "', name_berkas) as file_url
+    //         ")
+    //             ->from('db_perkara.t_upload')
+    //             ->where('berkas_perkara_id', $id)
+    //             ->order_by('id_berkas', 'DESC')
+    //             ->get()->result();
+
+    //         $perkara->lampiran_berkas = $files;
+    //         return $perkara;
+    //     } else if (in_array($sumber, ['NONLIT', 'POLISI', 'MASALAH', 'UMUM'])) {
+    //         // Data Utama Nonlit
+    //         $nonlit = $this->db->select("
+    //             '$sumber' as sumber,
+    //             id as id_data,
+    //             register_baru as nomor,
+    //             permohonan_nonlit as nama_pihak,
+    //             alamat as lokasi,
+    //             penyimpanan_rak as id_rak,
+    //             keterangan as amar_putusan,
+    //             status as status_terakhir,
+    //             tgl_nonlit as tgl_putusan
+    //         ")
+    //             ->from('nonlits')
+    //             ->where('id', $id)
+    //             ->get()->row();
+
+    //         if (!$nonlit) return null;
+
+    //         // Karena Nonlit tidak memiliki tabel detail berjenjang seperti perkara,
+    //         // kita buatkan riwayat_perkara versi default/tunggal agar format JSON tetap konsisten
+    //         $nonlit->riwayat_perkara = [
+    //             [
+    //                 'id_detail' => $nonlit->id_data,
+    //                 'nomor_perkara_tingkat' => $nonlit->nomor,
+    //                 'tingkat_proses' => $sumber,
+    //                 'status_putusan' => $nonlit->status_terakhir,
+    //                 'tgl_putusan' => $nonlit->tgl_putusan,
+    //                 'amar_putusan' => $nonlit->amar_putusan,
+    //                 'pihak_terkait' => $nonlit->nama_pihak,
+    //                 'status_inkrah' => null
+    //             ]
+    //         ];
+
+    //         // Seluruh Lampiran Berkas dari berkas_lampiran
+    //         $files = $this->db->select("
+    //             id,
+    //             nama_berkas as nama_file,
+    //             file_type as type_file,
+    //             NULL as ukuran_file,
+    //             CONCAT('" . base_url('uploads/nonlit/') . "', nama_berkas) as file_url
+    //         ")
+    //             ->from('berkas_lampiran')
+    //             ->where('id_nonlit', $id)
+    //             ->order_by('id', 'DESC')
+    //             ->get()->result();
+
+    //         $nonlit->lampiran_berkas = $files;
+    //         return $nonlit;
+    //     }
+    //     // else if ($sumber === 'UMUM') {
+    //     //     $umum = $this->db->select("
+    //     //         'UMUM' as sumber,
+    //     //         id_berkas_umum as id_data,
+    //     //         '-' as nomor,
+    //     //         nama_berkas_umum as nama_pihak,
+    //     //         keterangan as lokasi,
+    //     //         penyimpanan_rak as id_rak,
+    //     //         NULL as amar_putusan,
+    //     //         NULL as status_terakhir,
+    //     //         NULL as tgl_putusan
+    //     //     ")
+    //     //         ->from('berkas_umum')
+    //     //         ->where('id_berkas_umum', $id)
+    //     //         ->get()->row();
+
+    //     //     if ($umum) {
+    //     //         $umum->riwayat_perkara = [];
+    //     //         $umum->lampiran_berkas = [];
+    //     //     }
+    //     //     return $umum;
+    //     // }
+
+    //     return null;
+    // }
+
+
     public function get_detail_arsip($sumber, $id)
     {
-        if ($sumber === 'ASING') {
-            // 1. Data Utama Perkara
-            $perkara = $this->db->select("
-                'ASING' as sumber,
-                p.perkara_id as id_data,
-                p.perkara_no as nomor,
-                p.perkara_penggugat as nama_pihak,
-                p.perkara_tergugat as tergugat,
-                p.perkara_pihak as para_pihak,
-                p.perkara_jenis as jenis_perkara,
-                p.perkara_alamat as lokasi,
-                p.penyimpanan_rak as id_rak,
-                p.perkara_status as status_perkara
-            ", FALSE)
+        // Normalisasi nilai sumber agar tidak sensitif huruf besar/kecil
+        $sumber_lower = strtolower($sumber);
+
+        if ($sumber_lower === 'asing') {
+            // 1. Data Utama Perkara ASING
+            $q_perkara = $this->db->select("
+            'ASING' as sumber,
+            p.perkara_id as id_data,
+            p.perkara_no as nomor,
+            p.perkara_penggugat as nama_pihak,
+            p.perkara_tergugat as tergugat,
+            p.perkara_pihak as para_pihak,
+            p.perkara_jenis as jenis_perkara,
+            p.perkara_alamat as lokasi,
+            p.penyimpanan_rak as id_rak,
+            p.perkara_status as status_perkara
+        ", FALSE)
                 ->from('db_perkara.t_perkara p')
                 ->where('p.perkara_id', $id)
-                ->get()->row();
+                ->get();
 
-            if (!$perkara) return null;
+            if (!$q_perkara || $q_perkara->num_rows() === 0) return null;
+            $perkara = $q_perkara->row();
 
-            // 2. Ambil SELURUH Riwayat Tingkat Putusan (PN, Banding, Kasasi, PK, dll)
-            $riwayat = $this->db->select("
-                perkaradet_id as id_detail,
-                perkaradet_no as nomor_perkara_tingkat,
-                perkaradet_tingkat as tingkat_proses,
-                perkaradet_status as status_putusan,
-                perkaradet_tgl_putusan as tgl_putusan,
-                perkaradet_keterangan as amar_putusan,
-                perkaradet_pihak as pihak_terkait,
-                perkaradet_inkrah as status_inkrah
-            ")
+            // 2. Riwayat Putusan (Di-cek aman sebelum ->result())
+            $q_riwayat = $this->db->select("
+            perkaradet_id as id_detail,
+            perkaradet_no as nomor_perkara_tingkat,
+            perkaradet_tingkat as tingkat_proses,
+            perkaradet_status as status_putusan,
+            perkaradet_tgl_putusan as tgl_putusan,
+            perkaradet_keterangan as amar_putusan,
+            perkaradet_pihak as pihak_terkait,
+            perkaradet_inkrah as status_inkrah
+        ")
                 ->from('db_perkara.t_perkara_detail')
                 ->where('perkaradet_perkara_id', $id)
                 ->order_by('perkaradet_id', 'ASC')
-                ->get()->result();
+                ->get();
 
-            $perkara->riwayat_perkara = $riwayat;
+            $perkara->riwayat_perkara = ($q_riwayat && is_object($q_riwayat)) ? $q_riwayat->result() : [];
 
-            // 3. Ambil SELURUH Berkas Lampiran dari db_perkara.t_upload
-            $files = $this->db->select("
-                id_berkas,
-                name_berkas as nama_file,
-                type_file,
-                size as ukuran_file,
-                CONCAT('" . base_url('uploads/asing/') . "', name_berkas) as file_url
-            ")
+            // 3. Lampiran Berkas (Di-cek aman sebelum ->result())
+            $q_files = $this->db->select("
+            id_berkas,
+            name_berkas as nama_file,
+            type_file,
+            size as ukuran_file,
+            CONCAT('" . base_url('uploads/asing/') . "', name_berkas) as file_url
+        ")
                 ->from('db_perkara.t_upload')
                 ->where('berkas_perkara_id', $id)
                 ->order_by('id_berkas', 'DESC')
-                ->get()->result();
+                ->get();
 
-            $perkara->lampiran_berkas = $files;
+            $perkara->lampiran_berkas = ($q_files && is_object($q_files)) ? $q_files->result() : [];
             return $perkara;
-        } else if (in_array($sumber, ['NONLIT', 'POLISI', 'MASALAH', 'UMUM'])) {
-            // Data Utama Nonlit
-            $nonlit = $this->db->select("
-                '$sumber' as sumber,
-                id as id_data,
-                register_baru as nomor,
-                permohonan_nonlit as nama_pihak,
-                alamat as lokasi,
-                penyimpanan_rak as id_rak,
-                keterangan as amar_putusan,
-                status as status_terakhir,
-                tgl_nonlit as tgl_putusan
-            ")
+        } else if (in_array($sumber_lower, ['nonlit', 'polisi', 'masalah', 'permasalahan'])) {
+            // Data Utama Nonlit / Permasalahan
+            $q_nonlit = $this->db->select("
+            '$sumber' as sumber,
+            id as id_data,
+            register_baru as nomor,
+            permohonan_nonlit as nama_pihak,
+            alamat as lokasi,
+            penyimpanan_rak as id_rak,
+            keterangan as amar_putusan,
+            status as status_terakhir,
+            tgl_nonlit as tgl_putusan
+        ")
                 ->from('nonlits')
                 ->where('id', $id)
-                ->get()->row();
+                ->get();
 
-            if (!$nonlit) return null;
+            if (!$q_nonlit || $q_nonlit->num_rows() === 0) return null;
+            $nonlit = $q_nonlit->row();
 
-            // Karena Nonlit tidak memiliki tabel detail berjenjang seperti perkara,
-            // kita buatkan riwayat_perkara versi default/tunggal agar format JSON tetap konsisten
+            // Format array riwayat default
             $nonlit->riwayat_perkara = [
                 [
-                    'id_detail' => $nonlit->id_data,
+                    'id_detail'            => $nonlit->id_data,
                     'nomor_perkara_tingkat' => $nonlit->nomor,
-                    'tingkat_proses' => $sumber,
-                    'status_putusan' => $nonlit->status_terakhir,
-                    'tgl_putusan' => $nonlit->tgl_putusan,
-                    'amar_putusan' => $nonlit->amar_putusan,
-                    'pihak_terkait' => $nonlit->nama_pihak,
-                    'status_inkrah' => null
+                    'tingkat_proses'        => $sumber,
+                    'status_putusan'       => $nonlit->status_terakhir,
+                    'tgl_putusan'          => $nonlit->tgl_putusan,
+                    'amar_putusan'         => $nonlit->amar_putusan,
+                    'pihak_terkait'        => $nonlit->nama_pihak,
+                    'status_inkrah'        => null
                 ]
             ];
 
-            // Seluruh Lampiran Berkas dari berkas_lampiran
-            $files = $this->db->select("
-                id,
-                nama_berkas as nama_file,
-                file_type as type_file,
-                NULL as ukuran_file,
-                CONCAT('" . base_url('uploads/nonlit/') . "', nama_berkas) as file_url
-            ")
+            // Query lampiran dengan validasi aman dari error result() on bool
+            $q_files = $this->db->select("
+            id,
+            nama_berkas as nama_file,
+            file_type as type_file,
+            NULL as ukuran_file,
+            CONCAT('" . base_url('uploads/nonlit/') . "', nama_berkas) as file_url
+        ")
                 ->from('berkas_lampiran')
                 ->where('id_nonlit', $id)
                 ->order_by('id', 'DESC')
-                ->get()->result();
+                ->get();
 
-            $nonlit->lampiran_berkas = $files;
+            // Jika query berkas_lampiran gagal (misal karena nama kolom/tabel beda), kembalikan array kosong []
+            $nonlit->lampiran_berkas = ($q_files && is_object($q_files)) ? $q_files->result() : [];
             return $nonlit;
-        }
-        // else if ($sumber === 'UMUM') {
-        //     $umum = $this->db->select("
-        //         'UMUM' as sumber,
-        //         id_berkas_umum as id_data,
-        //         '-' as nomor,
-        //         nama_berkas_umum as nama_pihak,
-        //         keterangan as lokasi,
-        //         penyimpanan_rak as id_rak,
-        //         NULL as amar_putusan,
-        //         NULL as status_terakhir,
-        //         NULL as tgl_putusan
-        //     ")
-        //         ->from('berkas_umum')
-        //         ->where('id_berkas_umum', $id)
-        //         ->get()->row();
+        } else if (in_array($sumber_lower, ['umum', 'data_umum'])) {
+            // Data Berkas Umum
+            $q_umum = $this->db->select("
+            '$sumber' as sumber,
+            id as id_data,
+            register_baru as nomor,
+            permohonan_nonlit as nama_pihak,
+            keterangan as lokasi,
+            penyimpanan_rak as id_rak,
+            NULL as amar_putusan,
+            NULL as status_terakhir,
+            NULL as tgl_putusan
+        ")
+                ->from('nonlits')
+                ->where('id', $id)
+                ->get();
 
-        //     if ($umum) {
-        //         $umum->riwayat_perkara = [];
-        //         $umum->lampiran_berkas = [];
-        //     }
-        //     return $umum;
-        // }
+            if ($q_umum && $q_umum->num_rows() > 0) {
+                $umum = $q_umum->row();
+                $umum->riwayat_perkara = [];
+                $umum->lampiran_berkas = [];
+                return $umum;
+            }
+        }
 
         return null;
     }
