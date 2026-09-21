@@ -206,7 +206,7 @@ class M_arsip_sso extends CI_Model
 
             $perkara->lampiran_berkas = $files;
             return $perkara;
-        } else if (in_array($sumber, ['NONLIT', 'POLISI', 'MASALAH'])) {
+        } else if (in_array($sumber, ['NONLIT', 'POLISI', 'MASALAH', 'UMUM'])) {
             // Data Utama Nonlit
             $nonlit = $this->db->select("
                 '$sumber' as sumber,
@@ -255,28 +255,29 @@ class M_arsip_sso extends CI_Model
 
             $nonlit->lampiran_berkas = $files;
             return $nonlit;
-        } else if ($sumber === 'UMUM') {
-            $umum = $this->db->select("
-                'UMUM' as sumber,
-                id_berkas_umum as id_data,
-                '-' as nomor,
-                nama_berkas_umum as nama_pihak,
-                keterangan as lokasi,
-                penyimpanan_rak as id_rak,
-                NULL as amar_putusan,
-                NULL as status_terakhir,
-                NULL as tgl_putusan
-            ")
-                ->from('berkas_umum')
-                ->where('id_berkas_umum', $id)
-                ->get()->row();
-
-            if ($umum) {
-                $umum->riwayat_perkara = [];
-                $umum->lampiran_berkas = [];
-            }
-            return $umum;
         }
+        // else if ($sumber === 'UMUM') {
+        //     $umum = $this->db->select("
+        //         'UMUM' as sumber,
+        //         id_berkas_umum as id_data,
+        //         '-' as nomor,
+        //         nama_berkas_umum as nama_pihak,
+        //         keterangan as lokasi,
+        //         penyimpanan_rak as id_rak,
+        //         NULL as amar_putusan,
+        //         NULL as status_terakhir,
+        //         NULL as tgl_putusan
+        //     ")
+        //         ->from('berkas_umum')
+        //         ->where('id_berkas_umum', $id)
+        //         ->get()->row();
+
+        //     if ($umum) {
+        //         $umum->riwayat_perkara = [];
+        //         $umum->lampiran_berkas = [];
+        //     }
+        //     return $umum;
+        // }
 
         return null;
     }

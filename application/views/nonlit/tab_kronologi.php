@@ -1,4 +1,5 @@
 <style>
+<<<<<<< Updated upstream
     /* Memaksa tombol untuk selalu terlihat dengan warna yang jelas */
     .swal2-confirm.swal2-styled {
         background-color: #f87272 !important;
@@ -19,6 +20,26 @@
 <a href="javascript:void(0)" onclick="history.back()"
     class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
     title="Kembali ke Daftar">
+=======
+/* Memaksa tombol untuk selalu terlihat dengan warna yang jelas */
+.swal2-confirm.swal2-styled {
+    background-color: #f87272 !important; /* Warna Merah DaisyUI */
+    color: white !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+}
+
+.swal2-cancel.swal2-styled {
+    background-color: #a6adbb !important; /* Warna Abu-abu DaisyUI */
+    color: white !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+}
+</style>
+          <a href="javascript:void(0)" onclick="history.back()" 
+   class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm group"
+   title="Kembali ke Daftar">
+>>>>>>> Stashed changes
     <i class="mdi mdi-arrow-left text-2xl group-hover:-translate-x-1 transition-transform"></i>
 </a>
 <div class="container mx-auto p-4 mb-20">
@@ -237,6 +258,29 @@
     </div>
 </dialog>
 
+<<<<<<< Updated upstream
+=======
+ <script>
+    // Validasi ukuran file di sisi client (sebelum upload)
+document.querySelector('input[name="new_image"]').addEventListener('change', function() {
+    const maxSizeBytes = 20 * 1024 * 1024; // 20 MB
+    if (this.files[0].size > maxSizeBytes) {
+        alert('File terlalu besar! Maksimal 20 MB.');
+        this.value = ''; 
+    }
+});
+</script>
+    <script>
+document.querySelector('input[name="file"]').addEventListener('change', function() {
+    // 20 MB dalam bytes
+    const maxSizeBytes = 20 * 1024 * 1024; 
+    if (this.files[0].size > maxSizeBytes) {
+        alert('File terlalu besar! Maksimal ukuran file adalah 20 MB.');
+        this.value = ''; // Reset input
+    }
+}); 
+</script>
+>>>>>>> Stashed changes
 <script>
     // Validasi ukuran file di sisi client (sebelum upload)
     document.querySelector('input[name="new_image"]').addEventListener('change', function() {
@@ -432,6 +476,7 @@
         var token = $('#token').val();
 
         Swal.fire({
+<<<<<<< Updated upstream
             title: 'Konfirmasi Penghapusan',
             text: "Data yang dihapus tidak dapat dikembalikan!",
             icon: 'warning', // Gunakan 'icon' bukan 'type' di versi terbaru
@@ -480,6 +525,48 @@
             }
         });
     });
+=======
+    title: 'Konfirmasi Penghapusan',
+    text: "Data yang dihapus tidak dapat dikembalikan!",
+    icon: 'warning', // Gunakan 'icon' bukan 'type' di versi terbaru
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Hapus!',
+  confirmButtonColor: '#f87272', 
+    cancelButtonColor: '#a6adbb',
+    customClass: {
+        // Terapkan class Tailwind agar desain popup sama dengan gambar (rounded besar)
+        popup: 'rounded-3xl shadow-2xl', 
+        // Memaksa padding dan radius DaisyUI/rounded-xl untuk tombol agar solid
+        confirmButton: 'px-6 py-2 rounded-xl text-white font-bold', 
+        cancelButton: 'px-6 py-2 rounded-xl'
+    }
+}).then((result) => {
+    if (result.isConfirmed) { // Gunakan isConfirmed di versi terbaru
+        $.ajax({
+            url: "<?= base_url('nonlit/hapus_lampiran'); ?>",
+            method: "POST",
+            data: { id: id, id_nonlit: id_nonlit, token: token },
+            beforeSend: function() {
+                Swal.fire({
+                    title: 'Memproses...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+            },
+            success: function(data) {
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Data telah dihapus.',
+                    icon: 'success',
+                    confirmButtonColor: '#36d399' // Warna success DaisyUI
+                });
+                window.setTimeout(() => { location.reload(); }, 1500);
+            }
+        });
+    }
+});
+});
+>>>>>>> Stashed changes
 </script>
 
 <script>

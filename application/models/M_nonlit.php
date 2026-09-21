@@ -514,8 +514,11 @@ class M_nonlit extends CI_Model
         $this->db->update('nonlits', $datanya);
         return '1';
     }
+<<<<<<< Updated upstream
     return '0';
 }
+=======
+>>>>>>> Stashed changes
 
     public function update_nonlit_lampiran($data, $id) {
     date_default_timezone_set('Asia/Jakarta');
