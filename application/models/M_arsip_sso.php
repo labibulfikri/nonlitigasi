@@ -281,11 +281,8 @@ class M_arsip_sso extends CI_Model
 
     //     return null;
     // }
-
-
     public function get_detail_arsip($sumber, $id)
     {
-        // Normalisasi nilai sumber agar tidak sensitif huruf besar/kecil
         $sumber_lower = strtolower($sumber);
 
         if ($sumber_lower === 'asing') {
@@ -309,7 +306,7 @@ class M_arsip_sso extends CI_Model
             if (!$q_perkara || $q_perkara->num_rows() === 0) return null;
             $perkara = $q_perkara->row();
 
-            // 2. Riwayat Putusan (Di-cek aman sebelum ->result())
+            // 2. Riwayat Tingkat Putusan
             $q_riwayat = $this->db->select("
             perkaradet_id as id_detail,
             perkaradet_no as nomor_perkara_tingkat,
@@ -327,13 +324,13 @@ class M_arsip_sso extends CI_Model
 
             $perkara->riwayat_perkara = ($q_riwayat && is_object($q_riwayat)) ? $q_riwayat->result() : [];
 
-            // 3. Lampiran Berkas (Di-cek aman sebelum ->result())
+            // 3. Lampiran Berkas ASING
             $q_files = $this->db->select("
-            id_berkas,
+            id_berkas as id,
             name_berkas as nama_file,
             type_file,
             size as ukuran_file,
-            CONCAT('" . base_url('uploads/asing/') . "', name_berkas) as file_url
+            CONCAT('https://assistdpbt.surabaya.go.id/asing/assets/upload/', name_berkas) as file_url
         ")
                 ->from('db_perkara.t_upload')
                 ->where('berkas_perkara_id', $id)
@@ -342,8 +339,9 @@ class M_arsip_sso extends CI_Model
 
             $perkara->lampiran_berkas = ($q_files && is_object($q_files)) ? $q_files->result() : [];
             return $perkara;
-        } else if (in_array($sumber_lower, ['nonlit', 'polisi', 'masalah', 'permasalahan'])) {
-            // Data Utama Nonlit / Permasalahan
+        } else if (in_array($sumber_lower, ['nonlit', 'polisi', 'laporan_polisi', 'masalah', 'permasalahan', 'umum', 'data_umum'])) {
+
+            // 1. Data Utama dari Tabel nonlits
             $q_nonlit = $this->db->select("
             '$sumber' as sumber,
             id as id_data,
@@ -362,59 +360,48 @@ class M_arsip_sso extends CI_Model
             if (!$q_nonlit || $q_nonlit->num_rows() === 0) return null;
             $nonlit = $q_nonlit->row();
 
-            // Format array riwayat default
+            // 2. Riwayat Perkara Default
             $nonlit->riwayat_perkara = [
                 [
-                    'id_detail'            => $nonlit->id_data,
+                    'id_detail'             => $nonlit->id_data,
                     'nomor_perkara_tingkat' => $nonlit->nomor,
-                    'tingkat_proses'        => $sumber,
-                    'status_putusan'       => $nonlit->status_terakhir,
-                    'tgl_putusan'          => $nonlit->tgl_putusan,
-                    'amar_putusan'         => $nonlit->amar_putusan,
-                    'pihak_terkait'        => $nonlit->nama_pihak,
-                    'status_inkrah'        => null
+                    'tingkat_proses'        => strtoupper($sumber),
+                    'status_putusan'        => $nonlit->status_terakhir,
+                    'tgl_putusan'           => $nonlit->tgl_putusan,
+                    'amar_putusan'          => $nonlit->amar_putusan,
+                    'pihak_terkait'         => $nonlit->nama_pihak,
+                    'status_inkrah'         => null
                 ]
             ];
 
-            // Query lampiran dengan validasi aman dari error result() on bool
-            $q_files = $this->db->select("
-            id,
-            nama_berkas as nama_file,
-            file_type as type_file,
-            NULL as ukuran_file,
-            CONCAT('" . base_url('uploads/nonlit/') . "', nama_berkas) as file_url
-        ")
-                ->from('berkas_lampiran')
-                ->where('id_nonlit', $id)
-                ->order_by('id', 'DESC')
-                ->get();
+            // 3. Berkas Gabungan dari nonlit_det dan berkas_lampiran
+            $sql_files = "
+            SELECT 
+                id,
+                berkas AS nama_file,
+                'pdf' AS type_file,
+                NULL AS ukuran_file,
+                CONCAT('https://assistdpbt.surabaya.go.id/nonlitigasi/assets/berkas_nonlit/', berkas) AS file_url
+            FROM nonlit_det
+            WHERE id_nonlit = ? AND berkas IS NOT NULL AND berkas != ''
+            
+            UNION ALL
+            
+            SELECT 
+                id,
+                nama_berkas AS nama_file,
+                file_type AS type_file,
+                NULL AS ukuran_file,
+                CONCAT('https://assistdpbt.surabaya.go.id/nonlitigasi/assets/berkas_lampiran/', nama_berkas) AS file_url
+            FROM berkas_lampiran
+            WHERE id_nonlit = ? AND nama_berkas IS NOT NULL AND nama_berkas != ''
+            ORDER BY id DESC
+        ";
 
-            // Jika query berkas_lampiran gagal (misal karena nama kolom/tabel beda), kembalikan array kosong []
+            $q_files = $this->db->query($sql_files, array($id, $id));
             $nonlit->lampiran_berkas = ($q_files && is_object($q_files)) ? $q_files->result() : [];
-            return $nonlit;
-        } else if (in_array($sumber_lower, ['umum', 'data_umum'])) {
-            // Data Berkas Umum
-            $q_umum = $this->db->select("
-            '$sumber' as sumber,
-            id as id_data,
-            register_baru as nomor,
-            permohonan_nonlit as nama_pihak,
-            keterangan as lokasi,
-            penyimpanan_rak as id_rak,
-            NULL as amar_putusan,
-            NULL as status_terakhir,
-            NULL as tgl_putusan
-        ")
-                ->from('nonlits')
-                ->where('id', $id)
-                ->get();
 
-            if ($q_umum && $q_umum->num_rows() > 0) {
-                $umum = $q_umum->row();
-                $umum->riwayat_perkara = [];
-                $umum->lampiran_berkas = [];
-                return $umum;
-            }
+            return $nonlit;
         }
 
         return null;
