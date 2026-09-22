@@ -946,14 +946,18 @@ class Nonlit extends CI_Controller
             );
 
             // Simpan ke database
-            $this->m_nonlit->upload_nonlit($data);
+            // $this->m_nonlit->upload_nonlit($data);
+
+            $this->db->insert('nonlit_det', $data);
+            $inserted_id = $this->db->insert_id(); // <-- Ambil ID dari nonlit_det yang baru saja dibuat!
 
             // 5. Catat Log Aktivitas (Activity Logs)
             $log_data = array(
                 'user_id'     => $this->session->userdata('id'),
                 'action'      => 'CREATE',
                 'module'      => 'nonlit_det',
-                'record_id'   => $id_nonlit,
+                'record_id'   => $inserted_id,
+                'parent_id'   => $id_nonlit,
                 'description' => 'Mengunggah berkas rapat baru: ' . $this->input->post('judul_rapat', TRUE),
                 'ip_address'  => $this->input->ip_address(),
                 'created_at'  => date('Y-m-d H:i:s')
@@ -1087,64 +1091,73 @@ class Nonlit extends CI_Controller
             }
         }
     }
+
     function update_nonlit_det()
     {
         $this->form_validation->set_rules('id', 'ID', 'required');
 
         if ($this->form_validation->run() == FALSE) {
             cek_csrf();
-        } else {
-            cek_csrf();
-
-            $id        = $this->input->post('id', TRUE);
-            $id_nonlit = $this->input->post('id_nonlit', TRUE);
-            $old_image = $this->input->post('old_image', TRUE);
-
-            $data = array(
-                'tgl_rapat'   => $this->input->post('tgl_rapat', TRUE),
-                'judul_rapat' => $this->input->post('judul_rapat', TRUE),
-                'kesimpulan'  => $this->input->post('kesimpulan', TRUE),
-                'id_nonlit'   => $id_nonlit
-            );
-
-            // Cek jika ada file baru
-            if (!empty($_FILES['new_image_rapat']['name'])) {
-                $config['upload_path']   = './assets/berkas_nonlit/';
-                $config['allowed_types'] = 'pdf';
-                $config['max_size']      = 20480; // 20 MB
-                $config['encrypt_name']  = TRUE;
-
-                $this->load->library('upload', $config);
-
-                if ($this->upload->do_upload('new_image_rapat')) {
-                    // Hapus file lama jika ada
-                    if (file_exists("./assets/berkas_nonlit/" . $old_image)) {
-                        unlink("./assets/berkas_nonlit/" . $old_image);
-                    }
-                    $data['berkas'] = $this->upload->data('file_name');
-                } else {
-                    $error = $this->upload->display_errors('', '');
-                    echo "<script>alert('Gagal Update: $error'); window.history.back();</script>";
-                    return;
-                }
-            }
-
-            // 5. Catat Log Aktivitas (Activity Logs)
-            $log_data = array(
-                'user_id'     => $this->session->userdata('id'),
-                'action'      => 'UPDATE',
-                'module'      => 'nonlit_det',
-                'record_id'   => $id_nonlit,
-                'description' => 'Mengupdate berkas rapat: ' . $this->input->post('judul_rapat', TRUE),
-                'ip_address'  => $this->input->ip_address(),
-                'created_at'  => date('Y-m-d H:i:s')
-            );
-            $this->db->insert('activity_logs', $log_data);
-            $id_nonlit = encrypt_url($this->input->post('id_nonlit', TRUE));
-            $this->m_nonlit->update_nonlit_det($data, $id);
-            echo "<script>alert('Berhasil!'); window.location.href='" . base_url('nonlit/detail/' . $id_nonlit) . "';</script>";
+            echo "<script>alert('Gagal: ID tidak ditemukan.'); window.history.back();</script>";
+            return;
         }
+
+        cek_csrf();
+
+        $id        = $this->input->post('id', TRUE);
+        $id_nonlit = $this->input->post('id_nonlit', TRUE);
+        $old_image = $this->input->post('old_image', TRUE);
+
+        $data = array(
+            'tgl_rapat'   => $this->input->post('tgl_rapat', TRUE),
+            'judul_rapat' => $this->input->post('judul_rapat', TRUE),
+            'kesimpulan'  => $this->input->post('kesimpulan', TRUE),
+            'id_nonlit'   => $id_nonlit
+        );
+
+        // Cek jika ada file baru
+        if (!empty($_FILES['new_image_rapat']['name'])) {
+            $config['upload_path']   = './assets/berkas_nonlit/';
+            $config['allowed_types'] = 'pdf';
+            $config['max_size']      = 20480; // 20 MB
+            $config['encrypt_name']  = TRUE;
+
+            $this->load->library('upload', $config);
+
+            if ($this->upload->do_upload('new_image_rapat')) {
+                // Hapus file lama jika ada
+                if (!empty($old_image) && file_exists("./assets/berkas_nonlit/" . $old_image)) {
+                    unlink("./assets/berkas_nonlit/" . $old_image);
+                }
+                $data['berkas'] = $this->upload->data('file_name');
+            } else {
+                $error = $this->upload->display_errors('', '');
+                echo "<script>alert('Gagal Update File: $error'); window.history.back();</script>";
+                return;
+            }
+        }
+
+        // 1. Eksekusi Update ke Database Terlebih Dahulu
+        $this->m_nonlit->update_nonlit_det($data, $id);
+
+        // 2. Catat Log Aktivitas (record_id berisi ID dari nonlit_det)
+        $log_data = array(
+            'user_id'     => $this->session->userdata('id'),
+            'action'      => 'UPDATE',
+            'module'      => 'nonlit_det',
+            'record_id'   => $id,
+            'parent_id'   => $id_nonlit,
+            'description' => 'Mengupdate berkas rapat: ' . $this->input->post('judul_rapat', TRUE),
+            'ip_address'  => $this->input->ip_address(),
+            'created_at'  => date('Y-m-d H:i:s')
+        );
+        $this->db->insert('activity_logs', $log_data);
+
+        // 3. Redirect Halaman
+        $encrypted_id_nonlit = encrypt_url($id_nonlit);
+        echo "<script>alert('Berhasil mengupdate data!'); window.location.href='" . base_url('nonlit/detail/' . $encrypted_id_nonlit) . "';</script>";
     }
+
     function update_nonlit_det2()
     {
         date_default_timezone_set('Asia/Jakarta');
@@ -1352,28 +1365,38 @@ class Nonlit extends CI_Controller
     function hapus_det()
     {
         cek_csrf();
-        $id = $this->input->post('id');
-        $id_nonlit = $this->input->post('id_nonlit');
+
+        $id        = $this->input->post('id', TRUE);
+        $id_nonlit = $this->input->post('id_nonlit', TRUE);
+        $judul     = $this->input->post('judul_rapat', TRUE);
+
+        // Eksekusi Hapus dari Database
         $exe = $this->m_nonlit->hapus_data_det($id);
 
-        // 5. Catat Log Aktivitas (Activity Logs)
-        $log_data = array(
-            'user_id'     => $this->session->userdata('id'),
-            'action'      => 'DELETE',
-            'module'      => 'nonlit_det',
-            'record_id'   => $id_nonlit,
-            'description' => 'Menghapus berkas rapat: ' . $this->input->post('judul_rapat', TRUE),
-            'ip_address'  => $this->input->ip_address(),
-            'created_at'  => date('Y-m-d H:i:s')
-        );
-        $this->db->insert('activity_logs', $log_data);
-
         if ($exe > 0) {
+            // Catat Log Aktivitas HANYA jika proses hapus berhasil
+            $log_data = array(
+                'user_id'     => $this->session->userdata('id'),
+                'action'      => 'DELETE',
+                'module'      => 'nonlit_det',
+                'record_id'   => $id,         // ID Primary Key dari nonlit_det
+                'parent_id'   => $id_nonlit,  // ID Induk dari nonlits // ID dari record nonlit_det yang dihapus
+                'description' => 'Menghapus berkas rapat: ' . $judul,
+                'ip_address'  => $this->input->ip_address(),
+                'created_at'  => date('Y-m-d H:i:s')
+            );
+            $this->db->insert('activity_logs', $log_data);
+
+            $encrypted_id_nonlit = encrypt_url($id_nonlit);
             echo "<script type='text/javascript'>
-                            alert(' Berhasil ');
-                            
-                    window.location.href ='" . base_url('nonlit/detail/' . $id_nonlit) . "';
-                            </script>";
+                alert('Berhasil menghapus data');
+                window.location.href = '" . base_url('nonlit/detail/' . $encrypted_id_nonlit) . "';
+              </script>";
+        } else {
+            echo "<script type='text/javascript'>
+                alert('Gagal menghapus data');
+                window.history.back();
+              </script>";
         }
     }
 

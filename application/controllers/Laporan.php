@@ -410,25 +410,25 @@ class Laporan extends CI_Controller
             $badge = ($row->action == 'CREATE') ? 'badge-success text-white' : 'badge-warning text-white';
             $file_url = '';
 
-            // Cari URL file berdasarkan modulnya
+            // Query langsung berdasarkan Primary Key (record_id)
             if ($row->module == 'nonlit_det') {
-                $get_file = $this->db->select('berkas')->get_where('nonlit_det', ['id' => $row->record_id])->row();
-                if ($get_file && !empty($get_file->berkas)) {
-                    $file_url = base_url('assets/berkas_nonlit/' . $get_file->berkas);
+                $f = $this->db->select('berkas')->get_where('nonlit_det', ['id' => $row->record_id])->row();
+                if ($f && !empty($f->berkas)) {
+                    $file_url = base_url('assets/berkas_nonlit/' . $f->berkas);
                 }
             } else if ($row->module == 'berkas_lampiran') {
-                $get_file = $this->db->select('nama_berkas')->get_where('berkas_lampiran', ['id' => $row->record_id])->row();
-                if ($get_file && !empty($get_file->nama_berkas)) {
-                    $file_url = base_url('assets/berkas_lampiran/' . $get_file->nama_berkas);
+                $f = $this->db->select('nama_berkas')->get_where('berkas_lampiran', ['id' => $row->record_id])->row();
+                if ($f && !empty($f->nama_berkas)) {
+                    $file_url = base_url('assets/berkas_lampiran/' . $f->nama_berkas);
                 }
             } else if ($row->module == 't_upload') {
-                $get_file = $this->db->select('name_berkas')->get_where('db_perkara.t_upload', ['id_berkas' => $row->record_id])->row();
-                if ($get_file && !empty($get_file->name_berkas)) {
-                    $file_url = 'https://assistdpbt.surabaya.go.id/asing/assets/upload/' . $get_file->name_berkas;
+                $f = $this->db->select('name_berkas')->get_where('db_perkara.t_upload', ['id_berkas' => $row->record_id])->row();
+                if ($f && !empty($f->name_berkas)) {
+                    $file_url = 'https://assistdpbt.surabaya.go.id/asing/assets/upload/' . $f->name_berkas;
                 }
             }
 
-            // Tombol Lihat Berkas
+            // Render Tombol Lihat Berkas
             if (!empty($file_url)) {
                 $btn_berkas = '<a href="' . $file_url . '" target="_blank" class="btn btn-[10px] btn-xs btn-primary font-bold rounded-lg gap-1">
                             <i class="mdi mdi-eye"></i> Lihat Berkas
