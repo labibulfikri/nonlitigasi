@@ -399,8 +399,8 @@ class Laporan extends CI_Controller
                     <th>Modul</th>
                     <th>ID Record</th>
                     <th>Keterangan / Berkas</th>
-                    <th>Aksi</th>
-                    <th class="text-center">Aksi Berkas</th>
+                    <th>Aksi Log</th>
+                    <th class="text-center">Aksi / Navigasi</th>
                 </tr>
             </thead>
             <tbody class="text-xs">';
@@ -409,33 +409,70 @@ class Laporan extends CI_Controller
         foreach ($detail_files as $row) {
             $badge = ($row->action == 'CREATE') ? 'badge-success text-white' : 'badge-warning text-white';
             $file_url = '';
+            $perkara_url = '';
 
-            // Query langsung berdasarkan Primary Key (record_id)
+            // 1. Jika Modul Non-Litigasi Detail (nonlit_det)
             if ($row->module == 'nonlit_det') {
-                $f = $this->db->select('berkas')->get_where('nonlit_det', ['id' => $row->record_id])->row();
-                if ($f && !empty($f->berkas)) {
-                    $file_url = base_url('assets/berkas_nonlit/' . $f->berkas);
+                $f = $this->db->select('id_nonlit, berkas')->get_where('nonlit_det', ['id' => $row->record_id])->row();
+                if ($f) {
+                    if (!empty($f->id_nonlit)) {
+                        $encrypted_id = encrypt_url($f->id_nonlit);
+                        $perkara_url = base_url('nonlit/detail/' . $encrypted_id);
+                    }
+                    if (!empty($f->berkas)) {
+                        $file_url = base_url('assets/berkas_nonlit/' . $f->berkas);
+                    }
                 }
-            } else if ($row->module == 'berkas_lampiran') {
-                $f = $this->db->select('nama_berkas')->get_where('berkas_lampiran', ['id' => $row->record_id])->row();
-                if ($f && !empty($f->nama_berkas)) {
-                    $file_url = base_url('assets/berkas_lampiran/' . $f->nama_berkas);
+            }
+            // 2. Jika Modul Berkas Lampiran Non-Litigasi (berkas_lampiran)
+            else if ($row->module == 'berkas_lampiran') {
+                $f = $this->db->select('id_nonlit, nama_berkas')->get_where('berkas_lampiran', ['id' => $row->record_id])->row();
+                if ($f) {
+                    if (!empty($f->id_nonlit)) {
+                        $encrypted_id = encrypt_url($f->id_nonlit);
+                        $perkara_url = base_url('nonlit/detail/' . $encrypted_id);
+                    }
+                    if (!empty($f->nama_berkas)) {
+                        $file_url = base_url('assets/berkas_lampiran/' . $f->nama_berkas);
+                    }
                 }
-            } else if ($row->module == 't_upload') {
-                $f = $this->db->select('name_berkas')->get_where('db_perkara.t_upload', ['id_berkas' => $row->record_id])->row();
-                if ($f && !empty($f->name_berkas)) {
-                    $file_url = 'https://assistdpbt.surabaya.go.id/asing/assets/upload/' . $f->name_berkas;
+            }
+            // 3. Jika Modul Litigasi ASING (t_upload)
+            else if ($row->module == 't_upload') {
+                $f = $this->db->select('berkas_perkara_id, name_berkas')->get_where('db_perkara.t_upload', ['id_berkas' => $row->record_id])->row();
+                if ($f) {
+                    if (!empty($f->berkas_perkara_id)) {
+                        $encrypted_id = encrypt_url($f->berkas_perkara_id);
+                        $perkara_url = base_url('asing/detail/' . $encrypted_id);
+                    }
+                    if (!empty($f->name_berkas)) {
+                        $file_url = 'https://assistdpbt.surabaya.go.id/asing/assets/upload/' . $f->name_berkas;
+                    }
                 }
             }
 
-            // Render Tombol Lihat Berkas
-            if (!empty($file_url)) {
-                $btn_berkas = '<a href="' . $file_url . '" target="_blank" class="btn btn-[10px] btn-xs btn-primary font-bold rounded-lg gap-1">
-                            <i class="mdi mdi-eye"></i> Lihat Berkas
-                           </a>';
-            } else {
-                $btn_berkas = '<span class="text-slate-400 italic text-[10px]">Tidak ada file</span>';
+            // Render Tombol Navigasi Perkara & Berkas
+            $btn_actions = '<div class="flex items-center justify-center gap-1.5">';
+
+            // Tombol Ke Detail Perkara Induk
+            if (!empty($perkara_url)) {
+                $btn_actions .= '<a href="' . $perkara_url . '" target="_blank" class="btn btn-[10px] btn-xs btn-indigo bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg gap-1" title="Buka Detail Perkara Induk">
+                                <i class="mdi mdi-folder-open"></i> Buka Perkara
+                             </a>';
             }
+
+            // Tombol Lihat File Berkas
+            if (!empty($file_url)) {
+                $btn_actions .= '<a href="' . $file_url . '" target="_blank" class="btn btn-[10px] btn-xs btn-outline btn-primary font-bold rounded-lg gap-1" title="Lihat Berkas PDF">
+                                <i class="mdi mdi-file-pdf-box"></i> Berkas
+                             </a>';
+            }
+
+            if (empty($perkara_url) && empty($file_url)) {
+                $btn_actions .= '<span class="text-slate-400 italic text-[10px]">Data tidak ditemukan</span>';
+            }
+
+            $btn_actions .= '</div>';
 
             $html .= '
                 <tr class="hover:bg-slate-50 align-middle">
@@ -445,7 +482,7 @@ class Laporan extends CI_Controller
                     <td class="font-bold text-indigo-600">#' . htmlspecialchars($row->record_id) . '</td>
                     <td class="text-slate-700 max-w-xs truncate" title="' . htmlspecialchars($row->description) . '">' . htmlspecialchars($row->description) . '</td>
                     <td><span class="badge badge-xs font-bold ' . $badge . '">' . $row->action . '</span></td>
-                    <td class="text-center">' . $btn_berkas . '</td>
+                    <td class="text-center">' . $btn_actions . '</td>
                 </tr>';
         }
 
@@ -456,6 +493,7 @@ class Laporan extends CI_Controller
 
         echo $html;
     }
+
     public function dashboard_harian()
     {
         $tanggal = $this->input->get('tanggal') ?: date('Y-m-d');
