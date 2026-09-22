@@ -153,9 +153,22 @@
 
                 <ul class="menu p-0 w-full space-y-1">
                     <li>
-                        <a href="<?= base_url('home') ?>" class="py-3 <?= $this->uri->segment(1) == 'home' || $this->uri->segment(1) == '' ? 'active-menu' : '' ?>">
+                        <!-- 1. Menu Dashboard / Home -->
+                        <a href="<?= base_url('home') ?>" class="py-3 <?= ($this->uri->segment(1) == 'home' || $this->uri->segment(1) == '') ? 'active-menu' : '' ?>">
                             <i class="mdi mdi-home-variant-outline text-xl"></i>
                             <span class="sidebar-text font-bold text-sm ml-1">Dashboard</span>
+                        </a>
+
+                        <!-- 2. Menu Log / Dashboard Harian -->
+                        <a href="<?= base_url('laporan/dashboard_harian') ?>" class="py-3 <?= ($this->uri->segment(1) == 'laporan' && $this->uri->segment(2) == 'dashboard_harian') ? 'active-menu' : '' ?>">
+                            <i class="mdi mdi-history text-xl"></i>
+                            <span class="sidebar-text font-bold text-sm ml-1">Log</span>
+                        </a>
+
+                        <!-- 3. Menu Dashboard Scan -->
+                        <a href="<?= base_url('laporan/progres_scan') ?>" class="py-3 <?= ($this->uri->segment(1) == 'laporan' && $this->uri->segment(2) == 'progres_scan') ? 'active-menu' : '' ?>">
+                            <i class="mdi mdi-qrcode-scan text-xl"></i>
+                            <span class="sidebar-text font-bold text-sm ml-1">Dashboard Scan</span>
                         </a>
                     </li>
 

@@ -344,4 +344,159 @@ class Laporan extends CI_Controller
         // Load view template excel
         $this->load->view('laporan/excel_template', ['data' => $data_laporan]);
     }
+
+    ////////////
+
+    // public function dashboard_harian()
+    // {
+    //     // Tangkap parameter filter tanggal (default: Hari ini)
+    //     $tanggal = $this->input->get('tanggal') ?: date('Y-m-d');
+    //     $user_id = $this->input->get('user_id') ?: '';
+
+    //     // Ambil data statistik ringkasan harian
+    //     $stats = $this->m_laporan->get_daily_summary($tanggal);
+
+    //     // Ambil riwayat aktivitas detail
+    //     $logs = $this->m_laporan->get_activity_logs($tanggal, $user_id);
+
+    //     // Ambil daftar petugas untuk dropdown filter
+    //     $list_user = $this->m_laporan->get_users();
+
+    //     $data = array(
+    //         'title'       => 'Dashboard Aktivitas Harian Petugas',
+    //         'tanggal'     => $tanggal,
+    //         'selected_user' => $user_id,
+    //         'stats'       => $stats,
+    //         'logs'        => $logs,
+    //         'list_user'   => $list_user,
+    //         'masterpage'  => 'layout/layout2',
+    //         'content'     => 'laporan/dashboard_harian'
+    //     );
+
+    //     $this->load->view($data['masterpage'], $data);
+    // }
+
+    public function get_detail_user_upload()
+    {
+        $user_id  = $this->input->post('user_id', TRUE);
+        $tanggal  = $this->input->post('tanggal', TRUE);
+        $kategori = $this->input->post('kategori', TRUE);
+
+        $detail_files = $this->m_laporan->get_user_upload_detail($user_id, $tanggal, $kategori);
+
+        if (empty($detail_files)) {
+            echo '<div class="alert alert-warning text-xs font-bold">Tidak ada rincian berkas untuk user ini pada tanggal tersebut.</div>';
+            return;
+        }
+
+        $html = '
+    <div class="overflow-x-auto">
+        <table class="table table-xs w-full">
+            <thead>
+                <tr class="bg-slate-100 text-slate-600 uppercase text-[10px]">
+                    <th>No</th>
+                    <th>Waktu</th>
+                    <th>Modul</th>
+                    <th>ID Record</th>
+                    <th>Keterangan / Berkas</th>
+                    <th>Aksi</th>
+                    <th class="text-center">Aksi Berkas</th>
+                </tr>
+            </thead>
+            <tbody class="text-xs">';
+
+        $no = 1;
+        foreach ($detail_files as $row) {
+            $badge = ($row->action == 'CREATE') ? 'badge-success text-white' : 'badge-warning text-white';
+            $file_url = '';
+
+            // Cari URL file berdasarkan modulnya
+            if ($row->module == 'nonlit_det') {
+                $get_file = $this->db->select('berkas')->get_where('nonlit_det', ['id' => $row->record_id])->row();
+                if ($get_file && !empty($get_file->berkas)) {
+                    $file_url = base_url('assets/berkas_nonlit/' . $get_file->berkas);
+                }
+            } else if ($row->module == 'berkas_lampiran') {
+                $get_file = $this->db->select('nama_berkas')->get_where('berkas_lampiran', ['id' => $row->record_id])->row();
+                if ($get_file && !empty($get_file->nama_berkas)) {
+                    $file_url = base_url('assets/berkas_lampiran/' . $get_file->nama_berkas);
+                }
+            } else if ($row->module == 't_upload') {
+                $get_file = $this->db->select('name_berkas')->get_where('db_perkara.t_upload', ['id_berkas' => $row->record_id])->row();
+                if ($get_file && !empty($get_file->name_berkas)) {
+                    $file_url = 'https://assistdpbt.surabaya.go.id/asing/assets/upload/' . $get_file->name_berkas;
+                }
+            }
+
+            // Tombol Lihat Berkas
+            if (!empty($file_url)) {
+                $btn_berkas = '<a href="' . $file_url . '" target="_blank" class="btn btn-[10px] btn-xs btn-primary font-bold rounded-lg gap-1">
+                            <i class="mdi mdi-eye"></i> Lihat Berkas
+                           </a>';
+            } else {
+                $btn_berkas = '<span class="text-slate-400 italic text-[10px]">Tidak ada file</span>';
+            }
+
+            $html .= '
+                <tr class="hover:bg-slate-50 align-middle">
+                    <td class="font-bold">' . $no++ . '</td>
+                    <td class="font-mono text-[11px]">' . date('H:i:s', strtotime($row->created_at)) . ' WIB</td>
+                    <td class="font-mono font-bold uppercase text-slate-600">' . htmlspecialchars($row->module) . '</td>
+                    <td class="font-bold text-indigo-600">#' . htmlspecialchars($row->record_id) . '</td>
+                    <td class="text-slate-700 max-w-xs truncate" title="' . htmlspecialchars($row->description) . '">' . htmlspecialchars($row->description) . '</td>
+                    <td><span class="badge badge-xs font-bold ' . $badge . '">' . $row->action . '</span></td>
+                    <td class="text-center">' . $btn_berkas . '</td>
+                </tr>';
+        }
+
+        $html .= '
+            </tbody>
+        </table>
+    </div>';
+
+        echo $html;
+    }
+    public function dashboard_harian()
+    {
+        $tanggal = $this->input->get('tanggal') ?: date('Y-m-d');
+        $user_id = $this->input->get('user_id') ?: '';
+        $action  = $this->input->get('action') ?: '';
+        $module  = $this->input->get('module') ?: '';
+
+        $stats     = $this->m_laporan->get_log_stats($tanggal);
+        $logs      = $this->m_laporan->get_logs($tanggal, $user_id, $action, $module);
+        $list_user = $this->m_laporan->get_users();
+
+        $data = array(
+            'title'         => 'Dashboard Log Aktivitas Harian',
+            'tanggal'       => $tanggal,
+            'selected_user' => $user_id,
+            'selected_act'  => $action,
+            'selected_mod'  => $module,
+            'stats'         => $stats,
+            'logs'          => $logs,
+            'list_user'     => $list_user,
+            'masterpage'    => 'layout/layout2',
+            'content'       => 'laporan/dashboard_harian'
+        );
+
+        $this->load->view($data['masterpage'], $data);
+    }
+    ///////////////
+    public function progres_scan()
+    {
+        $tanggal = $this->input->get('tanggal') ?: date('Y-m-d');
+
+        // Ambil data riil dari database lewat model
+        $progres = $this->m_laporan->get_progres_scan($tanggal);
+
+        $data = array(
+            'title'      => 'Progres Digitalisasi & Scan Berkas',
+            'progres'    => $progres,
+            'masterpage' => 'layout/layout2',
+            'content'    => 'laporan/dashboard_scan'
+        );
+
+        $this->load->view($data['masterpage'], $data);
+    }
 }

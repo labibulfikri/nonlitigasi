@@ -408,15 +408,17 @@ class M_home extends CI_Model
     }
 
 
-     ////////////////////
-public function count_all_dashboard($tahun = '', $status = '') {
+    ////////////////////
+    public function count_all_dashboard($tahun = '', $status = '')
+    {
         $this->db->from('nonlits');
         if (!empty($tahun)) $this->db->where('YEAR(tgl_nonlit)', $tahun);
         if (!empty($status)) $this->db->where('status', $status);
         return $this->db->count_all_results();
     }
 
-    public function count_by_status($status, $tahun = '') {
+    public function count_by_status($status, $tahun = '')
+    {
         $this->db->from('nonlits');
         $this->db->where('status', $status);
         if (!empty($tahun)) $this->db->where('YEAR(tgl_nonlit)', $tahun);
@@ -424,39 +426,42 @@ public function count_all_dashboard($tahun = '', $status = '') {
     }
 
     // 3. Mengambil data untuk Stacked Bar Chart
-    public function get_monthly_stacked($tahun, $jenis, $status_filter) {
+    public function get_monthly_stacked($tahun, $jenis, $status_filter)
+    {
         $this->db->select("MONTH(tgl_nonlit) as bulan, 
                            SUM(CASE WHEN status = 'proses' THEN 1 ELSE 0 END) as proses,
                            SUM(CASE WHEN status = 'selesai' THEN 1 ELSE 0 END) as selesai");
         $this->db->from('nonlits');
         $this->db->where('jenis', $jenis);
-        
+
         if (!empty($tahun)) $this->db->where('YEAR(tgl_nonlit)', $tahun);
         if (!empty($status_filter)) $this->db->where('status', $status_filter);
-        
+
         $this->db->group_by('MONTH(tgl_nonlit)');
         $this->db->order_by('bulan', 'ASC');
         return $this->db->get()->result();
     }
 
     // 4. Mengambil detail data untuk Modal saat Bar diklik
-   public function get_detail_dashboard($bulan, $tahun = '', $status = '', $jenis = '') {
-    $this->db->select('*');
-    $this->db->from('nonlits');
-    $this->db->where('MONTH(tgl_nonlit)', $bulan);
-    
-    if (!empty($tahun)) $this->db->where('YEAR(tgl_nonlit)', $tahun);
-    if (!empty($status)) $this->db->where('status', $status);
-    if (!empty($jenis)) $this->db->where('jenis', $jenis);
-
-    $this->db->order_by('tgl_nonlit', 'DESC');
-    return $this->db->get()->result();
-}
- // Ambil Detail Berdasarkan Klik Bar
-    public function get_detail_by_instansi($instansi, $status, $jenis, $tahun = '') {
+    public function get_detail_dashboard($bulan, $tahun = '', $status = '', $jenis = '')
+    {
         $this->db->select('*');
         $this->db->from('nonlits');
-        
+        $this->db->where('MONTH(tgl_nonlit)', $bulan);
+
+        if (!empty($tahun)) $this->db->where('YEAR(tgl_nonlit)', $tahun);
+        if (!empty($status)) $this->db->where('status', $status);
+        if (!empty($jenis)) $this->db->where('jenis', $jenis);
+
+        $this->db->order_by('tgl_nonlit', 'DESC');
+        return $this->db->get()->result();
+    }
+    // Ambil Detail Berdasarkan Klik Bar
+    public function get_detail_by_instansi($instansi, $status, $jenis, $tahun = '')
+    {
+        $this->db->select('*');
+        $this->db->from('nonlits');
+
         // Logika pencarian instansi agar sinkron dengan label Chart
         if ($instansi == 'INTERNAL BPKAD') {
             $this->db->group_start();
@@ -477,19 +482,20 @@ public function count_all_dashboard($tahun = '', $status = '') {
         $this->db->order_by('tgl_nonlit', 'DESC');
         return $this->db->get()->result();
     }
-// Ambil tren berdasarkan Instansi (Stacked: Proses & Selesai)
-// Statistik Per Team/Instansi (Untuk Bar Chart)
-    public function get_stats_per_instansi($tahun, $jenis, $status_filter) {
+    // Ambil tren berdasarkan Instansi (Stacked: Proses & Selesai)
+    // Statistik Per Team/Instansi (Untuk Bar Chart)
+    public function get_stats_per_instansi($tahun, $jenis, $status_filter)
+    {
         // Mengubah team_nonlit kosong menjadi 'INTERNAL BPKAD'
         $this->db->select("IF(team_nonlit = '' OR team_nonlit IS NULL, 'INTERNAL BPKAD', team_nonlit) as instansi, 
                            SUM(CASE WHEN status = 'proses' THEN 1 ELSE 0 END) as proses,
                            SUM(CASE WHEN status = 'selesai' THEN 1 ELSE 0 END) as selesai");
         $this->db->from('nonlits');
         $this->db->where('jenis', $jenis);
-        
+
         if (!empty($tahun)) $this->db->where('YEAR(tgl_nonlit)', $tahun);
         if (!empty($status_filter)) $this->db->where('status', $status_filter);
-        
+
         $this->db->group_by('instansi');
         $this->db->order_by('proses', 'DESC');
         return $this->db->get()->result();
