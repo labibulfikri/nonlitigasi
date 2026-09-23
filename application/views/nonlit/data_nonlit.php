@@ -487,6 +487,14 @@
                     <span class="text-[10px] font-bold text-slate-400">•</span>
                     <span class="text-[10px] font-bold text-purple-600 flex items-center gap-1 uppercase tracking-tighter"><i class="mdi mdi-archive-outline"></i> RAK: ${item.penyimpanan_rak || '-'} </span> 
                     <span class="text-[10px] font-bold text-teal-600 flex items-center gap-1 uppercase tracking-tighter"><i class="mdi mdi-archive-outline"></i>  No Register: ${item.register_baru || '-'} </span> 
+                    <!-- BADGE TOTAL BERKAS & KRONOLOGI -->
+                        <span class="text-[10px] font-bold text-slate-400">•</span>
+                        <span class="text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md flex items-center gap-1" title="Total Berkas Lampiran">
+                            <i class="mdi mdi-paperclip text-blue-500"></i> ${item.total_berkas || 0} Berkas Lampiran
+                        </span>
+                        <span class="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md flex items-center gap-1" title="Total Progres / Kronologi">
+                            <i class="mdi mdi-timeline-text-outline text-indigo-500"></i> ${item.total_det || 0} Berkas Rapat
+                        </span>
                 </div>
                 </div>
                 </a>
@@ -532,7 +540,7 @@
                 </div>
             </div>
 
-            <a href="<?php echo base_url('nonlit/detail/' . '${item.id}') ?>">
+            <a href="<?php echo base_url('nonlit/detail/' . '${item.encrypted_id}') ?>">
             <div class="mb-6">
                 <p class="text-[9px] font-black ${cfg.color} uppercase tracking-[0.2em] mb-1">${cfg.label}</p>
                 <h4 class="font-black text-slate-800 text-sm uppercase leading-tight line-clamp-3 min-h-[3rem] italic group-hover:text-blue-600 transition-colors">
@@ -550,6 +558,15 @@
                 <div class="flex items-center justify-between">
                     <span class="text-[9px] font-bold text-slate-400 uppercase leading-none">POSISI ARSIP</span>
                     <span class="text-[10px] font-black text-purple-600 uppercase italic">RAK ${item.penyimpanan_rak || '-'}</span>
+                </div>
+                <!-- BADGE HITUNGAN KRONOLOGI & BERKAS -->
+                <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between gap-1">
+                    <span class="text-[9px] font-extrabold text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded-lg flex items-center gap-1 w-full justify-center">
+                        <i class="mdi mdi-paperclip text-blue-500"></i> ${item.total_berkas || 0} Berkas
+                    </span>
+                    <span class="text-[9px] font-extrabold text-indigo-600 bg-indigo-100/70 px-2 py-0.5 rounded-lg flex items-center gap-1 w-full justify-center">
+                        <i class="mdi mdi-timeline-text-outline text-indigo-500"></i> ${item.total_det || 0} Detail
+                    </span>
                 </div>
             </div>
         </div> 

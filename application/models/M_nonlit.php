@@ -131,9 +131,10 @@ class M_nonlit extends CI_Model
     {
         $table = "nonlits";
 
-        // Select column
+        // TAMBAHKAN 'jenis' KE DALAM SELECT COLUMN DI BAWAH INI
         $select_column = "
         nonlits.id, 
+        nonlits.jenis, 
         permohonan_nonlit, 
         tgl_nonlit, 
         penyimpanan_rak, 
@@ -148,9 +149,12 @@ class M_nonlit extends CI_Model
         luas,
         updated_at,
         det.kesimpulan,
-        det.tgl_rapat as tgl_update_progres";
+        det.tgl_rapat as tgl_update_progres,
+        (SELECT COUNT(id) FROM nonlit_det WHERE nonlit_det.id_nonlit = nonlits.id) AS total_det,
+        (SELECT COUNT(id) FROM berkas_lampiran WHERE berkas_lampiran.id_nonlit = nonlits.id) AS total_berkas
+    ";
 
-        $this->db->select($select_column);
+        $this->db->select($select_column, FALSE);
         $this->db->from($table);
         $this->db->join('users', 'users.id = nonlits.updated_by', 'left');
 
@@ -164,7 +168,7 @@ class M_nonlit extends CI_Model
         )
     ) det', 'nonlits.id = det.id_nonlit', 'left');
 
-        // Filter dari Pencarian Filter Atas
+        // Filter Atas
         if ($this->input->post('tahun') && $this->input->post('tahun') != 'all') {
             $this->db->where('YEAR(tgl_nonlit)', $this->input->post('tahun'));
         }
@@ -175,9 +179,8 @@ class M_nonlit extends CI_Model
             $this->db->where('pic', $this->input->post('pic'));
         }
 
-        // --- PERBAIKAN DI SINI ---
+        // Pencarian Global DataTables
         $i = 0;
-        // Ganti 'det.progres_terakhir' menjadi 'det.kesimpulan' agar sesuai dengan alias join
         $column_search = array('team_nonlit', 'permohonan_nonlit', 'status', 'pic', 'det.kesimpulan', 'register_baru');
 
         foreach ($column_search as $item) {
@@ -199,22 +202,22 @@ class M_nonlit extends CI_Model
         $this->db->order_by('nonlits.id', 'desc');
     }
 
-    function make_datatables($search, $start, $length)
+    function make_datatables($search = '', $start = 0, $length = 10)
     {
-
-        $this->_get_datatables_query($search);
+        $this->make_query();
         if ($length != -1) $this->db->limit($length, $start);
         return $this->db->get()->result();
     }
 
-    function get_filtered_data($search)
+    function get_filtered_data($search = '')
     {
-        $this->_get_datatables_query($search);
+        $this->make_query();
         return $this->db->get()->num_rows();
     }
+
     function get_all_data()
     {
-        return $this->db->count_all_results($this->table);
+        return $this->db->count_all_results('nonlits');
     }
 
 

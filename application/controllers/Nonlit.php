@@ -79,7 +79,7 @@ class Nonlit extends CI_Controller
             $sub_array['no']                = $no;
             $sub_array['id']                = $row->id;
             $sub_array['encrypted_id']      = encrypt_url($row->id);
-            $sub_array['jenis']             = $row->jenis;
+            $sub_array['jenis'] = $row->jenis ?? 'nonlit';
             $sub_array['register_baru']     = $row->register_baru;
             $sub_array['permohonan_nonlit'] = strtoupper(strip_tags($row->permohonan_nonlit));
             $sub_array['pic']               = $row->pic ?: 'N/A';
@@ -87,6 +87,10 @@ class Nonlit extends CI_Controller
             $sub_array['status']            = strtolower($row->status);
             $sub_array['penyimpanan_rak'] = strtoupper($row->penyimpanan_rak ?: '-');
             // ... (lanjutkan field lainnya seperti sebelumnya)
+
+            // --- FIELD TOTAL HITUNGAN BARU ---
+            $sub_array['total_det']    = (int) $row->total_det;    // Jumlah kronologi/rapat
+            $sub_array['total_berkas'] = (int) $row->total_berkas; // Jumlah berkas lampiran
             $data[] = $sub_array;
         }
 
