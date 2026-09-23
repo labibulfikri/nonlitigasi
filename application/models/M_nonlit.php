@@ -472,25 +472,45 @@ class M_nonlit extends CI_Model
         return  $insert_id;
     }
 
-    function upload_berkas_nonlit($data)
+
+    public function upload_berkas_nonlit($data)
     {
-        date_default_timezone_set('Asia/Jakarta'); // Untuk WIB 
+        date_default_timezone_set('Asia/Jakarta');
 
         $this->db->insert('berkas_lampiran', $data);
-        $insert_id = $this->db->insert_id();
+        $insert_id = $this->db->insert_id(); // Ambil ID berkas_lampiran yang baru di-insert
 
         if ($insert_id) {
-
             $datanya = array(
                 'updated_at' => date('Y-m-d H:i:s'),
                 'updated_by' => $this->session->userdata('id')
             );
-            $exe = $this->db->where('id', $data['id_nonlit']);
-            $exe = $this->db->update('nonlits', $datanya);
+            $this->db->where('id', $data['id_nonlit']);
+            $this->db->update('nonlits', $datanya);
         }
 
-        return  $insert_id;
+        return $insert_id; // Kembalikan ID berkas lampiran ke controller
     }
+
+    // function upload_berkas_nonlit($data)
+    // {
+    //     date_default_timezone_set('Asia/Jakarta'); // Untuk WIB 
+
+    //     $this->db->insert('berkas_lampiran', $data);
+    //     $insert_id = $this->db->insert_id();
+
+    //     if ($insert_id) {
+
+    //         $datanya = array(
+    //             'updated_at' => date('Y-m-d H:i:s'),
+    //             'updated_by' => $this->session->userdata('id')
+    //         );
+    //         $exe = $this->db->where('id', $data['id_nonlit']);
+    //         $exe = $this->db->update('nonlits', $datanya);
+    //     }
+
+    //     return  $insert_id;
+    // }
 
 
     function update_nonlit_det($data, $id)

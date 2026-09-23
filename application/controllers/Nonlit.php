@@ -976,8 +976,8 @@ class Nonlit extends CI_Controller
         // Konfigurasi Library Upload
         $config['upload_path']   = './assets/berkas_lampiran/';
         $config['allowed_types'] = 'pdf|jpg|png';
-        $config['max_size']      = 20480; // 20 MB (Cukup untuk file 15 MB)
-        $config['encrypt_name']  = TRUE;  // Penting untuk keamanan
+        $config['max_size']      = 20480; // 20 MB
+        $config['encrypt_name']  = TRUE;
 
         $this->load->library('upload', $config);
 
@@ -995,24 +995,28 @@ class Nonlit extends CI_Controller
                 "keterangan"   => $this->input->post('keterangan', TRUE)
             );
 
-            $this->m_nonlit->upload_berkas_nonlit($data);
+            // Panggil model dan tangkap ID Berkas Lampiran
+            $id_berkas = $this->m_nonlit->upload_berkas_nonlit($data);
 
-            // 5. Catat Log Aktivitas (Activity Logs)
+            // Catat Log Aktivitas
             $log_data = array(
                 'user_id'     => $this->session->userdata('id'),
                 'action'      => 'CREATE',
                 'module'      => 'berkas_lampiran',
-                'record_id'   => $id_nonlit,
+                'record_id'   => $id_berkas, // ID Berkas Lampiran
+                'parent_id'   => $id_nonlit, // ID Nonlit (Parent)
                 'description' => 'Mengunggah berkas lampiran baru: ' . $this->input->post('judul_berkas', TRUE),
                 'ip_address'  => $this->input->ip_address(),
                 'created_at'  => date('Y-m-d H:i:s')
             );
             $this->db->insert('activity_logs', $log_data);
-            $id_nonlit = encrypt_url($id_nonlit); // Enkripsi ID sebelum redirect
+
+            $id_nonlit_encrypted = encrypt_url($id_nonlit); // Enkripsi ID sebelum redirect
+
             echo "<script>
-                alert('Berhasil menambahkan data :)');
-                window.location.href = '" . base_url('nonlit/tab_kronologi/' . $id_nonlit) . "';
-              </script>";
+            alert('Berhasil menambahkan data :)');
+            window.location.href = '" . base_url('nonlit/tab_kronologi/' . $id_nonlit_encrypted) . "';
+          </script>";
         }
     }
     function upload_berkas_lampiran2()
@@ -1278,7 +1282,8 @@ class Nonlit extends CI_Controller
             'user_id'     => $this->session->userdata('id'),
             'action'      => 'UPDATE',
             'module'      => 'berkas_lampiran',
-            'record_id'   => $id_nonlit,
+            'record_id'   => $id_berkas,
+            'parent_id'   => $id_nonlit,
             'description' => 'Mengupdate berkas lampiran baru: ' . $this->input->post('judul_berkas', TRUE),
             'ip_address'  => $this->input->ip_address(),
             'created_at'  => date('Y-m-d H:i:s')
@@ -1415,7 +1420,8 @@ class Nonlit extends CI_Controller
             'user_id'     => $this->session->userdata('id'),
             'action'      => 'DELETE',
             'module'      => 'berkas_lampiran',
-            'record_id'   => $id_nonlit,
+            'record_id'   => $id,
+            'parent_id'   => $id_nonlit,
             'description' => 'Menghapus berkas lampiran: ' . $this->input->post('judul_rapat', TRUE),
             'ip_address'  => $this->input->ip_address(),
             'created_at'  => date('Y-m-d H:i:s')
