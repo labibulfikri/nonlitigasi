@@ -1528,4 +1528,41 @@ class Nonlit extends CI_Controller
             echo json_encode(['status' => false, 'msg' => 'Gagal membuat link']);
         }
     }
+
+
+    // Halaman Utama Perpustakaan Berkas
+    public function pustaka()
+    {
+        $data_pic = $this->db->get('users')->result(); // Contoh ambil data PIC jika dibutuhkan
+
+        $data = array(
+            'masterpage' => 'layout/layout2',
+            'content'    => 'pustaka/index', // Lokasi view konten perpustakaan
+            'list_pic'   => $data_pic,
+            'title'      => 'Perpustakaan Berkas Terpadu'
+        );
+
+        $this->load->view($data['masterpage'], $data);
+    }
+
+    // Endpoint AJAX Pencarian Berkas
+    public function ajax_search_pustaka()
+    {
+        $keyword  = $this->input->get('q', TRUE);
+        $kategori = $this->input->get('kategori', TRUE) ? $this->input->get('kategori', TRUE) : 'ALL';
+        $kriteria = $this->input->get('kriteria', TRUE) ? $this->input->get('kriteria', TRUE) : 'ALL';
+        $page     = $this->input->get('page', TRUE) ? (int)$this->input->get('page', TRUE) : 1;
+        $limit    = 20;
+        $offset   = ($page - 1) * $limit;
+
+        $hasil = $this->m_nonlit->cari_pustaka_berkas($keyword, $kategori, $kriteria, $limit, $offset);
+
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_status_header(200)
+            ->set_output(json_encode([
+                'status' => true,
+                'data'   => $hasil
+            ]));
+    }
 }

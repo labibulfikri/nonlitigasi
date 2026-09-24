@@ -775,4 +775,156 @@ class M_nonlit extends CI_Model
         // // Kembalikan data dalam format array
         // return array_values($data);
     }
+
+
+
+
+    /**
+     * Perpustakaan Berkas - Global Search
+     */
+    public function cari_pustaka_berkas($keyword = '', $kategori = 'ALL', $kriteria = 'ALL', $limit = 20, $offset = 0)
+    {
+        if (empty(trim($keyword))) {
+            return [];
+        }
+
+        // Ambil nama database utama yang sedang aktif di CI (misal: db_nonlit)
+        $db_main = $this->db->database;
+
+        $keyword_param = '%' . $this->db->escape_like_str($keyword) . '%';
+        $unions = [];
+        $params = [];
+
+        // 1. NONLIT_DET
+        if ($kategori === 'ALL' || $kategori === 'NONLIT') {
+            $sql_nonlit = "
+                SELECT 
+                    nd.id as id_file,
+                    'NONLIT' as kategori,
+                    n.id as id_perkara,
+                    n.register_baru as nomor_register,
+                    n.permohonan_nonlit as nama_pihak,
+                    COALESCE(NULLIF(nd.judul_rapat, ''), nd.berkas) as label_berkas,
+                    nd.berkas as nama_file,
+                    'pdf' as tipe_file,
+                    CONCAT('assets/berkas_nonlit/', nd.berkas) as file_path
+                FROM `{$db_main}`.nonlit_det nd
+                JOIN `{$db_main}`.nonlits n ON CAST(n.id AS CHAR) = nd.id_nonlit
+                WHERE nd.berkas IS NOT NULL AND nd.berkas != ''
+            ";
+
+            if ($kriteria === 'PIHAK') {
+                $sql_nonlit .= " AND n.permohonan_nonlit LIKE ?";
+                $params[] = $keyword_param;
+            } else if ($kriteria === 'NOMOR') {
+                $sql_nonlit .= " AND n.register_baru LIKE ?";
+                $params[] = $keyword_param;
+            } else if ($kriteria === 'MASALAH') {
+                $sql_nonlit .= " AND (n.keterangan LIKE ? OR nd.kesimpulan LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param);
+            } else if ($kriteria === 'BERKAS') {
+                $sql_nonlit .= " AND (nd.berkas LIKE ? OR nd.judul_rapat LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param);
+            } else {
+                // ALL (Semua Field)
+                $sql_nonlit .= " AND (nd.berkas LIKE ? OR nd.judul_rapat LIKE ? OR n.register_baru LIKE ? OR n.permohonan_nonlit LIKE ? OR n.keterangan LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param, $keyword_param, $keyword_param, $keyword_param);
+            }
+
+            $unions[] = $sql_nonlit;
+        }
+
+        // 2. BERKAS_LAMPIRAN
+        if ($kategori === 'ALL' || $kategori === 'LAMPIRAN') {
+            $sql_lampiran = "
+                SELECT 
+                    bl.id as id_file,
+                    'LAMPIRAN' as kategori,
+                    n.id as id_perkara,
+                    n.register_baru as nomor_register,
+                    n.permohonan_nonlit as nama_pihak,
+                    COALESCE(NULLIF(bl.judul_berkas, ''), bl.nama_berkas) as label_berkas,
+                    bl.nama_berkas as nama_file,
+                    bl.file_type as tipe_file,
+                    CONCAT('assets/berkas_lampiran/', bl.nama_berkas) as file_path
+                FROM `{$db_main}`.berkas_lampiran bl
+                JOIN `{$db_main}`.nonlits n ON CAST(n.id AS CHAR) = bl.id_nonlit
+                WHERE bl.nama_berkas IS NOT NULL AND bl.nama_berkas != ''
+            ";
+
+            if ($kriteria === 'PIHAK') {
+                $sql_lampiran .= " AND n.permohonan_nonlit LIKE ?";
+                $params[] = $keyword_param;
+            } else if ($kriteria === 'NOMOR') {
+                $sql_lampiran .= " AND n.register_baru LIKE ?";
+                $params[] = $keyword_param;
+            } else if ($kriteria === 'MASALAH') {
+                $sql_lampiran .= " AND (n.keterangan LIKE ? OR bl.keterangan LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param);
+            } else if ($kriteria === 'BERKAS') {
+                $sql_lampiran .= " AND (bl.nama_berkas LIKE ? OR bl.judul_berkas LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param);
+            } else {
+                // ALL (Semua Field)
+                $sql_lampiran .= " AND (bl.nama_berkas LIKE ? OR bl.judul_berkas LIKE ? OR n.register_baru LIKE ? OR n.permohonan_nonlit LIKE ? OR n.keterangan LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param, $keyword_param, $keyword_param, $keyword_param);
+            }
+
+            $unions[] = $sql_lampiran;
+        }
+
+        // 3. LITIGASI ASING (db_perkara.t_upload)
+        if ($kategori === 'ALL' || $kategori === 'ASING') {
+            $sql_asing = "
+                SELECT 
+                    tu.id_berkas as id_file,
+                    'ASING' as kategori,
+                    tp.perkara_id as id_perkara,
+                    COALESCE(NULLIF(tpd.perkaradet_no, ''), tp.perkara_no, tp.register_baru) as nomor_register,
+                    CONCAT(COALESCE(tp.perkara_penggugat, ''), ' vs ', COALESCE(tp.perkara_tergugat, '')) as nama_pihak,
+                    COALESCE(NULLIF(tpd.perkaradet_no, ''), tu.name_berkas, tp.perkara_no) as label_berkas,
+                    tu.name_berkas as nama_file,
+                    tu.type_file as tipe_file,
+                    CONCAT('https://assistdpbt.surabaya.go.id/asing/assets/upload/', tu.name_berkas) as file_path
+                FROM db_perkara.t_upload tu
+                LEFT JOIN db_perkara.t_perkara tp ON CAST(tp.perkara_id AS CHAR) = tu.berkas_perkara_id
+                LEFT JOIN db_perkara.t_perkara_detail tpd ON CAST(tpd.perkaradet_id AS CHAR) = tu.berkas_perkaradet_id
+                WHERE tu.name_berkas IS NOT NULL AND tu.name_berkas != ''
+            ";
+
+            if ($kriteria === 'PIHAK') {
+                $sql_asing .= " AND (tp.perkara_penggugat LIKE ? OR tp.perkara_tergugat LIKE ? OR tp.perkara_pihak LIKE ? OR tpd.perkaradet_pihak LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param, $keyword_param, $keyword_param);
+            } else if ($kriteria === 'NOMOR') {
+                $sql_asing .= " AND (tp.perkara_no LIKE ? OR tp.register_baru LIKE ? OR tpd.perkaradet_no LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param, $keyword_param);
+            } else if ($kriteria === 'MASALAH') {
+                $sql_asing .= " AND (tp.perkara_objek LIKE ? OR tp.perkara_jenis LIKE ? OR tpd.perkaradet_keterangan LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param, $keyword_param);
+            } else if ($kriteria === 'BERKAS') {
+                $sql_asing .= " AND tu.name_berkas LIKE ?";
+                $params[] = $keyword_param;
+            } else {
+                // ALL (Semua Field)
+                $sql_asing .= " AND (tu.name_berkas LIKE ? OR tp.perkara_no LIKE ? OR tp.register_baru LIKE ? OR tpd.perkaradet_no LIKE ? OR tp.perkara_penggugat LIKE ? OR tp.perkara_tergugat LIKE ? OR tp.perkara_objek LIKE ?)";
+                array_push($params, $keyword_param, $keyword_param, $keyword_param, $keyword_param, $keyword_param, $keyword_param, $keyword_param);
+            }
+
+            $unions[] = $sql_asing;
+        }
+
+        if (empty($unions)) {
+            return [];
+        }
+
+        $full_sql = "SELECT * FROM (" . implode(" UNION ALL ", $unions) . ") as global_search ORDER BY id_file DESC LIMIT ? OFFSET ?";
+        array_push($params, (int)$limit, (int)$offset);
+
+        $query = $this->db->query($full_sql, $params);
+
+        // $a = $this->db->last_query($query);
+        // print_r($a);
+        // exit();
+        return ($query && is_object($query)) ? $query->result() : [];
+    }
 }

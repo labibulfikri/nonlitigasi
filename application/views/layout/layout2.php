@@ -193,6 +193,12 @@
                             <span class="sidebar-text font-bold text-sm ml-1">Peta Digital</span>
                         </a>
                     </li>
+                    <li>
+                        <a target="_blank" href="<?= base_url('nonlit/pustaka') ?>" class="py-3 <?= $this->uri->segment(3) == 'nonlit/pustaka' ? 'active-menu' : '' ?>">
+                            <i class="mdi mdi-map-marker-outline text-xl"></i>
+                            <span class="sidebar-text font-bold text-sm ml-1">Pustaka</span>
+                        </a>
+                    </li>
 
                     <li>
                         <details <?= in_array($this->uri->segment(1), ['laporan', 'report_lp', 'report_masalah']) ? 'open' : '' ?> class="group">
