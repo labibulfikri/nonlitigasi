@@ -184,20 +184,28 @@
 </div>
 
 <!-- Modal PDF Preview -->
-<div class="modal fade" id="modalPreviewPDF" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="previewTitle">Preview Berkas</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body p-0" style="height: 80vh;">
-                <iframe id="pdfFrame" src="" style="width:100%; height:100%; border:none;"></iframe>
-            </div>
+<!-- Modal Preview PDF (DaisyUI Components) -->
+<dialog id="modalPreviewPDF" class="modal">
+    <div class="modal-box w-11/12 max-w-5xl h-[85vh] p-0 flex flex-col overflow-hidden bg-base-100">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center px-4 py-3 border-b border-base-200">
+            <h3 class="font-bold text-lg" id="previewTitle">Preview Berkas</h3>
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+            </form>
+        </div>
+
+        <!-- Modal Body / Frame PDF -->
+        <div class="flex-1 w-full h-full bg-base-200">
+            <iframe id="pdfFrame" src="" class="w-full h-full border-none"></iframe>
         </div>
     </div>
-</div>
 
+    <!-- Backdrop (Klik di luar modal untuk menutup) -->
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
 <script>
     let searchTimer;
 
@@ -302,10 +310,27 @@
         });
     }
 
+    // function previewPDF(filePath, fileName) {
+    //     let fullUrl = filePath.startsWith('http') ? filePath : '<?= base_url(); ?>' + filePath;
+    //     $('#previewTitle').text(fileName);
+    //     $('#pdfFrame').attr('src', fullUrl);
+    //     $('#modalPreviewPDF').modal('show');
+    // }
     function previewPDF(filePath, fileName) {
+        // Tentukan URL penuh
         let fullUrl = filePath.startsWith('http') ? filePath : '<?= base_url(); ?>' + filePath;
-        $('#previewTitle').text(fileName);
-        $('#pdfFrame').attr('src', fullUrl);
-        $('#modalPreviewPDF').modal('show');
+
+        // Set judul dan isi iframe PDF
+        document.getElementById('previewTitle').innerText = fileName;
+        document.getElementById('pdfFrame').src = fullUrl;
+
+        // Buka Modal DaisyUI menggunakan metode native .showModal()
+        let modal = document.getElementById('modalPreviewPDF');
+        if (modal && typeof modal.showModal === 'function') {
+            modal.showModal();
+        } else {
+            // Fallback jika browser sangat lama
+            window.open(fullUrl, '_blank');
+        }
     }
 </script>
