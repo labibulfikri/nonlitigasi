@@ -111,4 +111,46 @@ class Arsip_sso extends CI_Controller
                 ]));
         }
     }
+
+
+    /**
+     * ENDPOINT 3: Get Progres Scan (Fitur Baru)
+     * URL: GET https://domain-anda.com/arsip_sso/progres_scan?tanggal=YYYY-MM-DD
+     */
+    public function progres_scan()
+    {
+        $this->_check_basic_auth();
+
+        $tanggal = $this->input->get('tanggal', TRUE);
+
+        // Validasi format tanggal jika diisi (YYYY-MM-DD)
+        if ($tanggal && !preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $tanggal)) {
+            $this->output
+                ->set_status_header(400)
+                ->set_output(json_encode([
+                    'status'  => false,
+                    'message' => 'Format tanggal tidak valid. Gunakan format YYYY-MM-DD.'
+                ]));
+            return;
+        }
+
+        $data_progres = $this->m_arsip_sso->get_progres_scan($tanggal);
+
+        if ($data_progres) {
+            $this->output
+                ->set_status_header(200)
+                ->set_output(json_encode([
+                    'status'  => true,
+                    'message' => 'Data progres scan berhasil diambil',
+                    'data'    => $data_progres
+                ]));
+        } else {
+            $this->output
+                ->set_status_header(500)
+                ->set_output(json_encode([
+                    'status'  => false,
+                    'message' => 'Gagal mengambil data progres scan'
+                ]));
+        }
+    }
 }

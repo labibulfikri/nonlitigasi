@@ -406,4 +406,107 @@ class M_arsip_sso extends CI_Model
 
         return null;
     }
+
+
+
+    public function get_progres_scan($tanggal_pilihan = null)
+    {
+        $tgl_target = $tanggal_pilihan ? $tanggal_pilihan : date('Y-m-d');
+
+        // 1. Hitung Aktivitas Scan Hari Ini per Kategori (HANYA CREATE & UPDATE)
+        $q_nonlit_today = $this->db->select("COUNT(id) as total_aksi")
+            ->from('activity_logs')
+            ->where_in('module', ['nonlit_det', 'berkas_lampiran'])
+            ->where_in('action', ['CREATE', 'UPDATE'])
+            ->where('DATE(created_at)', $tgl_target)
+            ->get();
+        $total_nonlit_today = ($q_nonlit_today && is_object($q_nonlit_today)) ? $q_nonlit_today->row()->total_aksi : 0;
+
+        $q_asing_today = $this->db->select("COUNT(id) as total_aksi")
+            ->from('activity_logs')
+            ->where_in('module', ['t_upload', 't_perkara_detail'])
+            ->where_in('action', ['CREATE', 'UPDATE'])
+            ->where('DATE(created_at)', $tgl_target)
+            ->get();
+        $total_asing_today = ($q_asing_today && is_object($q_asing_today)) ? $q_asing_today->row()->total_aksi : 0;
+
+        // 2. Total Akumulasi Terscan di Database
+        $q_nonlit_total = $this->db->query("
+            SELECT COUNT(id) as total FROM (
+                SELECT id FROM nonlit_det WHERE berkas IS NOT NULL AND berkas != ''
+                UNION ALL
+                SELECT id FROM berkas_lampiran WHERE nama_berkas IS NOT NULL AND nama_berkas != ''
+            ) as total_files
+        ");
+        $total_nonlit_acc = ($q_nonlit_total && is_object($q_nonlit_total)) ? $q_nonlit_total->row()->total : 0;
+
+        $q_asing_total = $this->db->query("
+            SELECT COUNT(id_berkas) as total 
+            FROM db_perkara.t_upload 
+            WHERE name_berkas IS NOT NULL AND name_berkas != ''
+        ");
+        $total_asing_acc = ($q_asing_total && is_object($q_asing_total)) ? $q_asing_total->row()->total : 0;
+
+        // 3. Breakdown SELURUH USER untuk Non-Litigasi (Hanya menghitung CREATE & UPDATE)
+        $sql_user_nonlit = "
+            SELECT 
+                u.id as user_id,
+                u.username,
+                u.role,
+                COALESCE(act.scan_today, 0) as scan_today,
+                COALESCE(act.scan_total, 0) as scan_total
+            FROM users u
+            LEFT JOIN (
+                SELECT 
+                    user_id,
+                    SUM(CASE WHEN DATE(created_at) = ? THEN 1 ELSE 0 END) as scan_today,
+                    COUNT(id) as scan_total
+                FROM activity_logs 
+                WHERE module IN ('nonlit_det', 'berkas_lampiran') 
+                  AND action IN ('CREATE', 'UPDATE')
+                  AND user_id IS NOT NULL
+                GROUP BY user_id
+            ) act ON act.user_id = u.id
+            ORDER BY scan_today DESC, scan_total DESC, u.username ASC
+        ";
+        $q_user_nonlit = $this->db->query($sql_user_nonlit, array($tgl_target));
+        $user_nonlit = ($q_user_nonlit && is_object($q_user_nonlit)) ? $q_user_nonlit->result() : [];
+
+        // 4. Breakdown SELURUH USER untuk Litigasi ASING (Hanya menghitung CREATE & UPDATE)
+        $sql_user_asing = "
+            SELECT 
+                u.id as user_id,
+                u.username,
+                u.role,
+                COALESCE(act.scan_today, 0) as scan_today,
+                COALESCE(act.scan_total, 0) as scan_total
+            FROM users u
+            LEFT JOIN (
+                SELECT 
+                    user_id,
+                    SUM(CASE WHEN DATE(created_at) = ? THEN 1 ELSE 0 END) as scan_today,
+                    COUNT(id) as scan_total
+                FROM activity_logs 
+                WHERE module IN ('t_upload', 't_perkara_detail') 
+                  AND action IN ('CREATE', 'UPDATE')
+                  AND user_id IS NOT NULL
+                GROUP BY user_id
+            ) act ON act.user_id = u.id
+            ORDER BY scan_today DESC, scan_total DESC, u.username ASC
+        ";
+        $q_user_asing = $this->db->query($sql_user_asing, array($tgl_target));
+        $user_asing = ($q_user_asing && is_object($q_user_asing)) ? $q_user_asing->result() : [];
+
+        return (object) [
+            'tgl_laporan'     => $tgl_target,
+            'nonlit_today'    => (int)$total_nonlit_today,
+            'asing_today'     => (int)$total_asing_today,
+            'total_today'     => (int)($total_nonlit_today + $total_asing_today),
+            'nonlit_total'    => (int)$total_nonlit_acc,
+            'asing_total'     => (int)$total_asing_acc,
+            'grand_total'     => (int)($total_nonlit_acc + $total_asing_acc),
+            'user_nonlit'     => $user_nonlit,
+            'user_asing'      => $user_asing
+        ];
+    }
 }
